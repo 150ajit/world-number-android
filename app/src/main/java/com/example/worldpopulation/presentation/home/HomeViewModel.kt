@@ -35,7 +35,7 @@ data class HomeUiState(
     val liveGrowthToday: Long = 0L,
     val countries: List<CountryPopulation> = emptyList(),
     val historicalData: List<HistoricalPopulation> = emptyList(),
-    val categories: List<CategoryEntity> = emptyList(),
+    val categories: List<CategoryEntity> = com.example.worldpopulation.data.local.DefaultCategories.list,
     val todayDiscovery: DailyDiscoveryEntity? = null,
     val dataStories: List<DataStoryEntity> = emptyList(),
     val searchQuery: String = "",
@@ -95,7 +95,9 @@ class HomeViewModel @Inject constructor(
         // Observe all 20 categories
         viewModelScope.launch {
             repository.getAllCategories().collect { catList ->
-                _uiState.value = _uiState.value.copy(categories = catList)
+                if (catList.isNotEmpty()) {
+                    _uiState.value = _uiState.value.copy(categories = catList)
+                }
             }
         }
 

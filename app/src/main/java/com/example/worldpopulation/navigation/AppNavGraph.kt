@@ -216,7 +216,7 @@ private fun NavHostContent(navController: NavHostController) {
                 viewModel = vm,
                 onCountryClick = { iso -> navController.navigate(Screen.CountryDetails.createRoute(iso)) },
                 onCategoryClick = { categoryId -> navController.navigate(Screen.CategoryDetails.createRoute(categoryId)) },
-                onMapClick = { vm.selectTab(HomeViewTab.MAP) },
+                onMapClick = { navController.navigate(Screen.Explore.route) },
                 onCompareClick = { navController.navigate(Screen.Compare.route) },
                 onRankingsClick = { navController.navigate(Screen.Explore.route) },
                 onStoriesClick = { navController.navigate(Screen.Stories.route) },

@@ -1,0 +1,188 @@
+package com.example.worldpopulation.data.local
+
+import com.example.worldpopulation.data.local.entity.CategoryEntity
+
+object DefaultCategories {
+    val list: List<CategoryEntity> = listOf(
+        CategoryEntity(
+            id = "population",
+            name = "Population",
+            orderIndex = 1,
+            iconKey = "people",
+            headlineStatistic = "8.20 Billion Live",
+            summary = "Density, Growth Rate, Fertility Rate, Median Age",
+            sourceOrganization = "UN World Population Prospects (WPP 2024)"
+        ),
+        CategoryEntity(
+            id = "economy",
+            name = "Economy",
+            orderIndex = 2,
+            iconKey = "account_balance",
+            headlineStatistic = "$105.4 Trillion World GDP",
+            summary = "Nominal GDP, GDP PPP, GDP Per Capita, Inflation",
+            sourceOrganization = "World Bank, IMF WEO 2024"
+        ),
+        CategoryEntity(
+            id = "environment",
+            name = "Environment",
+            orderIndex = 3,
+            iconKey = "air",
+            headlineStatistic = "37.2 Billion Tonnes CO₂",
+            summary = "Annual Emissions, Forest Coverage %, CO₂ Per Capita",
+            sourceOrganization = "Global Carbon Project, FAO"
+        ),
+        CategoryEntity(
+            id = "health",
+            name = "Health",
+            orderIndex = 4,
+            iconKey = "monitor_heart",
+            headlineStatistic = "73.4 Years Global Life Exp.",
+            summary = "Life Expectancy, Hospital Beds/1k, Universal Health Cov.",
+            sourceOrganization = "World Health Organization (WHO GHO)"
+        ),
+        CategoryEntity(
+            id = "education",
+            name = "Education",
+            orderIndex = 5,
+            iconKey = "school",
+            headlineStatistic = "87.2% Global Literacy",
+            summary = "Adult Literacy Rate, Primary Completion, Education Spending",
+            sourceOrganization = "UNESCO Institute for Statistics"
+        ),
+        CategoryEntity(
+            id = "technology",
+            name = "Technology",
+            orderIndex = 6,
+            iconKey = "memory",
+            headlineStatistic = "5.44 Billion Internet Users",
+            summary = "Internet Penetration %, Mobile Subscriptions, 5G Coverage",
+            sourceOrganization = "ITU World Telecommunication/ICT"
+        ),
+        CategoryEntity(
+            id = "military",
+            name = "Military",
+            orderIndex = 7,
+            iconKey = "shield",
+            headlineStatistic = "$2.44 Trillion Defense Spend",
+            summary = "Defense Budget, Active Military Personnel, % of GDP",
+            sourceOrganization = "SIPRI Military Expenditure Database"
+        ),
+        CategoryEntity(
+            id = "global_indices",
+            name = "Global Indices",
+            orderIndex = 8,
+            iconKey = "trending_up",
+            headlineStatistic = "0.739 Global Average HDI",
+            summary = "Human Development Index, Press Freedom Index",
+            sourceOrganization = "UNDP HDR 2024, Reporters Without Borders"
+        ),
+        CategoryEntity(
+            id = "geography",
+            name = "Geography",
+            orderIndex = 9,
+            iconKey = "public",
+            headlineStatistic = "510.1M km² Surface Area",
+            summary = "Total Area, Coastline Length, Highest Elevation",
+            sourceOrganization = "UN Statistics Division, CIA World Factbook"
+        ),
+        CategoryEntity(
+            id = "tourism",
+            name = "Tourism",
+            orderIndex = 10,
+            iconKey = "flight_takeoff",
+            headlineStatistic = "1.28 Billion Tourist Arrivals",
+            summary = "Inbound Tourist Arrivals, International Tourism Receipts",
+            sourceOrganization = "UN Tourism (UNWTO) World Tourism Barometer"
+        ),
+        CategoryEntity(
+            id = "energy",
+            name = "Energy",
+            orderIndex = 11,
+            iconKey = "bolt",
+            headlineStatistic = "30.2% Clean Electricity",
+            summary = "Primary Energy Consumed, Renewable Share %, Installed Solar",
+            sourceOrganization = "Ember Global Electricity Review, IEA"
+        ),
+        CategoryEntity(
+            id = "agriculture",
+            name = "Agriculture",
+            orderIndex = 12,
+            iconKey = "grass",
+            headlineStatistic = "38% Land Area Used",
+            summary = "Arable Land Area, Cereal Production, Food Security Index",
+            sourceOrganization = "FAOSTAT (UN Food and Agriculture Organization)"
+        ),
+        CategoryEntity(
+            id = "politics",
+            name = "Politics",
+            orderIndex = 13,
+            iconKey = "gavel",
+            headlineStatistic = "54.2/100 Global Freedom Score",
+            summary = "Democracy Index, Freedom House Global Freedom Score",
+            sourceOrganization = "Economist Intelligence Unit (EIU), Freedom House"
+        ),
+        CategoryEntity(
+            id = "infrastructure",
+            name = "Infrastructure",
+            orderIndex = 14,
+            iconKey = "domain",
+            headlineStatistic = "64.3 Million km Road Network",
+            summary = "Road Network Length, Railway Network, Airport Passages",
+            sourceOrganization = "World Bank Logistics Performance Index"
+        ),
+        CategoryEntity(
+            id = "climate",
+            name = "Climate",
+            orderIndex = 15,
+            iconKey = "wb_sunny",
+            headlineStatistic = "+1.48°C Temperature Anomaly",
+            summary = "Mean Annual Temp, Precipitation, Extreme Weather Days",
+            sourceOrganization = "Copernicus Climate Change Service (ERA5), WMO"
+        ),
+        CategoryEntity(
+            id = "employment",
+            name = "Employment",
+            orderIndex = 16,
+            iconKey = "work",
+            headlineStatistic = "5.1% Global Unemployment",
+            summary = "Unemployment Rate, Labor Force Participation, Youth Unemp.",
+            sourceOrganization = "International Labour Organization (ILOSTAT)"
+        ),
+        CategoryEntity(
+            id = "science",
+            name = "Science",
+            orderIndex = 17,
+            iconKey = "science",
+            headlineStatistic = "2.55 Million Science Papers",
+            summary = "R&D Spending % of GDP, Published Scientific Papers",
+            sourceOrganization = "WIPO Global Innovation Index, Scimago / UNESCO"
+        ),
+        CategoryEntity(
+            id = "sports",
+            name = "Sports",
+            orderIndex = 18,
+            iconKey = "emoji_events",
+            headlineStatistic = "11,215 Olympic Athletes",
+            summary = "Olympic All-time Medals, FIFA World Ranking, Sports Spend",
+            sourceOrganization = "International Olympic Committee (IOC), FIFA"
+        ),
+        CategoryEntity(
+            id = "city_rankings",
+            name = "City Rankings",
+            orderIndex = 19,
+            iconKey = "gps_fixed",
+            headlineStatistic = "37.4M Tokyo (Largest Metro)",
+            summary = "Metro Population, Global City Liveability Index",
+            sourceOrganization = "UN Habitat World Cities Report, Mercer / EIU"
+        ),
+        CategoryEntity(
+            id = "un_sdg_goals",
+            name = "UN SDG Goals",
+            orderIndex = 20,
+            iconKey = "track_changes",
+            headlineStatistic = "67.2% Progress Toward 2030",
+            summary = "Overall SDG Index Score, SDG 1 No Poverty, SDG 13 Climate",
+            sourceOrganization = "UN Sustainable Development Report (SDSN)"
+        )
+    )
+}

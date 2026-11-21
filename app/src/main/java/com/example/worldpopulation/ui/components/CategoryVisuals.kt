@@ -79,7 +79,7 @@ object CategoryVisuals {
 
     fun getSubtitle(categoryId: String, headline: String = ""): String {
         return when (categoryId.lowercase()) {
-            "population" -> if (headline.isNotBlank()) "$headline people worldwide" else "8.11B people worldwide"
+            "population" -> "8.20B people worldwide"
             "economy" -> "Global wealth & growth"
             "environment" -> "Our planet's health"
             "health" -> "Health for all"
@@ -95,7 +95,7 @@ object CategoryVisuals {
             "infrastructure" -> "Building a connected world"
             "climate" -> "A changing climate"
             "employment" -> "Jobs & work"
-            "science" -> "Discovery & research"
+            "science" -> "Research & innovation"
             "sports" -> "Global sports"
             "city_rankings" -> "World's top cities"
             "un_sdg_goals" -> "A sustainable future"
