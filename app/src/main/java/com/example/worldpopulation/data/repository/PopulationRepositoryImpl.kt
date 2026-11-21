@@ -1,11 +1,17 @@
 package com.example.worldpopulation.data.repository
 
 import com.example.worldpopulation.data.local.database.AppDatabase
+import com.example.worldpopulation.data.local.entity.CategoryEntity
+import com.example.worldpopulation.data.local.entity.CategoryIndicatorEntity
+import com.example.worldpopulation.data.local.entity.CountryIndicatorValueEntity
+import com.example.worldpopulation.data.local.entity.DailyDiscoveryEntity
+import com.example.worldpopulation.data.local.entity.DataStoryEntity
 import com.example.worldpopulation.data.local.fallback.BundledPopulationData
 import com.example.worldpopulation.data.mapper.toDomain
 import com.example.worldpopulation.data.mapper.toEntity
 import com.example.worldpopulation.data.remote.un.UnPopulationProvider
 import com.example.worldpopulation.data.remote.worldbank.WorldBankPopulationProvider
+import com.example.worldpopulation.data.sync.DatasetSyncManager
 import com.example.worldpopulation.domain.model.AgeGenderPopulation
 import com.example.worldpopulation.domain.model.CountryPopulation
 import com.example.worldpopulation.domain.model.DataSourceMetadata
@@ -20,9 +26,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,6 +38,7 @@ class PopulationRepositoryImpl @Inject constructor(
     private val unProvider: UnPopulationProvider,
     private val worldBankProvider: WorldBankPopulationProvider,
     private val validator: DataValidator,
+    private val datasetSyncManager: DatasetSyncManager,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : PopulationRepository {
 
@@ -44,7 +51,13 @@ class PopulationRepositoryImpl @Inject constructor(
     private val indicatorDao = database.demographicIndicatorDao()
     private val metadataDao = database.dataSourceMetadataDao()
 
-    override suspend fun ensureDatabaseInitialized() = withContext(ioDispatcher) {
+    // 20 Categories & Data Discovery DAOs
+    private val categoryDao = database.categoryDao()
+    private val categoryIndicatorDao = database.indicatorDao()
+    private val discoveryDao = database.discoveryDao()
+    private val storyDao = database.storyDao()
+
+    override suspend fun ensureDatabaseInitialized(): Unit = withContext(ioDispatcher) {
         initMutex.withLock {
             val existingWorld = worldDao.getWorldPopulationDirect()
             val hasWorld = existingWorld != null
@@ -66,6 +79,9 @@ class PopulationRepositoryImpl @Inject constructor(
                 worldDao.insertWorldPopulation(BundledPopulationData.worldPopulation)
                 metadataDao.insertMetadata(BundledPopulationData.metadata)
             }
+
+            // Seed 20 categories, indicators, daily discoveries and data stories from assets
+            datasetSyncManager.seedFromAssetsIfEmpty()
         }
     }
 
@@ -143,6 +159,35 @@ class PopulationRepositoryImpl @Inject constructor(
         }.flowOn(ioDispatcher)
     }
 
+    // 20 Categories & Data Discovery implementations
+    override fun getAllCategories(): Flow<List<CategoryEntity>> {
+        return categoryDao.getAllCategories().flowOn(ioDispatcher)
+    }
+
+    override fun getCategory(id: String): Flow<CategoryEntity?> {
+        return categoryDao.getCategory(id).flowOn(ioDispatcher)
+    }
+
+    override fun getIndicatorsForCategory(categoryId: String): Flow<List<CategoryIndicatorEntity>> {
+        return categoryIndicatorDao.getIndicatorsForCategory(categoryId).flowOn(ioDispatcher)
+    }
+
+    override fun getIndicatorValues(indicatorId: String, sortDesc: Boolean): Flow<List<CountryIndicatorValueEntity>> {
+        return categoryIndicatorDao.getValuesForIndicator(indicatorId, sortDesc).flowOn(ioDispatcher)
+    }
+
+    override fun getValuesForCountry(isoCode: String): Flow<List<CountryIndicatorValueEntity>> {
+        return categoryIndicatorDao.getValuesForCountry(isoCode).flowOn(ioDispatcher)
+    }
+
+    override fun getDailyDiscovery(dayOfYear: Int): Flow<DailyDiscoveryEntity?> {
+        return discoveryDao.getDiscoveryForDay(dayOfYear).flowOn(ioDispatcher)
+    }
+
+    override fun getDataStories(): Flow<List<DataStoryEntity>> {
+        return storyDao.getAllStories().flowOn(ioDispatcher)
+    }
+
     override suspend fun syncData(): Result<Boolean> = withContext(ioDispatcher) {
         try {
             ensureDatabaseInitialized()
@@ -169,19 +214,15 @@ class PopulationRepositoryImpl @Inject constructor(
             }
 
             // Fallback to World Bank API sync
-            // World Bank provides historical indicators (up to 2023), not authoritative live projections.
-            // Check connectivity and verify data sources, but preserve UN WPP 2024 live world projection.
             val wbResult = worldBankProvider.fetchWorldPopulation()
             if (wbResult.isSuccess) {
                 val world = wbResult.getOrNull()
                 if (validator.validateWorldPopulation(world) && world != null) {
-                    // Only update world population if remote data is strictly newer than current UN WPP projection
                     if (world.populationYear > 2026 && world.population >= BundledPopulationData.worldPopulation.population && world.populationYear > (existing?.populationYear ?: 0)) {
                         worldDao.insertWorldPopulation(world.toEntity())
                         val metadata = worldBankProvider.getMetadata()
                         metadataDao.insertMetadata(metadata.toEntity())
                     } else {
-                        // Maintain authoritative UN WPP projection & metadata
                         val unMetadata = unProvider.getMetadata()
                         metadataDao.insertMetadata(unMetadata.toEntity())
                     }

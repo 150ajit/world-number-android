@@ -28,6 +28,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.worldpopulation.presentation.saved.SavedItemsScreen
+import com.example.worldpopulation.presentation.saved.SavedItemsViewModel
+import com.example.worldpopulation.presentation.stories.DataStoriesScreen
+import com.example.worldpopulation.presentation.stories.DataStoriesViewModel
+import com.example.worldpopulation.presentation.category.CategoryDetailScreen
+import com.example.worldpopulation.presentation.category.CategoryDetailViewModel
 import com.example.worldpopulation.presentation.compare.CompareCountriesScreen
 import com.example.worldpopulation.presentation.compare.CompareCountriesViewModel
 import com.example.worldpopulation.presentation.countries.CountriesScreen
@@ -37,6 +43,7 @@ import com.example.worldpopulation.presentation.countrydetails.CountryDetailsVie
 import com.example.worldpopulation.presentation.datasource.DataSourceInfoScreen
 import com.example.worldpopulation.presentation.home.HomeScreen
 import com.example.worldpopulation.presentation.home.HomeViewModel
+import com.example.worldpopulation.presentation.home.HomeViewTab
 import com.example.worldpopulation.presentation.methodology.MethodologyScreen
 import com.example.worldpopulation.presentation.pyramid.PopulationPyramidScreen
 import com.example.worldpopulation.presentation.pyramid.PyramidViewModel
@@ -153,7 +160,12 @@ private fun NavHostContent(navController: NavHostController) {
             val vm: HomeViewModel = hiltViewModel()
             HomeScreen(
                 viewModel = vm,
-                onCountryClick = { iso -> navController.navigate(Screen.CountryDetails.createRoute(iso)) }
+                onCountryClick = { iso -> navController.navigate(Screen.CountryDetails.createRoute(iso)) },
+                onCategoryClick = { categoryId -> navController.navigate(Screen.CategoryDetails.createRoute(categoryId)) },
+                onMapClick = { vm.selectTab(HomeViewTab.MAP) },
+                onCompareClick = { navController.navigate(Screen.Compare.route) },
+                onRankingsClick = { navController.navigate(Screen.Countries.route) },
+                onStoriesClick = { navController.navigate(Screen.Stories.route) }
             )
         }
 
@@ -188,7 +200,9 @@ private fun NavHostContent(navController: NavHostController) {
             SettingsScreen(
                 viewModel = vm,
                 onNavigateMethodology = { navController.navigate(Screen.Methodology.route) },
-                onNavigateDataSourceInfo = { navController.navigate(Screen.DataSourceInfo.route) }
+                onNavigateDataSourceInfo = { navController.navigate(Screen.DataSourceInfo.route) },
+                onNavigateSaved = { navController.navigate(Screen.Saved.route) },
+                onNavigateStories = { navController.navigate(Screen.Stories.route) }
             )
         }
 
@@ -200,6 +214,35 @@ private fun NavHostContent(navController: NavHostController) {
             CountryDetailsScreen(
                 viewModel = vm,
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Screen.CategoryDetails.route,
+            arguments = listOf(navArgument("categoryId") { type = NavType.StringType })
+        ) {
+            val vm: CategoryDetailViewModel = hiltViewModel()
+            CategoryDetailScreen(
+                viewModel = vm,
+                onBackClick = { navController.popBackStack() },
+                onCountryClick = { iso -> navController.navigate(Screen.CountryDetails.createRoute(iso)) }
+            )
+        }
+
+        composable(Screen.Stories.route) {
+            val vm: DataStoriesViewModel = hiltViewModel()
+            DataStoriesScreen(
+                viewModel = vm,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.Saved.route) {
+            val vm: SavedItemsViewModel = hiltViewModel()
+            SavedItemsScreen(
+                viewModel = vm,
+                onBackClick = { navController.popBackStack() },
+                onCountryClick = { iso -> navController.navigate(Screen.CountryDetails.createRoute(iso)) }
             )
         }
 

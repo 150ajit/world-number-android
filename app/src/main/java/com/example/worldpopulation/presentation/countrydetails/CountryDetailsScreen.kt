@@ -250,70 +250,69 @@ fun CountryDetailsScreen(
                 }
 
                 // Global Category Indicators Section
-                    if (state.categoryValues.isNotEmpty()) {
+                if (state.categoryValues.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "GLOBAL INDICATORS ACROSS CATEGORIES",
+                            style = MaterialTheme.typography.labelSmall,
+                            letterSpacing = 1.sp,
+                            color = Color(0xFF94A3B8)
+                        )
+                    }
+
+                    val groupedByCategory = state.categoryValues.groupBy { it.categoryId }
+                    groupedByCategory.forEach { (catId, values) ->
+                        val cat = state.categoryMap[catId]
                         item {
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = "GLOBAL INDICATORS ACROSS CATEGORIES",
-                                style = MaterialTheme.typography.labelSmall,
-                                letterSpacing = 1.sp,
-                                color = Color(0xFF94A3B8)
-                            )
-                        }
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF141923)),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF222B3A))
+                            ) {
+                                Column(modifier = Modifier.padding(14.dp)) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Start
+                                    ) {
+                                        Icon(
+                                            imageVector = com.example.worldpopulation.ui.components.CategoryVisuals.getIcon(catId),
+                                            contentDescription = null,
+                                            tint = Color(0xFF38BDF8),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = cat?.name ?: catId.replace('_', ' ').uppercase(),
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+                                    }
 
-                        val groupedByCategory = state.categoryValues.groupBy { it.categoryId }
-                        groupedByCategory.forEach { (catId, values) ->
-                            val cat = state.categoryMap[catId]
-                            item {
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(14.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFF141923)),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF222B3A))
-                                ) {
-                                    Column(modifier = Modifier.padding(14.dp)) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.Start
-                                        ) {
-                                            Icon(
-                                                imageVector = com.example.worldpopulation.ui.components.CategoryVisuals.getIcon(catId),
-                                                contentDescription = null,
-                                                tint = Color(0xFF38BDF8),
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = cat?.name ?: catId.replace('_', ' ').uppercase(),
-                                                style = MaterialTheme.typography.titleSmall,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color.White
-                                            )
+                                    Spacer(modifier = Modifier.height(10.dp))
+
+                                    values.forEachIndexed { idx, v ->
+                                        if (idx > 0) {
+                                            Spacer(modifier = Modifier.height(8.dp))
                                         }
-
-                                        Spacer(modifier = Modifier.height(10.dp))
-
-                                        values.forEachIndexed { idx, v ->
-                                            if (idx > 0) {
-                                                Spacer(modifier = Modifier.height(8.dp))
-                                            }
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Text(
-                                                    text = v.indicatorId.replace('_', ' '),
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = Color(0xFFCBD5E1)
-                                                )
-                                                Text(
-                                                    text = v.formattedValue ?: "${v.value}",
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    fontWeight = FontWeight.Bold,
-                                                    color = Color(0xFF10B981)
-                                                )
-                                            }
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = v.indicatorId.replace('_', ' '),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = Color(0xFFCBD5E1)
+                                            )
+                                            Text(
+                                                text = v.formattedValue ?: "${v.value}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFF10B981)
+                                            )
                                         }
                                     }
                                 }

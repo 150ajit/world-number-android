@@ -43,6 +43,9 @@ data class CountryDetailsUiState(
     val indicators: List<DemographicIndicator> = emptyList(),
     val historicalList: List<HistoricalPopulation> = emptyList(),
     val projectionList: List<HistoricalPopulation> = emptyList(),
+    val categoryValues: List<com.example.worldpopulation.data.local.entity.CountryIndicatorValueEntity> = emptyList(),
+    val categoryMap: Map<String, com.example.worldpopulation.data.local.entity.CategoryEntity> = emptyMap(),
+    val isBookmarked: Boolean = false,
     val numberFormat: NumberFormatType = NumberFormatType.INTERNATIONAL,
     val animateLiveNumbers: Boolean = true,
     val isLoading: Boolean = false
@@ -115,6 +118,27 @@ class CountryDetailsViewModel @Inject constructor(
             }
         }
 
+        // Observe category indicators for this country
+        viewModelScope.launch {
+            repository.getValuesForCountry(isoCode).collect { values ->
+                _uiState.value = _uiState.value.copy(categoryValues = values)
+            }
+        }
+
+        // Observe all categories
+        viewModelScope.launch {
+            repository.getAllCategories().collect { list ->
+                _uiState.value = _uiState.value.copy(categoryMap = list.associateBy { it.id })
+            }
+        }
+
+        // Observe saved bookmark status
+        viewModelScope.launch {
+            preferencesRepository.savedCountries.collect { set ->
+                _uiState.value = _uiState.value.copy(isBookmarked = set.contains(isoCode))
+            }
+        }
+
         // Live engine ticking for country live population
         viewModelScope.launch {
             liveEngine.currentTimestamp.collect { now ->
@@ -134,6 +158,12 @@ class CountryDetailsViewModel @Inject constructor(
     fun selectYear(year: Int) {
         _uiState.value = _uiState.value.copy(selectedYear = year)
         loadYearData(year)
+    }
+
+    fun toggleBookmark() {
+        viewModelScope.launch {
+            preferencesRepository.toggleSaveCountry(isoCode)
+        }
     }
 
     private fun loadYearData(year: Int) {

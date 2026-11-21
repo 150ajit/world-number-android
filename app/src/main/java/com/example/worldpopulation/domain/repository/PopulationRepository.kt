@@ -1,5 +1,10 @@
 package com.example.worldpopulation.domain.repository
 
+import com.example.worldpopulation.data.local.entity.CategoryEntity
+import com.example.worldpopulation.data.local.entity.CategoryIndicatorEntity
+import com.example.worldpopulation.data.local.entity.CountryIndicatorValueEntity
+import com.example.worldpopulation.data.local.entity.DailyDiscoveryEntity
+import com.example.worldpopulation.data.local.entity.DataStoryEntity
 import com.example.worldpopulation.domain.model.AgeGenderPopulation
 import com.example.worldpopulation.domain.model.CountryPopulation
 import com.example.worldpopulation.domain.model.DataSourceMetadata
@@ -18,6 +23,16 @@ interface PopulationRepository {
     fun getAvailableYears(isoCode: String): Flow<List<Int>>
     fun getDemographicIndicators(isoCode: String, year: Int): Flow<List<DemographicIndicator>>
     fun getDataSourceMetadata(): Flow<List<DataSourceMetadata>>
+
+    // 20 Categories & Global Information
+    fun getAllCategories(): Flow<List<CategoryEntity>>
+    fun getCategory(id: String): Flow<CategoryEntity?>
+    fun getIndicatorsForCategory(categoryId: String): Flow<List<CategoryIndicatorEntity>>
+    fun getIndicatorValues(indicatorId: String, sortDesc: Boolean = true): Flow<List<CountryIndicatorValueEntity>>
+    fun getValuesForCountry(isoCode: String): Flow<List<CountryIndicatorValueEntity>>
+    fun getDailyDiscovery(dayOfYear: Int): Flow<DailyDiscoveryEntity?>
+    fun getDataStories(): Flow<List<DataStoryEntity>>
+
     suspend fun syncData(): Result<Boolean>
     suspend fun ensureDatabaseInitialized()
 }

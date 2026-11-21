@@ -2,6 +2,9 @@ package com.example.worldpopulation.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.worldpopulation.data.local.entity.CategoryEntity
+import com.example.worldpopulation.data.local.entity.DailyDiscoveryEntity
+import com.example.worldpopulation.data.local.entity.DataStoryEntity
 import com.example.worldpopulation.data.local.preferences.UserPreferencesRepository
 import com.example.worldpopulation.domain.estimator.LivePopulationEngine
 import com.example.worldpopulation.domain.model.CountryPopulation
@@ -11,12 +14,11 @@ import com.example.worldpopulation.domain.repository.PopulationRepository
 import com.example.worldpopulation.util.NumberFormatType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 enum class HomeViewTab {
@@ -33,13 +35,28 @@ data class HomeUiState(
     val liveGrowthToday: Long = 0L,
     val countries: List<CountryPopulation> = emptyList(),
     val historicalData: List<HistoricalPopulation> = emptyList(),
+    val categories: List<CategoryEntity> = emptyList(),
+    val todayDiscovery: DailyDiscoveryEntity? = null,
+    val dataStories: List<DataStoryEntity> = emptyList(),
+    val searchQuery: String = "",
     val selectedTab: HomeViewTab = HomeViewTab.TABLE,
     val selectedYear: Int = 2026,
     val lastSyncTimestamp: Long = 0L,
     val numberFormat: NumberFormatType = NumberFormatType.INTERNATIONAL,
     val animateLiveNumbers: Boolean = true,
     val isLoading: Boolean = false
-)
+) {
+    val displayedCategories: List<CategoryEntity>
+        get() = if (searchQuery.isBlank()) {
+            categories
+        } else {
+            categories.filter {
+                it.name.contains(searchQuery, ignoreCase = true) ||
+                it.summary.contains(searchQuery, ignoreCase = true) ||
+                it.headlineStatistic.contains(searchQuery, ignoreCase = true)
+            }
+        }
+}
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -72,6 +89,30 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getCountryPopulations().collect { list ->
                 _uiState.value = _uiState.value.copy(countries = list)
+            }
+        }
+
+        // Observe all 20 categories
+        viewModelScope.launch {
+            repository.getAllCategories().collect { catList ->
+                _uiState.value = _uiState.value.copy(categories = catList)
+            }
+        }
+
+        // Observe today's discovery fact
+        val dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+        viewModelScope.launch {
+            // Map 1-365 into available facts deterministic range
+            val lookupDay = ((dayOfYear - 1) % 15) + 1
+            repository.getDailyDiscovery(lookupDay).collect { fact ->
+                _uiState.value = _uiState.value.copy(todayDiscovery = fact)
+            }
+        }
+
+        // Observe data stories
+        viewModelScope.launch {
+            repository.getDataStories().collect { stories ->
+                _uiState.value = _uiState.value.copy(dataStories = stories)
             }
         }
 
@@ -118,6 +159,10 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun onSearchQueryChange(query: String) {
+        _uiState.value = _uiState.value.copy(searchQuery = query)
     }
 
     fun selectTab(tab: HomeViewTab) {

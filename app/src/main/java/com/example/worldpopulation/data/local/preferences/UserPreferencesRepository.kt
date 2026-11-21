@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.worldpopulation.util.NumberFormatType
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -32,6 +33,7 @@ class UserPreferencesRepository @Inject constructor(
         val NUMBER_FORMAT = stringPreferencesKey("number_format")
         val LIVE_ANIMATION = booleanPreferencesKey("live_animation_enabled")
         val LAST_SYNC = longPreferencesKey("last_sync_timestamp")
+        val SAVED_COUNTRIES = stringSetPreferencesKey("saved_countries")
     }
 
     val themeMode: Flow<AppThemeMode> = context.dataStore.data.map { preferences ->
@@ -55,6 +57,21 @@ class UserPreferencesRepository @Inject constructor(
 
     val lastSyncTimestamp: Flow<Long> = context.dataStore.data.map { preferences ->
         preferences[Keys.LAST_SYNC] ?: System.currentTimeMillis()
+    }
+
+    val savedCountries: Flow<Set<String>> = context.dataStore.data.map { preferences ->
+        preferences[Keys.SAVED_COUNTRIES] ?: emptySet()
+    }
+
+    suspend fun toggleSaveCountry(isoCode: String) {
+        context.dataStore.edit { preferences ->
+            val current = preferences[Keys.SAVED_COUNTRIES] ?: emptySet()
+            if (current.contains(isoCode)) {
+                preferences[Keys.SAVED_COUNTRIES] = current - isoCode
+            } else {
+                preferences[Keys.SAVED_COUNTRIES] = current + isoCode
+            }
+        }
     }
 
     suspend fun setThemeMode(mode: AppThemeMode) {

@@ -280,6 +280,56 @@ fun CompareCountriesScreen(
                     ) { item ->
                         NumberFormatter.formatCompact(item.country.landArea?.toLong() ?: 0L)
                     }
+
+                    // Row: Nominal GDP
+                    CompareMetricRow(
+                        title = "Nominal GDP",
+                        subtitle = "Billion USD",
+                        items = state.comparedItems,
+                        weight = 1.2f
+                    ) { item ->
+                        item.categoryValues["gdp_nominal"]?.let { "$${it.value.toInt()}B" } ?: "—"
+                    }
+
+                    // Row: GDP Per Capita
+                    CompareMetricRow(
+                        title = "GDP Per Capita",
+                        subtitle = "USD",
+                        items = state.comparedItems,
+                        weight = 1.2f
+                    ) { item ->
+                        item.categoryValues["gdp_per_capita"]?.let { "$${it.value.toInt()}" } ?: "—"
+                    }
+
+                    // Row: Clean Power
+                    CompareMetricRow(
+                        title = "Clean Power",
+                        subtitle = "% electricity",
+                        items = state.comparedItems,
+                        weight = 1.2f
+                    ) { item ->
+                        item.categoryValues["clean_power_share"]?.let { "${it.value}%" } ?: "—"
+                    }
+
+                    // Row: Internet Penetration
+                    CompareMetricRow(
+                        title = "Internet Users",
+                        subtitle = "% of population",
+                        items = state.comparedItems,
+                        weight = 1.2f
+                    ) { item ->
+                        item.categoryValues["internet_users_pct"]?.let { "${it.value}%" } ?: "—"
+                    }
+
+                    // Row: Defense Budget
+                    CompareMetricRow(
+                        title = "Defense Budget",
+                        subtitle = "Billion USD",
+                        items = state.comparedItems,
+                        weight = 1.2f
+                    ) { item ->
+                        item.categoryValues["defense_budget_usd"]?.let { "$${it.value}B" } ?: "—"
+                    }
                 }
             }
         }

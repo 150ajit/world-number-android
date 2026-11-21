@@ -2,6 +2,7 @@ package com.example.worldpopulation.presentation.compare
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.worldpopulation.data.local.entity.CountryIndicatorValueEntity
 import com.example.worldpopulation.data.local.preferences.UserPreferencesRepository
 import com.example.worldpopulation.domain.model.CountryPopulation
 import com.example.worldpopulation.domain.model.DemographicIndicator
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 data class CountryComparisonItem(
     val country: CountryPopulation,
-    val indicators: Map<String, DemographicIndicator> = emptyMap()
+    val indicators: Map<String, DemographicIndicator> = emptyMap(),
+    val categoryValues: Map<String, CountryIndicatorValueEntity> = emptyMap()
 )
 
 data class CompareUiState(
@@ -79,13 +81,20 @@ class CompareCountriesViewModel @Inject constructor(
                 val country = all.find { it.isoCode == iso }
                 if (country != null) {
                     val indicatorsMap = mutableMapOf<String, DemographicIndicator>()
+                    val categoryMap = mutableMapOf<String, CountryIndicatorValueEntity>()
                     try {
                         val indList = repository.getDemographicIndicators(iso, 2026).first()
                         indList.forEach { ind ->
                             indicatorsMap[ind.indicatorKey] = ind
                         }
                     } catch (_: Exception) {}
-                    items.add(CountryComparisonItem(country, indicatorsMap))
+                    try {
+                        val catList = repository.getValuesForCountry(iso).first()
+                        catList.forEach { v ->
+                            categoryMap[v.indicatorId] = v
+                        }
+                    } catch (_: Exception) {}
+                    items.add(CountryComparisonItem(country, indicatorsMap, categoryMap))
                 }
             }
             _uiState.value = _uiState.value.copy(comparedItems = items)
