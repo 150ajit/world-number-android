@@ -196,7 +196,7 @@ class DatasetSyncManager @Inject constructor(
             val remoteManifest = JsonParser.parseString(manifestBody).asJsonObject
             val datasetsArray = remoteManifest.getAsJsonArray("datasets") ?: return@withContext false
 
-            val localManifestMap = syncManifestDao.getAllManifests().associateBy { it.datasetId }
+            val localManifestMap = syncManifestDao.getAllSynced().associateBy { it.datasetId }
 
             for (elem in datasetsArray) {
                 val dsObj = elem.asJsonObject
@@ -227,9 +227,10 @@ class DatasetSyncManager @Inject constructor(
                                 val value = isoData.get(indKey).asDouble
                                 updatedValues.add(
                                     CountryIndicatorValueEntity(
-                                        countryIso = iso,
-                                        categoryId = dsId,
+                                        isoCode = iso,
                                         indicatorId = indKey,
+                                        categoryId = dsId,
+                                        year = 2024,
                                         value = value,
                                         formattedValue = formatVal(value)
                                     )
