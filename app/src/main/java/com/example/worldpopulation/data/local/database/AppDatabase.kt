@@ -44,7 +44,7 @@ import com.example.worldpopulation.data.local.entity.WorldPopulationEntity
         DataStoryEntity::class,
         SyncManifestEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

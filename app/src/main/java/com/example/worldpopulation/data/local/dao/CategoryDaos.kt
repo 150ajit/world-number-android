@@ -53,6 +53,9 @@ interface IndicatorDao {
     @Query("SELECT * FROM country_indicator_values WHERE isoCode = :isoCode")
     suspend fun getValuesForCountryDirect(isoCode: String): List<CountryIndicatorValueEntity>
 
+    @Query("SELECT COUNT(*) FROM country_indicator_values")
+    suspend fun getValuesCount(): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertIndicators(indicators: List<CategoryIndicatorEntity>)
 

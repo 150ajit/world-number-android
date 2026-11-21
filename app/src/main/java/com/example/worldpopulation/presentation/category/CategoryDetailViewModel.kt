@@ -32,10 +32,21 @@ class CategoryDetailViewModel @Inject constructor(
 
     private val categoryId: String = checkNotNull(savedStateHandle["categoryId"])
 
-    private val _uiState = MutableStateFlow(CategoryDetailUiState(isLoading = true))
+    private val _uiState = MutableStateFlow(
+        CategoryDetailUiState(
+            category = com.example.worldpopulation.data.local.DefaultCategories.list.find {
+                it.id.equals(categoryId, ignoreCase = true)
+            },
+            isLoading = true
+        )
+    )
     val uiState: StateFlow<CategoryDetailUiState> = _uiState.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            repository.ensureDatabaseInitialized()
+        }
+
         // Load Country Metadata Map (flags, names)
         viewModelScope.launch {
             repository.getCountryPopulations().collect { list ->
@@ -48,7 +59,9 @@ class CategoryDetailViewModel @Inject constructor(
         // Load Category Info
         viewModelScope.launch {
             repository.getCategory(categoryId).collect { cat ->
-                _uiState.value = _uiState.value.copy(category = cat)
+                if (cat != null) {
+                    _uiState.value = _uiState.value.copy(category = cat)
+                }
             }
         }
 

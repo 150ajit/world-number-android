@@ -208,6 +208,21 @@ fun CategoryDetailScreen(
                         }
                     }
                 }
+            } else {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Loading official category indicators...",
+                            color = Color(0xFF94A3B8),
+                            fontSize = 13.sp
+                        )
+                    }
+                }
             }
 
             // 3. Selected Indicator Details Header
@@ -242,22 +257,39 @@ fun CategoryDetailScreen(
                     }
                 }
 
-                // 4. Country Indicator Rankings Table / Bars
-                val maxValue = state.indicatorValues.maxOfOrNull { it.value } ?: 1.0
+                if (state.indicatorValues.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Loading verified indicator statistics...",
+                                color = Color(0xFF94A3B8),
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                } else {
+                    // 4. Country Indicator Rankings Table / Bars
+                    val maxValue = state.indicatorValues.maxOfOrNull { it.value } ?: 1.0
 
-                itemsIndexed(
-                    items = state.indicatorValues,
-                    key = { _, item -> item.isoCode }
-                ) { index, item ->
-                    val country = state.countriesMap[item.isoCode]
-                    CountryIndicatorRow(
-                        rank = index + 1,
-                        item = item,
-                        country = country,
-                        maxValue = maxValue,
-                        unit = selectedInd.unit,
-                        onClick = { onCountryClick(item.isoCode) }
-                    )
+                    itemsIndexed(
+                        items = state.indicatorValues,
+                        key = { _, item -> item.isoCode }
+                    ) { index, item ->
+                        val country = state.countriesMap[item.isoCode]
+                        CountryIndicatorRow(
+                            rank = index + 1,
+                            item = item,
+                            country = country,
+                            maxValue = maxValue,
+                            unit = selectedInd.unit,
+                            onClick = { onCountryClick(item.isoCode) }
+                        )
+                    }
                 }
             }
 
