@@ -1,5 +1,6 @@
 package com.example.worldpopulation.presentation.saved
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,8 +45,8 @@ import com.example.worldpopulation.util.NumberFormatter
 @Composable
 fun SavedItemsScreen(
     viewModel: SavedItemsViewModel,
-    onBackClick: () -> Unit,
     onCountryClick: (String) -> Unit,
+    onBackClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -63,48 +63,65 @@ fun SavedItemsScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
+                    if (onBackClick != null) {
+                        IconButton(onClick = onBackClick) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = Color.White
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = Color(0xFF080C16)
                 )
             )
         },
+        containerColor = Color(0xFF080C16),
         modifier = modifier
     ) { paddingValues ->
-        if (state.savedCountries.isEmpty()) {
+        if (state.isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Loading saved items...",
+                    color = Color(0xFF94A3B8),
+                    fontSize = 14.sp
+                )
+            }
+        } else if (state.savedCountries.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(24.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         imageVector = Icons.Default.BookmarkBorder,
                         contentDescription = null,
-                        tint = Color(0xFF64748B),
-                        modifier = Modifier.size(56.dp)
+                        tint = Color(0xFF38BDF8),
+                        modifier = Modifier.size(54.dp)
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
                     Text(
-                        text = "No saved countries yet",
+                        text = "No Saved Items Yet",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFFCBD5E1)
+                        color = Color.White
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Save countries and statistics to quickly access them offline.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF64748B)
+                        text = "Bookmark countries to quickly access their population data and indicators offline.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF94A3B8),
+                        fontSize = 13.sp
                     )
                 }
             }
@@ -112,12 +129,12 @@ fun SavedItemsScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues)
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 item {
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = "SAVED COUNTRIES (${state.savedCountries.size})",
                         style = MaterialTheme.typography.labelSmall,
@@ -131,9 +148,9 @@ fun SavedItemsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onCountryClick(country.isoCode) },
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF101728)),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFF141923)),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF222B3A))
+                        border = BorderStroke(1.dp, Color(0xFF1E2B45))
                     ) {
                         Row(
                             modifier = Modifier
@@ -143,7 +160,7 @@ fun SavedItemsScreen(
                         ) {
                             Text(
                                 text = country.flagEmoji,
-                                fontSize = 22.sp,
+                                fontSize = 24.sp,
                                 modifier = Modifier.padding(end = 12.dp)
                             )
 
@@ -164,7 +181,7 @@ fun SavedItemsScreen(
 
                             IconButton(
                                 onClick = { viewModel.removeSavedCountry(country.isoCode) },
-                                modifier = Modifier.size(28.dp)
+                                modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Bookmark,

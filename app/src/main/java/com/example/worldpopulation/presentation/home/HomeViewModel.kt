@@ -103,7 +103,7 @@ class HomeViewModel @Inject constructor(
         val dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
         viewModelScope.launch {
             // Map 1-365 into available facts deterministic range
-            val lookupDay = ((dayOfYear - 1) % 15) + 1
+            val lookupDay = ((dayOfYear - 1) % 16) + 1
             repository.getDailyDiscovery(lookupDay).collect { fact ->
                 _uiState.value = _uiState.value.copy(todayDiscovery = fact)
             }

@@ -1,6 +1,7 @@
 package com.example.worldpopulation.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -76,33 +79,45 @@ fun CategoryCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val iconColor = CategoryVisuals.getColor(category.id)
+    val subtitle = CategoryVisuals.getSubtitle(category.id, category.headlineStatistic)
+
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .height(58.dp)
+            .height(66.dp)
             .clip(RoundedCornerShape(14.dp))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF1C212B) // Clean dark card surface matching the screenshot
+            containerColor = Color(0xFF101728) // Deep dark navy card surface matching screenshot
         ),
-        border = BorderStroke(1.dp, Color(0xFF2B3342))
+        border = BorderStroke(1.dp, Color(0xFF1E2B45))
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+                .padding(horizontal = 10.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            Icon(
-                imageVector = CategoryVisuals.getIcon(category.id),
-                contentDescription = category.name,
-                tint = Color(0xFFE2E8F0),
-                modifier = Modifier.size(24.dp)
-            )
+            // Icon in softly tinted background box
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(iconColor.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = CategoryVisuals.getIcon(category.id),
+                    contentDescription = category.name,
+                    tint = iconColor,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
 
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(9.dp))
 
             Column(
                 modifier = Modifier.weight(1f),
@@ -111,22 +126,28 @@ fun CategoryCard(
                 Text(
                     text = category.name,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Bold,
                     color = Color.White,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    fontSize = 13.5.sp
+                    fontSize = 13.sp
                 )
-                if (category.headlineStatistic.isNotBlank()) {
-                    Text(
-                        text = category.headlineStatistic,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF38BDF8),
-                        fontSize = 10.5.sp,
-                        maxLines = 1
-                    )
-                }
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color(0xFF94A3B8),
+                    fontSize = 10.5.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = Color(0xFF475569),
+                modifier = Modifier.size(16.dp)
+            )
         }
     }
 }

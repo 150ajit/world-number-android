@@ -22,6 +22,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -49,10 +52,10 @@ import com.example.worldpopulation.data.local.entity.DailyDiscoveryEntity
 import com.example.worldpopulation.domain.model.CountryPopulation
 import com.example.worldpopulation.ui.components.CategoryGrid
 import com.example.worldpopulation.ui.components.GlobalSearchBar
-import com.example.worldpopulation.ui.components.LiveCounterDisplay
 import com.example.worldpopulation.ui.components.PopulationHistoryChart
 import com.example.worldpopulation.ui.components.QuickActionRow
 import com.example.worldpopulation.ui.components.TodayDiscoveryCard
+import com.example.worldpopulation.ui.components.WorldPopulationHeroCard
 import com.example.worldpopulation.ui.components.WorldPopulationMap
 import com.example.worldpopulation.ui.theme.CyanAccent
 import com.example.worldpopulation.ui.theme.EmeraldGreen
@@ -69,6 +72,7 @@ fun HomeScreen(
     onCompareClick: () -> Unit = {},
     onRankingsClick: () -> Unit = {},
     onStoriesClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -87,210 +91,175 @@ fun HomeScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Color(0xFF080C16))
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        // 1. App Header & Tagline
+        // 1. Top Bar: App Logo, World Number title, subtitle, Search & Settings icons
         item {
             Spacer(modifier = Modifier.height(4.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.app_logo),
-                    contentDescription = "worldnumber logo",
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(9.dp))
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Column {
-                    Text(
-                        text = "worldnumber",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.5.sp,
-                        color = Color.White
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(id = R.drawable.app_logo),
+                        contentDescription = "World Number logo",
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(CircleShape)
                     )
-                    Text(
-                        text = "Discover the World Through Numbers",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 11.sp
-                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "World ",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                fontSize = 21.sp,
+                                letterSpacing = (-0.3).sp
+                            )
+                            Text(
+                                text = "Number",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF38BDF8),
+                                fontSize = 21.sp,
+                                letterSpacing = (-0.3).sp
+                            )
+                        }
+                        Text(
+                            text = "Discover the World Through Numbers",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFF94A3B8),
+                            fontSize = 11.5.sp
+                        )
+                    }
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = { viewModel.onSearchQueryChange(state.searchQuery) },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search",
+                            tint = Color(0xFF38BDF8),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(
+                        onClick = onSettingsClick,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = Color(0xFF38BDF8),
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
                 }
             }
         }
 
-        // 2. Global Search Bar
+        // 2. Global Search Bar (Pill design matching screenshot)
         item {
             GlobalSearchBar(
                 query = state.searchQuery,
-                onQueryChange = { viewModel.onSearchQueryChange(it) }
+                onQueryChange = { viewModel.onSearchQueryChange(it) },
+                placeholderText = "Search countries, categories, or facts..."
             )
         }
 
-        // 3. Quick Action Chips (Map, Compare, Rankings, Stories)
-        item {
-            QuickActionRow(
-                onMapClick = onMapClick,
-                onCompareClick = onCompareClick,
-                onRankingsClick = onRankingsClick,
-                onStoriesClick = onStoriesClick
-            )
+        // 3. Featured World Population Hero Card
+        if (state.searchQuery.isBlank()) {
+            item {
+                WorldPopulationHeroCard(
+                    liveCount = state.liveWorldCount,
+                    birthsToday = state.liveBirthsToday,
+                    deathsToday = state.liveDeathsToday,
+                    growthToday = state.liveGrowthToday,
+                    formatType = state.numberFormat,
+                    onViewDetailsClick = onRankingsClick
+                )
+            }
         }
 
         // 4. Today's Global Discovery Card
-        if (state.todayDiscovery != null && state.searchQuery.isBlank()) {
+        if (state.searchQuery.isBlank()) {
             item {
                 TodayDiscoveryCard(
                     discovery = state.todayDiscovery,
                     onShareClick = shareFact,
-                    onExploreCategory = onCategoryClick
+                    onSeeMoreClick = onStoriesClick
                 )
             }
         }
 
-        // 5. Featured World Population Hero Card
+        // 5. Two Quick-Action Cards Side-by-Side: Explore the World & Compare Countries
         if (state.searchQuery.isBlank()) {
             item {
-                Column {
-                    LiveCounterDisplay(
-                        title = "World Population",
-                        population = state.liveWorldCount,
-                        subtitle = "Estimated live population • UN WPP 2024",
-                        formatType = state.numberFormat,
-                        animateTransitions = state.animateLiveNumbers
-                    )
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    // Live Status Calibration Indicator
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(7.dp)
-                                .clip(CircleShape)
-                                .background(EmeraldGreen)
-                        )
-                        Spacer(modifier = Modifier.width(7.dp))
-                        Text(
-                            text = "UN WPP 2024 Projections • Calibrated Real-time Clock",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 11.sp
-                        )
-                    }
-                }
-            }
-
-            // Daily Estimates Card (Births, Deaths, Growth today)
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    Column(modifier = Modifier.padding(14.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "ESTIMATED TODAY",
-                                style = MaterialTheme.typography.labelSmall,
-                                letterSpacing = 1.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
-                            ) {
-                                Text(
-                                    text = "Derived estimate",
-                                    fontSize = 9.sp,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            // Births Today
-                            Column {
-                                Text("Births today", fontSize = 11.sp, color = EmeraldGreen)
-                                Text(
-                                    text = "+${NumberFormatter.format(state.liveBirthsToday, state.numberFormat)}",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = EmeraldGreen
-                                )
-                            }
-
-                            // Deaths Today
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("Deaths today", fontSize = 11.sp, color = RoseRed)
-                                Text(
-                                    text = "-${NumberFormatter.format(state.liveDeathsToday, state.numberFormat)}",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = RoseRed
-                                )
-                            }
-
-                            // Net Growth Today
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text("Net growth", fontSize = 11.sp, color = CyanAccent)
-                                Text(
-                                    text = "+${NumberFormatter.format(state.liveGrowthToday, state.numberFormat)}",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = CyanAccent
-                                )
-                            }
-                        }
-                    }
-                }
+                QuickActionRow(
+                    onMapClick = onMapClick,
+                    onCompareClick = onCompareClick
+                )
             }
         }
 
-        // 6. 20 GLOBAL CATEGORIES SECTION (Matching Reference Screenshot)
+        // 6. Explore 20 Global Categories Section Header
         item {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = if (state.searchQuery.isBlank()) "GLOBAL CATEGORIES" else "MATCHING CATEGORIES",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp,
-                        color = Color(0xFFE2E8F0)
-                    )
-                    Text(
-                        text = "${state.displayedCategories.size} of 20",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF64748B),
-                        fontSize = 11.sp
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.GridView,
+                            contentDescription = null,
+                            tint = Color(0xFF38BDF8),
+                            modifier = Modifier.size(19.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (state.searchQuery.isBlank()) "Explore 20 Global Categories" else "Matching Categories",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            fontSize = 15.sp
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.clickable { onCategoryClick("population") },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "View All",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFF38BDF8),
+                            fontSize = 12.sp
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = "View All",
+                            tint = Color(0xFF38BDF8),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -308,12 +277,12 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(6.dp))
                 TabRow(
                     selectedTabIndex = state.selectedTab.ordinal,
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = Color(0xFF101728),
+                    contentColor = Color(0xFF38BDF8),
                     indicator = { tabPositions ->
                         TabRowDefaults.SecondaryIndicator(
                             Modifier.tabIndicatorOffset(tabPositions[state.selectedTab.ordinal]),
-                            color = MaterialTheme.colorScheme.primary
+                            color = Color(0xFF38BDF8)
                         )
                     },
                     modifier = Modifier.clip(RoundedCornerShape(10.dp))
@@ -321,17 +290,17 @@ fun HomeScreen(
                     Tab(
                         selected = state.selectedTab == HomeViewTab.TABLE,
                         onClick = { viewModel.selectTab(HomeViewTab.TABLE) },
-                        text = { Text("TABLE", fontWeight = FontWeight.Bold) }
+                        text = { Text("TABLE", fontWeight = FontWeight.Bold, fontSize = 12.sp) }
                     )
                     Tab(
                         selected = state.selectedTab == HomeViewTab.MAP,
                         onClick = { viewModel.selectTab(HomeViewTab.MAP) },
-                        text = { Text("MAP", fontWeight = FontWeight.Bold) }
+                        text = { Text("MAP", fontWeight = FontWeight.Bold, fontSize = 12.sp) }
                     )
                     Tab(
                         selected = state.selectedTab == HomeViewTab.CHART,
                         onClick = { viewModel.selectTab(HomeViewTab.CHART) },
-                        text = { Text("CHART", fontWeight = FontWeight.Bold) }
+                        text = { Text("CHART", fontWeight = FontWeight.Bold, fontSize = 12.sp) }
                     )
                 }
             }
@@ -353,6 +322,7 @@ fun HomeScreen(
                         },
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
+                        color = Color(0xFFE2E8F0),
                         letterSpacing = 1.sp
                     )
 
@@ -360,26 +330,27 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .background(Color(0xFF101728))
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     ) {
                         IconButton(
                             onClick = { viewModel.selectYear(state.selectedYear - 1) },
                             modifier = Modifier.size(28.dp)
                         ) {
-                            Icon(Icons.Default.ChevronLeft, contentDescription = "Previous Year", modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.ChevronLeft, contentDescription = "Previous Year", tint = Color.White, modifier = Modifier.size(18.dp))
                         }
                         Text(
                             text = "${state.selectedYear}",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
+                            color = Color(0xFF38BDF8),
                             modifier = Modifier.padding(horizontal = 6.dp)
                         )
                         IconButton(
                             onClick = { viewModel.selectYear(state.selectedYear + 1) },
                             modifier = Modifier.size(28.dp)
                         ) {
-                            Icon(Icons.Default.ChevronRight, contentDescription = "Next Year", modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.ChevronRight, contentDescription = "Next Year", tint = Color.White, modifier = Modifier.size(18.dp))
                         }
                     }
                 }
@@ -404,7 +375,7 @@ fun HomeScreen(
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF101728)),
                             shape = RoundedCornerShape(14.dp)
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
@@ -412,7 +383,7 @@ fun HomeScreen(
                                     text = "GLOBAL POPULATION DENSITY & TIERS",
                                     style = MaterialTheme.typography.labelSmall,
                                     letterSpacing = 1.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = Color(0xFF94A3B8)
                                 )
                                 Spacer(modifier = Modifier.height(10.dp))
                                 WorldPopulationMap(
@@ -428,7 +399,7 @@ fun HomeScreen(
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFF101728)),
                             shape = RoundedCornerShape(14.dp)
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
@@ -436,7 +407,7 @@ fun HomeScreen(
                                     text = "WORLD POPULATION TRAJECTORY (1950 – 2100)",
                                     style = MaterialTheme.typography.labelSmall,
                                     letterSpacing = 1.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = Color(0xFF94A3B8)
                                 )
                                 Spacer(modifier = Modifier.height(10.dp))
                                 PopulationHistoryChart(
@@ -467,7 +438,7 @@ fun CountryListItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF101728)),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
@@ -481,7 +452,7 @@ fun CountryListItem(
                 text = "$rank",
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color(0xFF64748B),
                 modifier = Modifier.width(28.dp)
             )
 
@@ -497,12 +468,13 @@ fun CountryListItem(
                 Text(
                     text = country.countryName,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
                 )
                 Text(
                     text = "${country.region ?: ""} • ${country.subregion ?: ""}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color(0xFF94A3B8),
                     fontSize = 11.sp
                 )
             }
@@ -512,7 +484,8 @@ fun CountryListItem(
                 Text(
                     text = NumberFormatter.format(country.population, formatType),
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
                 country.growthRate?.let { rate ->
                     val isPositive = rate >= 0
@@ -530,7 +503,7 @@ fun CountryListItem(
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = "Country details",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = Color(0xFF64748B),
                 modifier = Modifier.size(18.dp)
             )
         }
