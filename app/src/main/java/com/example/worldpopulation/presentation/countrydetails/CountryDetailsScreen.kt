@@ -319,6 +319,7 @@ fun CountryDetailsScreen(
                             }
                         }
                     }
+                }
             }
 
             CountryDetailTab.DEMOGRAPHICS -> {
