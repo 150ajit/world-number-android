@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Security
@@ -33,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -47,6 +50,8 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     onNavigateMethodology: () -> Unit,
     onNavigateDataSourceInfo: () -> Unit,
+    onNavigateSaved: () -> Unit = {},
+    onNavigateStories: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -212,7 +217,7 @@ fun SettingsScreen(
             }
         }
 
-        // Section: TRANSPARENCY & METHODOLOGY NAVIGATION
+        // Section: TRANSPARENCY & DISCOVERY NAVIGATION
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -220,6 +225,42 @@ fun SettingsScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Column(modifier = Modifier.padding(8.dp)) {
+                    // Saved Items
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable(onClick = onNavigateSaved)
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Bookmark, contentDescription = "Saved Items", tint = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Saved Items & Favorites", fontWeight = FontWeight.SemiBold)
+                            Text("Quickly access bookmarked countries offline", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Icon(Icons.Default.ChevronRight, contentDescription = "Open")
+                    }
+
+                    // Data Stories
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable(onClick = onNavigateStories)
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.AutoAwesome, contentDescription = "Data Stories", tint = Color(0xFFA855F7))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Visual Data Stories", fontWeight = FontWeight.SemiBold)
+                            Text("10 Billion Milestone, Energy & Megacities", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Icon(Icons.Default.ChevronRight, contentDescription = "Open")
+                    }
+
                     // Methodology item
                     Row(
                         modifier = Modifier
