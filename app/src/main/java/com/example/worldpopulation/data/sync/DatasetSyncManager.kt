@@ -33,6 +33,10 @@ class DatasetSyncManager @Inject constructor(
     private val storyDao = database.storyDao()
     private val syncManifestDao = database.syncManifestDao()
 
+    companion object {
+        const val DEFAULT_REMOTE_DATA_BASE_URL = "https://150ajit.github.io/world-number-data/data/"
+    }
+
     suspend fun seedFromAssetsIfEmpty(): Boolean = withContext(Dispatchers.IO) {
         val categoryCount = categoryDao.getCategoryCount()
         if (categoryCount > 0) {
@@ -167,6 +171,86 @@ class DatasetSyncManager @Inject constructor(
             // Batch insert indicator values and manifest records
             indicatorDao.insertValues(allIndicatorValues)
             syncManifestDao.insertAll(manifestEntities)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    suspend fun syncRemoteDatasets(baseUrl: String = DEFAULT_REMOTE_DATA_BASE_URL): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val client = okhttp3.OkHttpClient.Builder()
+                .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .build()
+
+            val manifestRequest = okhttp3.Request.Builder()
+                .url("${baseUrl.trimEnd('/')}/manifest.json")
+                .build()
+
+            val manifestResponse = client.newCall(manifestRequest).execute()
+            if (!manifestResponse.isSuccessful) return@withContext false
+
+            val manifestBody = manifestResponse.body?.string() ?: return@withContext false
+            val remoteManifest = JsonParser.parseString(manifestBody).asJsonObject
+            val datasetsArray = remoteManifest.getAsJsonArray("datasets") ?: return@withContext false
+
+            val localManifestMap = syncManifestDao.getAllManifests().associateBy { it.datasetId }
+
+            for (elem in datasetsArray) {
+                val dsObj = elem.asJsonObject
+                val dsId = dsObj.get("id").asString
+                val dsVersion = dsObj.get("version").asString
+                val dsPath = dsObj.get("path").asString
+                val dsSha256 = dsObj.get("sha256").asString
+
+                val localEntry = localManifestMap[dsId]
+                if (localEntry == null || localEntry.sha256 != dsSha256 || localEntry.version != dsVersion) {
+                    val fileRequest = okhttp3.Request.Builder()
+                        .url("${baseUrl.trimEnd('/')}/$dsPath")
+                        .build()
+                    val fileResponse = client.newCall(fileRequest).execute()
+                    if (!fileResponse.isSuccessful) continue
+                    val fileBody = fileResponse.body?.string() ?: continue
+
+                    // Checksum verification
+                    val actualSha = calculateSha256(fileBody)
+                    if (actualSha.equals(dsSha256, ignoreCase = true)) {
+                        val parsed = JsonParser.parseString(fileBody).asJsonObject
+                        val dataObj = parsed.getAsJsonObject("data") ?: continue
+                        val updatedValues = mutableListOf<CountryIndicatorValueEntity>()
+
+                        for (iso in dataObj.keySet()) {
+                            val isoData = dataObj.getAsJsonObject(iso)
+                            for (indKey in isoData.keySet()) {
+                                val value = isoData.get(indKey).asDouble
+                                updatedValues.add(
+                                    CountryIndicatorValueEntity(
+                                        countryIso = iso,
+                                        categoryId = dsId,
+                                        indicatorId = indKey,
+                                        value = value,
+                                        formattedValue = formatVal(value)
+                                    )
+                                )
+                            }
+                        }
+
+                        indicatorDao.insertValues(updatedValues)
+                        syncManifestDao.insertAll(
+                            listOf(
+                                SyncManifestEntity(
+                                    datasetId = dsId,
+                                    version = dsVersion,
+                                    sha256 = dsSha256,
+                                    lastSyncedTimestamp = System.currentTimeMillis()
+                                )
+                            )
+                        )
+                    }
+                }
+            }
             true
         } catch (e: Exception) {
             e.printStackTrace()
