@@ -1,0 +1,18 @@
+{
+  "name": "world-population-web",
+  "version": "1.0.0",
+  "description": "Real-time live world population web dashboard with UN WPP 2024 projections, interactive map, charts, and age pyramids.",
+  "scripts": {
+    "start": "npx -y serve . -l 3000",
+    "dev": "npx -y serve . -l 3000"
+  },
+  "keywords": [
+    "world-population",
+    "live-counter",
+    "demographics",
+    "un-wpp-2024",
+    "dashboard"
+  ],
+  "author": "",
+  "license": "ISC"
+}
