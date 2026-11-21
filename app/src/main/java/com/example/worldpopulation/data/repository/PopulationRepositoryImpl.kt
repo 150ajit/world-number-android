@@ -199,6 +199,14 @@ class PopulationRepositoryImpl @Inject constructor(
                 metadataDao.insertMetadata(BundledPopulationData.metadata)
             }
 
+            // Sync 20 category remote datasets from GitHub Pages data repo
+            var remoteDatasetsUpdated = false
+            try {
+                remoteDatasetsUpdated = datasetSyncManager.syncRemoteDatasets()
+            } catch (e: Exception) {
+                android.util.Log.w("PopulationRepository", "Remote category sync failed, using cache", e)
+            }
+
             // Attempt UN API remote sync (Primary authoritative provider)
             val unResult = unProvider.fetchWorldPopulation()
             if (unResult.isSuccess) {
@@ -228,6 +236,10 @@ class PopulationRepositoryImpl @Inject constructor(
                     }
                     return@withContext Result.success(true)
                 }
+            }
+
+            if (remoteDatasetsUpdated) {
+                return@withContext Result.success(true)
             }
 
             // If remote sync fails, preserve local cached data

@@ -31,6 +31,10 @@ class SavedItemsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            repository.ensureDatabaseInitialized()
+        }
+
+        viewModelScope.launch {
             combine(
                 repository.getCountryPopulations(),
                 preferencesRepository.savedCountries,

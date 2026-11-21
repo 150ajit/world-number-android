@@ -44,7 +44,7 @@ data class CountryDetailsUiState(
     val historicalList: List<HistoricalPopulation> = emptyList(),
     val projectionList: List<HistoricalPopulation> = emptyList(),
     val categoryValues: List<com.example.worldpopulation.data.local.entity.CountryIndicatorValueEntity> = emptyList(),
-    val categoryMap: Map<String, com.example.worldpopulation.data.local.entity.CategoryEntity> = emptyMap(),
+    val categoryMap: Map<String, com.example.worldpopulation.data.local.entity.CategoryEntity> = com.example.worldpopulation.data.local.DefaultCategories.list.associateBy { it.id },
     val isBookmarked: Boolean = false,
     val numberFormat: NumberFormatType = NumberFormatType.INTERNATIONAL,
     val animateLiveNumbers: Boolean = true,
@@ -65,6 +65,10 @@ class CountryDetailsViewModel @Inject constructor(
     val uiState: StateFlow<CountryDetailsUiState> = _uiState.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            repository.ensureDatabaseInitialized()
+        }
+
         liveEngine.start(viewModelScope)
 
         // Observe country details

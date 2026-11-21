@@ -43,6 +43,10 @@ class DataStoriesViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            repository.ensureDatabaseInitialized()
+        }
+
+        viewModelScope.launch {
             repository.getDataStories().collect { entities ->
                 val parsed = entities.map { entity ->
                     val type = object : TypeToken<List<StorySlide>>() {}.type

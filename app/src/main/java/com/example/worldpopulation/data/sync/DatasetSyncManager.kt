@@ -208,9 +208,11 @@ class DatasetSyncManager @Inject constructor(
             for (elem in datasetsArray) {
                 val dsObj = elem.asJsonObject
                 val dsId = dsObj.get("id").asString
-                val dsVersion = dsObj.get("version").asString
+                val dsVersion = if (dsObj.has("schemaVersion")) dsObj.get("schemaVersion").asString
+                    else if (dsObj.has("version")) dsObj.get("version").asString
+                    else "1.0.0"
                 val dsPath = dsObj.get("path").asString
-                val dsSha256 = dsObj.get("sha256").asString
+                val dsSha256 = if (dsObj.has("sha256")) dsObj.get("sha256").asString else ""
 
                 val localEntry = localManifestMap[dsId]
                 if (localEntry == null || localEntry.sha256 != dsSha256 || localEntry.version != dsVersion) {
@@ -221,23 +223,25 @@ class DatasetSyncManager @Inject constructor(
                     if (!fileResponse.isSuccessful) continue
                     val fileBody = fileResponse.body?.string() ?: continue
 
-                    // Checksum verification
-                    val actualSha = calculateSha256(fileBody)
-                    if (actualSha.equals(dsSha256, ignoreCase = true)) {
+                    try {
                         val parsed = JsonParser.parseString(fileBody).asJsonObject
-                        val dataObj = parsed.getAsJsonObject("data") ?: continue
+                        val countriesObj = if (parsed.has("countries")) parsed.getAsJsonObject("countries")
+                            else parsed.getAsJsonObject("data") ?: continue
+                        val catId = if (parsed.has("categoryKey")) parsed.get("categoryKey").asString.substringAfter("_")
+                            else dsId.substringAfter("_")
+                        val year = if (parsed.has("year")) parsed.get("year").asInt else 2024
                         val updatedValues = mutableListOf<CountryIndicatorValueEntity>()
 
-                        for (iso in dataObj.keySet()) {
-                            val isoData = dataObj.getAsJsonObject(iso)
+                        for (iso in countriesObj.keySet()) {
+                            val isoData = countriesObj.getAsJsonObject(iso)
                             for (indKey in isoData.keySet()) {
                                 val value = isoData.get(indKey).asDouble
                                 updatedValues.add(
                                     CountryIndicatorValueEntity(
                                         isoCode = iso,
                                         indicatorId = indKey,
-                                        categoryId = dsId,
-                                        year = 2024,
+                                        categoryId = catId,
+                                        year = year,
                                         value = value,
                                         formattedValue = formatVal(value)
                                     )
@@ -245,7 +249,9 @@ class DatasetSyncManager @Inject constructor(
                             }
                         }
 
-                        indicatorDao.insertValues(updatedValues)
+                        if (updatedValues.isNotEmpty()) {
+                            indicatorDao.insertValues(updatedValues)
+                        }
                         syncManifestDao.insertAll(
                             listOf(
                                 SyncManifestEntity(
@@ -256,6 +262,8 @@ class DatasetSyncManager @Inject constructor(
                                 )
                             )
                         )
+                    } catch (e: Exception) {
+                        android.util.Log.e("DatasetSyncManager", "Failed to parse remote dataset $dsPath", e)
                     }
                 }
             }

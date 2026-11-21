@@ -186,25 +186,40 @@ fun CountriesScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Countries LazyColumn
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            itemsIndexed(
-                items = state.filteredCountries,
-                key = { _, country -> country.isoCode }
-            ) { index, country ->
-                CountryListItem(
-                    rank = index + 1,
-                    country = country,
-                    formatType = state.numberFormat,
-                    onClick = { onCountryClick(country.isoCode) }
+        if (state.filteredCountries.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 40.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No countries match your search or filter.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+        } else {
+            // Countries LazyColumn
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                itemsIndexed(
+                    items = state.filteredCountries,
+                    key = { _, country -> country.isoCode }
+                ) { index, country ->
+                    CountryListItem(
+                        rank = index + 1,
+                        country = country,
+                        formatType = state.numberFormat,
+                        onClick = { onCountryClick(country.isoCode) }
+                    )
+                }
 
-            item {
-                Spacer(modifier = Modifier.height(32.dp))
+                item {
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
             }
         }
     }

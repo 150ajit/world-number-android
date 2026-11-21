@@ -41,6 +41,10 @@ class CompareCountriesViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            repository.ensureDatabaseInitialized()
+        }
+
+        viewModelScope.launch {
             repository.getCountryPopulations().collect { list ->
                 _uiState.value = _uiState.value.copy(allCountries = list)
                 loadComparisons()
