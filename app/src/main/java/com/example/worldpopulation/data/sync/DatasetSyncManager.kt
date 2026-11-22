@@ -38,9 +38,22 @@ class DatasetSyncManager @Inject constructor(
     }
 
     suspend fun seedFromAssetsIfEmpty(): Boolean = withContext(Dispatchers.IO) {
+        // Guarantee static baseline is inserted immediately into Room
+        try {
+            if (categoryDao.getCategoryCount() < 20) {
+                categoryDao.insertCategories(com.example.worldpopulation.data.local.DefaultCategories.list)
+            }
+            if (indicatorDao.getIndicatorCount() < 40) {
+                indicatorDao.insertIndicators(com.example.worldpopulation.data.local.DefaultIndicators.list)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("DatasetSyncManager", "Failed to insert default baseline", e)
+        }
+
         val valuesCount = indicatorDao.getValuesCount()
         val categoryCount = categoryDao.getCategoryCount()
-        if (categoryCount >= 20 && valuesCount > 50) {
+        val indicatorCount = indicatorDao.getIndicatorCount()
+        if (categoryCount >= 20 && indicatorCount >= 40 && valuesCount > 500) {
             return@withContext false
         }
 

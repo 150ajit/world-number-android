@@ -38,6 +38,9 @@ interface IndicatorDao {
     @Query("SELECT * FROM category_indicators")
     fun getAllIndicators(): Flow<List<CategoryIndicatorEntity>>
 
+    @Query("SELECT COUNT(*) FROM category_indicators")
+    suspend fun getIndicatorCount(): Int
+
     @Query("SELECT * FROM category_indicators WHERE indicatorId = :indicatorId LIMIT 1")
     suspend fun getIndicatorDirect(indicatorId: String): CategoryIndicatorEntity?
 

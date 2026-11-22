@@ -169,11 +169,34 @@ class PopulationRepositoryImpl @Inject constructor(
     }
 
     override fun getIndicatorsForCategory(categoryId: String): Flow<List<CategoryIndicatorEntity>> {
-        return categoryIndicatorDao.getIndicatorsForCategory(categoryId).flowOn(ioDispatcher)
+        return categoryIndicatorDao.getIndicatorsForCategory(categoryId).map { list ->
+            if (list.isEmpty()) {
+                com.example.worldpopulation.data.local.DefaultIndicators.getIndicatorsForCategory(categoryId)
+            } else {
+                list
+            }
+        }.flowOn(ioDispatcher)
     }
 
     override fun getIndicatorValues(indicatorId: String, sortDesc: Boolean): Flow<List<CountryIndicatorValueEntity>> {
-        return categoryIndicatorDao.getValuesForIndicator(indicatorId, sortDesc).flowOn(ioDispatcher)
+        return categoryIndicatorDao.getValuesForIndicator(indicatorId, sortDesc).map { list ->
+            if (list.isEmpty() && indicatorId == "pop_total") {
+                com.example.worldpopulation.data.local.fallback.BundledPopulationData.countryPopulations.map { cp ->
+                    CountryIndicatorValueEntity(
+                        isoCode = cp.isoCode,
+                        indicatorId = "pop_total",
+                        categoryId = "population",
+                        year = 2024,
+                        value = cp.population.toDouble(),
+                        formattedValue = com.example.worldpopulation.util.NumberFormatter.formatCompact(cp.population),
+                        globalRank = cp.rank,
+                        status = "OBSERVED"
+                    )
+                }.sortedWith(if (sortDesc) compareByDescending { it.value } else compareBy { it.value })
+            } else {
+                list
+            }
+        }.flowOn(ioDispatcher)
     }
 
     override fun getValuesForCountry(isoCode: String): Flow<List<CountryIndicatorValueEntity>> {

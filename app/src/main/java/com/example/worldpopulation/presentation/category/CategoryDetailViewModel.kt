@@ -32,17 +32,28 @@ class CategoryDetailViewModel @Inject constructor(
 
     private val categoryId: String = checkNotNull(savedStateHandle["categoryId"])
 
+    private val defaultCategory = com.example.worldpopulation.data.local.DefaultCategories.list.find {
+        it.id.equals(categoryId, ignoreCase = true)
+    }
+
+    private val defaultIndicators = com.example.worldpopulation.data.local.DefaultIndicators.getIndicatorsForCategory(categoryId)
+
     private val _uiState = MutableStateFlow(
         CategoryDetailUiState(
-            category = com.example.worldpopulation.data.local.DefaultCategories.list.find {
-                it.id.equals(categoryId, ignoreCase = true)
-            },
-            isLoading = true
+            category = defaultCategory,
+            indicators = defaultIndicators,
+            selectedIndicator = defaultIndicators.firstOrNull(),
+            isLoading = false
         )
     )
     val uiState: StateFlow<CategoryDetailUiState> = _uiState.asStateFlow()
 
     init {
+        // Trigger initial values load immediately for default selected indicator
+        defaultIndicators.firstOrNull()?.let { initialInd ->
+            loadValuesForIndicator(initialInd)
+        }
+
         viewModelScope.launch {
             repository.ensureDatabaseInitialized()
         }
@@ -68,14 +79,17 @@ class CategoryDetailViewModel @Inject constructor(
         // Load Indicators for Category
         viewModelScope.launch {
             repository.getIndicatorsForCategory(categoryId).collect { indicatorList ->
-                val defaultSelected = _uiState.value.selectedIndicator ?: indicatorList.firstOrNull()
+                val activeIndicators = if (indicatorList.isNotEmpty()) indicatorList else defaultIndicators
+                val currentSelected = _uiState.value.selectedIndicator
+                val targetSelected = activeIndicators.find { it.indicatorId == currentSelected?.indicatorId }
+                    ?: activeIndicators.firstOrNull()
                 _uiState.value = _uiState.value.copy(
-                    indicators = indicatorList,
-                    selectedIndicator = defaultSelected,
+                    indicators = activeIndicators,
+                    selectedIndicator = targetSelected,
                     isLoading = false
                 )
-                if (defaultSelected != null) {
-                    loadValuesForIndicator(defaultSelected)
+                if (targetSelected != null) {
+                    loadValuesForIndicator(targetSelected)
                 }
             }
         }
@@ -86,8 +100,11 @@ class CategoryDetailViewModel @Inject constructor(
         loadValuesForIndicator(indicator)
     }
 
+    private var valuesJob: kotlinx.coroutines.Job? = null
+
     private fun loadValuesForIndicator(indicator: CategoryIndicatorEntity) {
-        viewModelScope.launch {
+        valuesJob?.cancel()
+        valuesJob = viewModelScope.launch {
             val sortDesc = indicator.sortDirection.equals("DESC", ignoreCase = true)
             repository.getIndicatorValues(indicator.indicatorId, sortDesc).collect { values ->
                 _uiState.value = _uiState.value.copy(indicatorValues = values)
