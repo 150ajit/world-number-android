@@ -37,12 +37,18 @@ class CategoryDetailViewModel @Inject constructor(
     }
 
     private val defaultIndicators = com.example.worldpopulation.data.local.DefaultIndicators.getIndicatorsForCategory(categoryId)
+    private val initialIndicator = defaultIndicators.firstOrNull()
+    private val initialValues = initialIndicator?.let {
+        val sortDesc = it.sortDirection.equals("DESC", ignoreCase = true)
+        com.example.worldpopulation.data.local.DefaultIndicatorValues.getValuesForIndicator(it.indicatorId, sortDesc)
+    } ?: emptyList()
 
     private val _uiState = MutableStateFlow(
         CategoryDetailUiState(
             category = defaultCategory,
             indicators = defaultIndicators,
-            selectedIndicator = defaultIndicators.firstOrNull(),
+            selectedIndicator = initialIndicator,
+            indicatorValues = initialValues,
             isLoading = false
         )
     )
@@ -50,7 +56,7 @@ class CategoryDetailViewModel @Inject constructor(
 
     init {
         // Trigger initial values load immediately for default selected indicator
-        defaultIndicators.firstOrNull()?.let { initialInd ->
+        initialIndicator?.let { initialInd ->
             loadValuesForIndicator(initialInd)
         }
 
@@ -96,7 +102,12 @@ class CategoryDetailViewModel @Inject constructor(
     }
 
     fun selectIndicator(indicator: CategoryIndicatorEntity) {
-        _uiState.value = _uiState.value.copy(selectedIndicator = indicator)
+        val sortDesc = indicator.sortDirection.equals("DESC", ignoreCase = true)
+        val immediateFallback = com.example.worldpopulation.data.local.DefaultIndicatorValues.getValuesForIndicator(indicator.indicatorId, sortDesc)
+        _uiState.value = _uiState.value.copy(
+            selectedIndicator = indicator,
+            indicatorValues = if (immediateFallback.isNotEmpty()) immediateFallback else _uiState.value.indicatorValues
+        )
         loadValuesForIndicator(indicator)
     }
 

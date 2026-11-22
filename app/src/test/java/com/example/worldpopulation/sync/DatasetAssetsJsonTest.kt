@@ -69,6 +69,31 @@ class DatasetAssetsJsonTest {
     }
 
     @Test
+    fun testDefaultIndicatorValuesIntegrity() {
+        val values = com.example.worldpopulation.data.local.DefaultIndicatorValues.list
+        assertTrue("DefaultIndicatorValues should have >= 500 items", values.size >= 500)
+        
+        // Verify Economy indicators specifically
+        val gdpNominal = com.example.worldpopulation.data.local.DefaultIndicatorValues.getValuesForIndicator("gdp_nominal", true)
+        assertFalse("gdp_nominal should have countries", gdpNominal.isEmpty())
+        assertTrue("gdp_nominal should have >= 10 countries", gdpNominal.size >= 10)
+        
+        // Verify Population indicators
+        val popTotal = com.example.worldpopulation.data.local.DefaultIndicatorValues.getValuesForIndicator("pop_total", true)
+        assertFalse("pop_total should have countries", popTotal.isEmpty())
+
+        // Verify across all categories
+        val categories = com.example.worldpopulation.data.local.DefaultCategories.list
+        for (cat in categories) {
+            val indicators = com.example.worldpopulation.data.local.DefaultIndicators.getIndicatorsForCategory(cat.id)
+            for (ind in indicators) {
+                val indValues = com.example.worldpopulation.data.local.DefaultIndicatorValues.getValuesForIndicator(ind.indicatorId)
+                assertFalse("Indicator ${ind.indicatorId} in category ${cat.id} must have data points", indValues.isEmpty())
+            }
+        }
+    }
+
+    @Test
     fun testParseDailyDiscoveriesJson() {
         val file = File(assetsDir, "daily_discoveries.json")
         assertTrue("daily_discoveries.json should exist", file.exists())
@@ -120,5 +145,69 @@ class DatasetAssetsJsonTest {
             }
         }
         println("Successfully parsed all datasets, total indicator values: $totalValues")
+    }
+
+    @Test
+    fun generateDefaultIndicatorValuesFile() {
+        val manifestFile = File(assetsDir, "manifest.json")
+        val manifestObj = JsonParser.parseString(manifestFile.readText()).asJsonObject
+        val datasetsArray = manifestObj.getAsJsonArray("datasets")
+
+        val sb = StringBuilder()
+        sb.appendLine("package com.example.worldpopulation.data.local")
+        sb.appendLine()
+        sb.appendLine("import com.example.worldpopulation.data.local.entity.CountryIndicatorValueEntity")
+        sb.appendLine()
+        sb.appendLine("object DefaultIndicatorValues {")
+        sb.appendLine("    val list: List<CountryIndicatorValueEntity> by lazy {")
+        sb.appendLine("        listOf(")
+
+        var count = 0
+        for (datasetElement in datasetsArray) {
+            val dsObj = datasetElement.asJsonObject
+            val dsPath = dsObj.get("path").asString
+            val dsFile = File(assetsDir, dsPath)
+            val payload = JsonParser.parseString(dsFile.readText()).asJsonObject
+            val categoryKey = payload.get("categoryKey").asString
+            val catId = categoryKey.substringAfter("_")
+            val year = if (payload.has("year")) payload.get("year").asInt else 2024
+            val countriesObj = payload.getAsJsonObject("countries") ?: continue
+
+            for (isoKey in countriesObj.keySet()) {
+                val countryData = countriesObj.getAsJsonObject(isoKey)
+                for (indicatorKey in countryData.keySet()) {
+                    val value = countryData.get(indicatorKey).asDouble
+                    val formatted = when {
+                        value >= 1_000_000_000 -> "%.2fB".format(java.util.Locale.US, value / 1_000_000_000.0)
+                        value >= 1_000_000 -> "%.2fM".format(java.util.Locale.US, value / 1_000_000.0)
+                        value >= 1_000 -> "%,.0f".format(java.util.Locale.US, value)
+                        value % 1.0 == 0.0 -> "%.0f".format(java.util.Locale.US, value)
+                        else -> "%.2f".format(java.util.Locale.US, value)
+                    }
+                    sb.append("            CountryIndicatorValueEntity(")
+                    sb.append("isoCode = \"$isoKey\", ")
+                    sb.append("indicatorId = \"$indicatorKey\", ")
+                    sb.append("categoryId = \"$catId\", ")
+                    sb.append("year = $year, ")
+                    sb.append("value = $value, ")
+                    sb.append("formattedValue = \"$formatted\", ")
+                    sb.append("status = \"OBSERVED\")")
+                    sb.appendLine(",")
+                    count++
+                }
+            }
+        }
+        sb.appendLine("        )")
+        sb.appendLine("    }")
+        sb.appendLine()
+        sb.appendLine("    fun getValuesForIndicator(indicatorId: String, sortDesc: Boolean = true): List<CountryIndicatorValueEntity> {")
+        sb.appendLine("        val filtered = list.filter { it.indicatorId.equals(indicatorId, ignoreCase = true) }")
+        sb.appendLine("        return if (sortDesc) filtered.sortedByDescending { it.value } else filtered.sortedBy { it.value }")
+        sb.appendLine("    }")
+        sb.appendLine("}")
+
+        val targetFile = File("src/main/java/com/example/worldpopulation/data/local/DefaultIndicatorValues.kt")
+        targetFile.writeText(sb.toString())
+        println("Generated DefaultIndicatorValues.kt with $count records at ${targetFile.absolutePath}")
     }
 }

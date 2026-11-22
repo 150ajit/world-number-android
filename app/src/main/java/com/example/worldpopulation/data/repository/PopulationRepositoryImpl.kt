@@ -180,19 +180,8 @@ class PopulationRepositoryImpl @Inject constructor(
 
     override fun getIndicatorValues(indicatorId: String, sortDesc: Boolean): Flow<List<CountryIndicatorValueEntity>> {
         return categoryIndicatorDao.getValuesForIndicator(indicatorId, sortDesc).map { list ->
-            if (list.isEmpty() && indicatorId == "pop_total") {
-                com.example.worldpopulation.data.local.fallback.BundledPopulationData.countryPopulations.map { cp ->
-                    CountryIndicatorValueEntity(
-                        isoCode = cp.isoCode,
-                        indicatorId = "pop_total",
-                        categoryId = "population",
-                        year = 2024,
-                        value = cp.population.toDouble(),
-                        formattedValue = com.example.worldpopulation.util.NumberFormatter.formatCompact(cp.population),
-                        globalRank = cp.rank,
-                        status = "OBSERVED"
-                    )
-                }.sortedWith(if (sortDesc) compareByDescending { it.value } else compareBy { it.value })
+            if (list.isEmpty()) {
+                com.example.worldpopulation.data.local.DefaultIndicatorValues.getValuesForIndicator(indicatorId, sortDesc)
             } else {
                 list
             }
@@ -200,7 +189,15 @@ class PopulationRepositoryImpl @Inject constructor(
     }
 
     override fun getValuesForCountry(isoCode: String): Flow<List<CountryIndicatorValueEntity>> {
-        return categoryIndicatorDao.getValuesForCountry(isoCode).flowOn(ioDispatcher)
+        return categoryIndicatorDao.getValuesForCountry(isoCode).map { list ->
+            if (list.isEmpty()) {
+                com.example.worldpopulation.data.local.DefaultIndicatorValues.list.filter {
+                    it.isoCode.equals(isoCode, ignoreCase = true)
+                }
+            } else {
+                list
+            }
+        }.flowOn(ioDispatcher)
     }
 
     override fun getDailyDiscovery(dayOfYear: Int): Flow<DailyDiscoveryEntity?> {

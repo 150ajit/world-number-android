@@ -18,7 +18,13 @@
 
 # Entities and Domain Models
 -keep class com.example.worldpopulation.data.local.entity.** { *; }
+-keepclassmembers class com.example.worldpopulation.data.local.entity.** { *; }
+-keep class com.example.worldpopulation.data.local.** { *; }
+-keepclassmembers class com.example.worldpopulation.data.local.** { *; }
+-keep class com.example.worldpopulation.data.sync.** { *; }
+-keepclassmembers class com.example.worldpopulation.data.sync.** { *; }
 -keep class com.example.worldpopulation.domain.model.** { *; }
+-keepclassmembers class com.example.worldpopulation.domain.model.** { *; }
 
 # DTOs & Serialization
 -keep class com.example.worldpopulation.data.remote.un.dto.** { *; }

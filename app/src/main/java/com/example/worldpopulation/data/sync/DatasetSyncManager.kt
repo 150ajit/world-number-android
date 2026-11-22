@@ -46,6 +46,9 @@ class DatasetSyncManager @Inject constructor(
             if (indicatorDao.getIndicatorCount() < 40) {
                 indicatorDao.insertIndicators(com.example.worldpopulation.data.local.DefaultIndicators.list)
             }
+            if (indicatorDao.getValuesCount() < 500) {
+                indicatorDao.insertValues(com.example.worldpopulation.data.local.DefaultIndicatorValues.list)
+            }
         } catch (e: Exception) {
             android.util.Log.e("DatasetSyncManager", "Failed to insert default baseline", e)
         }
@@ -57,10 +60,10 @@ class DatasetSyncManager @Inject constructor(
             return@withContext false
         }
 
-        try {
-            val assetManager = context.assets
+        val assetManager = context.assets
 
-            // 1. Seed Countries
+        // 1. Seed Countries
+        try {
             val countriesJson = assetManager.open("data/countries.json").use {
                 InputStreamReader(it).readText()
             }
@@ -78,32 +81,48 @@ class DatasetSyncManager @Inject constructor(
                 )
             }
             countryDao.insertCountries(countryEntities)
+        } catch (e: Exception) {
+            android.util.Log.e("DatasetSyncManager", "Failed to seed countries", e)
+        }
 
-            // 2. Seed Categories
+        // 2. Seed Categories
+        try {
             val categoriesJson = assetManager.open("data/categories.json").use {
                 InputStreamReader(it).readText()
             }
             val categoriesType = object : TypeToken<List<CategoryEntity>>() {}.type
             val categoryEntities: List<CategoryEntity> = gson.fromJson(categoriesJson, categoriesType)
             categoryDao.insertCategories(categoryEntities)
+        } catch (e: Exception) {
+            android.util.Log.e("DatasetSyncManager", "Failed to seed categories", e)
+        }
 
-            // 3. Seed Indicators
+        // 3. Seed Indicators
+        try {
             val indicatorsJson = assetManager.open("data/category_indicators.json").use {
                 InputStreamReader(it).readText()
             }
             val indicatorsType = object : TypeToken<List<CategoryIndicatorEntity>>() {}.type
             val indicatorEntities: List<CategoryIndicatorEntity> = gson.fromJson(indicatorsJson, indicatorsType)
             indicatorDao.insertIndicators(indicatorEntities)
+        } catch (e: Exception) {
+            android.util.Log.e("DatasetSyncManager", "Failed to seed indicators", e)
+        }
 
-            // 4. Seed Discoveries
+        // 4. Seed Discoveries
+        try {
             val discoveriesJson = assetManager.open("data/daily_discoveries.json").use {
                 InputStreamReader(it).readText()
             }
             val discoveriesType = object : TypeToken<List<DailyDiscoveryEntity>>() {}.type
             val discoveryEntities: List<DailyDiscoveryEntity> = gson.fromJson(discoveriesJson, discoveriesType)
             discoveryDao.insertDiscoveries(discoveryEntities)
+        } catch (e: Exception) {
+            android.util.Log.e("DatasetSyncManager", "Failed to seed discoveries", e)
+        }
 
-            // 5. Seed Stories
+        // 5. Seed Stories
+        try {
             val storiesJson = assetManager.open("data/data_stories.json").use {
                 InputStreamReader(it).readText()
             }
@@ -124,8 +143,12 @@ class DatasetSyncManager @Inject constructor(
                 )
             }
             storyDao.insertStories(storyEntities)
+        } catch (e: Exception) {
+            android.util.Log.e("DatasetSyncManager", "Failed to seed stories", e)
+        }
 
-            // 6. Read Manifest & Process Datasets
+        // 6. Read Manifest & Process Datasets
+        try {
             val manifestJson = assetManager.open("data/manifest.json").use {
                 InputStreamReader(it).readText()
             }
@@ -191,11 +214,10 @@ class DatasetSyncManager @Inject constructor(
             if (manifestEntities.isNotEmpty()) {
                 syncManifestDao.insertAll(manifestEntities)
             }
-            true
         } catch (e: Exception) {
-            android.util.Log.e("DatasetSyncManager", "Failed to seed assets", e)
-            false
+            android.util.Log.e("DatasetSyncManager", "Failed to process manifest datasets", e)
         }
+        true
     }
 
     suspend fun syncRemoteDatasets(baseUrl: String = DEFAULT_REMOTE_DATA_BASE_URL): Boolean = withContext(Dispatchers.IO) {
@@ -303,16 +325,17 @@ class DatasetSyncManager @Inject constructor(
         }
     }
 
+    @androidx.annotation.Keep
     data class CountryDto(
-        val isoCode: String,
-        val name: String,
-        val capital: String?,
-        val region: String,
-        val subregion: String?,
-        val flagEmoji: String,
-        val landArea: Double?,
-        val lat: Double?,
-        val lng: Double?,
-        val aliases: String?
+        @com.google.gson.annotations.SerializedName("isoCode") val isoCode: String,
+        @com.google.gson.annotations.SerializedName("name") val name: String,
+        @com.google.gson.annotations.SerializedName("capital") val capital: String?,
+        @com.google.gson.annotations.SerializedName("region") val region: String,
+        @com.google.gson.annotations.SerializedName("subregion") val subregion: String?,
+        @com.google.gson.annotations.SerializedName("flagEmoji") val flagEmoji: String,
+        @com.google.gson.annotations.SerializedName("landArea") val landArea: Double?,
+        @com.google.gson.annotations.SerializedName("lat") val lat: Double?,
+        @com.google.gson.annotations.SerializedName("lng") val lng: Double?,
+        @com.google.gson.annotations.SerializedName("aliases") val aliases: String?
     )
 }
