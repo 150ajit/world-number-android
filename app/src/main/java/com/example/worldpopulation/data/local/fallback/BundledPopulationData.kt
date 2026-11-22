@@ -10,502 +10,470 @@ import com.example.worldpopulation.data.local.entity.WorldPopulationEntity
 
 object BundledPopulationData {
 
-    val metadata = DataSourceMetadataEntity(
-        provider = "United Nations Population Division",
-        datasetName = "World Population Prospects",
-        datasetVersion = "2024 Revision",
-        referenceYear = 2026,
-        retrievedAt = 1719792000000L, // UN WPP 2024 release date
-        sourceUrl = "https://population.un.org/wpp/",
-        dataType = "PROJECTION",
-        projectionVariant = "Medium variant"
-    )
-
-    // Baseline: July 1, 2026 reference projection calibrated to UN WPP 2024 (Medium Variant)
     val worldPopulation = WorldPopulationEntity(
         id = 1,
-        population = 8_301_598_844L,
+        population = 8_200_000_000L,
         populationYear = 2026,
-        baselineTimestamp = 1782864000000L, // July 1, 2026 00:00:00 UTC
-        annualChange = 71_000_000.0,
-        growthRate = 0.86,
-        dataType = "PROJECTION"
+        baselineTimestamp = 1767225600000L,
+        annualChange = 73_000_000.0,
+        growthRate = 0.89,
+        dataType = "CALIBRATED_ESTIMATE"
+    )
+
+    val metadata = DataSourceMetadataEntity(
+        provider = "UN DESA Population Division",
+        datasetName = "United Nations World Population Prospects (2024 Revision)",
+        datasetVersion = "2024",
+        referenceYear = 2024,
+        retrievedAt = 1718064000000L,
+        sourceUrl = "https://population.un.org/wpp/",
+        dataType = "ESTIMATE_AND_PROJECTION",
+        projectionVariant = "Median"
     )
 
     val countries = listOf(
         CountryEntity("IND", "India", "Bharat,Hindustan,IN", "🇮🇳", "Asia", "Southern Asia", 2973190.0),
-        CountryEntity("CHN", "China", "People's Republic of China,PRC,CN", "🇨🇳", "Asia", "Eastern Asia", 9388211.0),
-        CountryEntity("USA", "United States", "USA,United States of America,US", "🇺🇸", "Americas", "Northern America", 9147420.0),
-        CountryEntity("IDN", "Indonesia", "Republic of Indonesia,ID", "🇮🇩", "Asia", "South-Eastern Asia", 1811570.0),
-        CountryEntity("PAK", "Pakistan", "Islamic Republic of Pakistan,PK", "🇵🇰", "Asia", "Southern Asia", 770880.0),
-        CountryEntity("NGA", "Nigeria", "Federal Republic of Nigeria,NG", "🇳🇬", "Africa", "Western Africa", 910770.0),
-        CountryEntity("BRA", "Brazil", "Brasil,Federative Republic of Brazil,BR", "🇧🇷", "Americas", "South America", 8358140.0),
-        CountryEntity("BGD", "Bangladesh", "People's Republic of Bangladesh,BD", "🇧🇩", "Asia", "Southern Asia", 130170.0),
+        CountryEntity("CHN", "China", "PRC,CN", "🇨🇳", "Asia", "Eastern Asia", 9388211.0),
+        CountryEntity("USA", "United States", "USA,America,US", "🇺🇸", "Americas", "Northern America", 9147420.0),
+        CountryEntity("IDN", "Indonesia", "ID", "🇮🇩", "Asia", "South-Eastern Asia", 1811570.0),
+        CountryEntity("PAK", "Pakistan", "PK", "🇵🇰", "Asia", "Southern Asia", 770880.0),
+        CountryEntity("NGA", "Nigeria", "NG", "🇳🇬", "Africa", "Western Africa", 910770.0),
+        CountryEntity("BRA", "Brazil", "Brasil,BR", "🇧🇷", "Americas", "South America", 8358140.0),
+        CountryEntity("BGD", "Bangladesh", "BD", "🇧🇩", "Asia", "Southern Asia", 130170.0),
         CountryEntity("RUS", "Russia", "Russian Federation,RU", "🇷🇺", "Europe", "Eastern Europe", 16376870.0),
-        CountryEntity("ETH", "Ethiopia", "Federal Democratic Republic of Ethiopia,ET", "🇪🇹", "Africa", "Eastern Africa", 1000000.0),
-        CountryEntity("MEX", "Mexico", "United Mexican States,MX", "🇲🇽", "Americas", "Central America", 1943950.0),
-        CountryEntity("JPN", "Japan", "Nihon,Nippon,JP", "🇯🇵", "Asia", "Eastern Asia", 364500.0),
-        CountryEntity("PHL", "Philippines", "Republic of the Philippines,PH", "🇵🇭", "Asia", "South-Eastern Asia", 298170.0),
-        CountryEntity("EGY", "Egypt", "Arab Republic of Egypt,EG", "🇪🇬", "Africa", "Northern Africa", 995450.0),
-        CountryEntity("COD", "DR Congo", "Democratic Republic of the Congo,Congo-Kinshasa,CD", "🇨🇩", "Africa", "Middle Africa", 2267050.0),
-        CountryEntity("VNM", "Vietnam", "Socialist Republic of Vietnam,VN", "🇻🇳", "Asia", "South-Eastern Asia", 310070.0),
-        CountryEntity("TUR", "Turkey", "Türkiye,Republic of Turkey,TR", "🇹🇷", "Asia", "Western Asia", 769630.0),
-        CountryEntity("IRN", "Iran", "Islamic Republic of Iran,IR", "🇮🇷", "Asia", "Southern Asia", 1628760.0),
-        CountryEntity("DEU", "Germany", "Deutschland,Federal Republic of Germany,DE", "🇩🇪", "Europe", "Western Europe", 349380.0),
-        CountryEntity("GBR", "United Kingdom", "UK,Great Britain,Britain,England,GB", "🇬🇧", "Europe", "Northern Europe", 241930.0),
-        CountryEntity("FRA", "France", "French Republic,FR", "🇫🇷", "Europe", "Western Europe", 547557.0),
-        CountryEntity("ITA", "Italy", "Italia,Italian Republic,IT", "🇮🇹", "Europe", "Southern Europe", 294140.0),
-        CountryEntity("ZAF", "South Africa", "Republic of South Africa,ZA", "🇿🇦", "Africa", "Southern Africa", 1213090.0),
-        CountryEntity("KOR", "South Korea", "Republic of Korea,Korea,KR", "🇰🇷", "Asia", "Eastern Asia", 97600.0),
-        CountryEntity("CAN", "Canada", "Dominion of Canada,CA", "🇨🇦", "Americas", "Northern America", 8965590.0),
-        CountryEntity("AUS", "Australia", "Commonwealth of Australia,AU", "🇦🇺", "Oceania", "Australia and New Zealand", 7682300.0)
+        CountryEntity("ETH", "Ethiopia", "ET", "🇪🇹", "Africa", "Eastern Africa", 1000000.0),
+        CountryEntity("MEX", "Mexico", "MX", "🇲🇽", "Americas", "Central America", 1943950.0),
+        CountryEntity("JPN", "Japan", "Nippon,JP", "🇯🇵", "Asia", "Eastern Asia", 364500.0),
+        CountryEntity("PHL", "Philippines", "PH", "🇵🇭", "Asia", "South-Eastern Asia", 298170.0),
+        CountryEntity("EGY", "Egypt", "EG", "🇪🇬", "Africa", "Northern Africa", 995450.0),
+        CountryEntity("COD", "DR Congo", "Congo,CD", "🇨🇩", "Africa", "Middle Africa", 2267050.0),
+        CountryEntity("VNM", "Vietnam", "VN", "🇻🇳", "Asia", "South-Eastern Asia", 310070.0),
+        CountryEntity("IRN", "Iran", "IR", "🇮🇷", "Asia", "Southern Asia", 1628760.0),
+        CountryEntity("TUR", "Turkey", "Türkiye,TR", "🇹🇷", "Asia", "Western Asia", 769630.0),
+        CountryEntity("DEU", "Germany", "Deutschland,DE", "🇩🇪", "Europe", "Western Europe", 349380.0),
+        CountryEntity("THA", "Thailand", "TH", "🇹🇭", "Asia", "South-Eastern Asia", 510890.0),
+        CountryEntity("TZA", "Tanzania", "TZ", "🇹🇿", "Africa", "Eastern Africa", 885800.0),
+        CountryEntity("GBR", "United Kingdom", "UK,Britain,GB", "🇬🇧", "Europe", "Northern Europe", 241930.0),
+        CountryEntity("FRA", "France", "FR", "🇫🇷", "Europe", "Western Europe", 547557.0),
+        CountryEntity("ZAF", "South Africa", "ZA", "🇿🇦", "Africa", "Southern Africa", 1213090.0),
+        CountryEntity("ITA", "Italy", "Italia,IT", "🇮🇹", "Europe", "Southern Europe", 294140.0),
+        CountryEntity("KEN", "Kenya", "KE", "🇰🇪", "Africa", "Eastern Africa", 569140.0),
+        CountryEntity("MMR", "Myanmar", "Burma,MM", "🇲🇲", "Asia", "South-Eastern Asia", 653500.0),
+        CountryEntity("COL", "Colombia", "CO", "🇨🇴", "Americas", "South America", 1109500.0),
+        CountryEntity("KOR", "South Korea", "Korea,KR", "🇰🇷", "Asia", "Eastern Asia", 97600.0),
+        CountryEntity("UGA", "Uganda", "UG", "🇺🇬", "Africa", "Eastern Africa", 197100.0),
+        CountryEntity("SDN", "Sudan", "SD", "🇸🇩", "Africa", "Northern Africa", 1861484.0),
+        CountryEntity("ESP", "Spain", "España,ES", "🇪🇸", "Europe", "Southern Europe", 498511.0),
+        CountryEntity("DZA", "Algeria", "DZ", "🇩🇿", "Africa", "Northern Africa", 2381740.0),
+        CountryEntity("ARG", "Argentina", "AR", "🇦🇷", "Americas", "South America", 2736690.0),
+        CountryEntity("IRQ", "Iraq", "IQ", "🇮🇶", "Asia", "Western Asia", 437072.0),
+        CountryEntity("AFG", "Afghanistan", "AF", "🇦🇫", "Asia", "Southern Asia", 652864.0),
+        CountryEntity("POL", "Poland", "Polska,PL", "🇵🇱", "Europe", "Eastern Europe", 306230.0),
+        CountryEntity("CAN", "Canada", "CA", "🇨🇦", "Americas", "Northern America", 8965590.0),
+        CountryEntity("MAR", "Morocco", "MA", "🇲🇦", "Africa", "Northern Africa", 446300.0),
+        CountryEntity("AGO", "Angola", "AO", "🇦🇴", "Africa", "Middle Africa", 1246700.0),
+        CountryEntity("SAU", "Saudi Arabia", "KSA,SA", "🇸🇦", "Asia", "Western Asia", 2149690.0),
+        CountryEntity("UKR", "Ukraine", "UA", "🇺🇦", "Europe", "Eastern Europe", 579330.0),
+        CountryEntity("UZB", "Uzbekistan", "UZ", "🇺🇿", "Asia", "Central Asia", 425400.0),
+        CountryEntity("YEM", "Yemen", "YE", "🇾🇪", "Asia", "Western Asia", 527968.0),
+        CountryEntity("GHA", "Ghana", "GH", "🇬🇭", "Africa", "Western Africa", 227533.0),
+        CountryEntity("PER", "Peru", "PE", "🇵🇪", "Americas", "South America", 1280000.0),
+        CountryEntity("MYS", "Malaysia", "MY", "🇲🇾", "Asia", "South-Eastern Asia", 328657.0),
+        CountryEntity("MOZ", "Mozambique", "MZ", "🇲🇿", "Africa", "Eastern Africa", 786380.0),
+        CountryEntity("NPL", "Nepal", "NP", "🇳🇵", "Asia", "Southern Asia", 143351.0),
+        CountryEntity("CIV", "Côte d'Ivoire", "Ivory Coast,CI", "🇨🇮", "Africa", "Western Africa", 318000.0),
+        CountryEntity("MDG", "Madagascar", "MG", "🇲🇬", "Africa", "Eastern Africa", 581540.0),
+        CountryEntity("VEN", "Venezuela", "VE", "🇻🇪", "Americas", "South America", 882050.0),
+        CountryEntity("CMR", "Cameroon", "CM", "🇨🇲", "Africa", "Middle Africa", 472710.0),
+        CountryEntity("NER", "Niger", "NE", "🇳🇪", "Africa", "Western Africa", 1266700.0),
+        CountryEntity("AUS", "Australia", "AU", "🇦🇺", "Oceania", "Australia and New Zealand", 7682300.0),
+        CountryEntity("PRK", "North Korea", "DPRK,KP", "🇰🇵", "Asia", "Eastern Asia", 120408.0),
+        CountryEntity("MLI", "Mali", "ML", "🇲🇱", "Africa", "Western Africa", 1220190.0),
+        CountryEntity("TWN", "Taiwan", "ROC,TW", "🇹🇼", "Asia", "Eastern Asia", 35980.0),
+        CountryEntity("SYR", "Syria", "SY", "🇸🇾", "Asia", "Western Asia", 183630.0),
+        CountryEntity("BFA", "Burkina Faso", "BF", "🇧🇫", "Africa", "Western Africa", 274200.0),
+        CountryEntity("LKA", "Sri Lanka", "LK", "🇱🇰", "Asia", "Southern Asia", 62710.0),
+        CountryEntity("ZMB", "Zambia", "ZM", "🇿🇲", "Africa", "Eastern Africa", 743390.0),
+        CountryEntity("MWI", "Malawi", "MW", "🇲🇼", "Africa", "Eastern Africa", 118484.0),
+        CountryEntity("KAZ", "Kazakhstan", "KZ", "🇰🇿", "Asia", "Central Asia", 2699700.0),
+        CountryEntity("CHL", "Chile", "CL", "🇨🇱", "Americas", "South America", 743532.0),
+        CountryEntity("TCD", "Chad", "TD", "🇹🇩", "Africa", "Middle Africa", 1259200.0),
+        CountryEntity("ROU", "Romania", "RO", "🇷🇴", "Europe", "Eastern Europe", 230080.0),
+        CountryEntity("SOM", "Somalia", "SO", "🇸🇴", "Africa", "Eastern Africa", 627340.0),
+        CountryEntity("GTM", "Guatemala", "GT", "🇬🇹", "Americas", "Central America", 107160.0),
+        CountryEntity("SEN", "Senegal", "SN", "🇸🇳", "Africa", "Western Africa", 192530.0),
+        CountryEntity("NLD", "Netherlands", "Holland,NL", "🇳🇱", "Europe", "Western Europe", 33670.0),
+        CountryEntity("ECU", "Ecuador", "EC", "🇪🇨", "Americas", "South America", 248360.0),
+        CountryEntity("KHM", "Cambodia", "Kampuchea,KH", "🇰🇭", "Asia", "South-Eastern Asia", 181035.0),
+        CountryEntity("ZWE", "Zimbabwe", "ZW", "🇿🇼", "Africa", "Eastern Africa", 386850.0),
+        CountryEntity("GIN", "Guinea", "GN", "🇬🇳", "Africa", "Western Africa", 245720.0),
+        CountryEntity("RWA", "Rwanda", "RW", "🇷🇼", "Africa", "Eastern Africa", 24670.0),
+        CountryEntity("BEN", "Benin", "BJ", "🇧🇯", "Africa", "Western Africa", 112760.0),
+        CountryEntity("BDI", "Burundi", "BI", "🇧🇮", "Africa", "Eastern Africa", 25680.0),
+        CountryEntity("BOL", "Bolivia", "BO", "🇧🇴", "Americas", "South America", 1083300.0),
+        CountryEntity("TUN", "Tunisia", "TN", "🇹🇳", "Africa", "Northern Africa", 155360.0),
+        CountryEntity("HTI", "Haiti", "HT", "🇭🇹", "Americas", "Caribbean", 27560.0),
+        CountryEntity("BEL", "Belgium", "BE", "🇧🇪", "Europe", "Western Europe", 30280.0),
+        CountryEntity("JOR", "Jordan", "JO", "🇯🇴", "Asia", "Western Asia", 88780.0),
+        CountryEntity("DOM", "Dominican Republic", "DO", "🇩🇴", "Americas", "Caribbean", 48320.0),
+        CountryEntity("SSD", "South Sudan", "SS", "🇸🇸", "Africa", "Eastern Africa", 644330.0),
+        CountryEntity("CUB", "Cuba", "CU", "🇨🇺", "Americas", "Caribbean", 106440.0),
+        CountryEntity("HND", "Honduras", "HN", "🇭🇳", "Americas", "Central America", 111890.0),
+        CountryEntity("SWE", "Sweden", "SE", "🇸🇪", "Europe", "Northern Europe", 407310.0),
+        CountryEntity("CZE", "Czechia", "Czech Republic,CZ", "🇨🇿", "Europe", "Eastern Europe", 77247.0),
+        CountryEntity("PNG", "Papua New Guinea", "PG", "🇵🇬", "Oceania", "Melanesia", 452860.0),
+        CountryEntity("AZE", "Azerbaijan", "AZ", "🇦🇿", "Asia", "Western Asia", 82629.0),
+        CountryEntity("GRC", "Greece", "GR", "🇬🇷", "Europe", "Southern Europe", 128900.0),
+        CountryEntity("TJK", "Tajikistan", "TJ", "🇹🇯", "Asia", "Central Asia", 141510.0),
+        CountryEntity("PRT", "Portugal", "PT", "🇵🇹", "Europe", "Southern Europe", 91590.0),
+        CountryEntity("HUN", "Hungary", "HU", "🇭🇺", "Europe", "Eastern Europe", 89608.0),
+        CountryEntity("ARE", "United Arab Emirates", "UAE,AE", "🇦🇪", "Asia", "Western Asia", 83600.0),
+        CountryEntity("BLR", "Belarus", "BY", "🇧🇾", "Europe", "Eastern Europe", 202900.0),
+        CountryEntity("ISR", "Israel", "IL", "🇮🇱", "Asia", "Western Asia", 21640.0),
+        CountryEntity("TGO", "Togo", "TG", "🇹🇬", "Africa", "Western Africa", 54390.0),
+        CountryEntity("AUT", "Austria", "AT", "🇦🇹", "Europe", "Western Europe", 82445.0),
+        CountryEntity("SLE", "Sierra Leone", "SL", "🇸🇱", "Africa", "Western Africa", 71620.0),
+        CountryEntity("CHE", "Switzerland", "CH", "🇨🇭", "Europe", "Western Europe", 39516.0),
+        CountryEntity("LAO", "Laos", "LA", "🇱🇦", "Asia", "South-Eastern Asia", 230800.0),
+        CountryEntity("HKG", "Hong Kong", "HK", "🇭🇰", "Asia", "Eastern Asia", 1050.0),
+        CountryEntity("KGZ", "Kyrgyzstan", "KG", "🇰🇬", "Asia", "Central Asia", 191800.0),
+        CountryEntity("NIC", "Nicaragua", "NI", "🇳🇮", "Americas", "Central America", 120340.0),
+        CountryEntity("SRB", "Serbia", "RS", "🇷🇸", "Europe", "Southern Europe", 87460.0),
+        CountryEntity("LBY", "Libya", "LY", "🇱🇾", "Africa", "Northern Africa", 1759540.0),
+        CountryEntity("PRY", "Paraguay", "PY", "🇵🇾", "Americas", "South America", 397300.0),
+        CountryEntity("BGR", "Bulgaria", "BG", "🇧🇬", "Europe", "Eastern Europe", 108612.0),
+        CountryEntity("TKM", "Turkmenistan", "TM", "🇹🇲", "Asia", "Central Asia", 469930.0),
+        CountryEntity("SLV", "El Salvador", "SV", "🇸🇻", "Americas", "Central America", 20720.0),
+        CountryEntity("COG", "Congo", "CG", "🇨🇬", "Africa", "Middle Africa", 341500.0),
+        CountryEntity("SGP", "Singapore", "SG", "🇸🇬", "Asia", "South-Eastern Asia", 719.0),
+        CountryEntity("DNK", "Denmark", "DK", "🇩🇰", "Europe", "Northern Europe", 42434.0),
+        CountryEntity("CAF", "Central African Republic", "CF", "🇨🇫", "Africa", "Middle Africa", 622984.0),
+        CountryEntity("SVK", "Slovakia", "SK", "🇸🇰", "Europe", "Eastern Europe", 48088.0),
+        CountryEntity("FIN", "Finland", "FI", "🇫🇮", "Europe", "Northern Europe", 303890.0),
+        CountryEntity("LBR", "Liberia", "LR", "🇱🇷", "Africa", "Western Africa", 96320.0),
+        CountryEntity("NOR", "Norway", "NO", "🇳🇴", "Europe", "Northern Europe", 365268.0),
+        CountryEntity("PSE", "Palestine", "State of Palestine,PS", "🇵🇸", "Asia", "Western Asia", 6020.0),
+        CountryEntity("LBN", "Lebanon", "LB", "🇱🇧", "Asia", "Western Asia", 10452.0),
+        CountryEntity("NZL", "New Zealand", "NZ", "🇳🇿", "Oceania", "Australia and New Zealand", 263310.0),
+        CountryEntity("CRI", "Costa Rica", "CR", "🇨🇷", "Americas", "Central America", 51060.0),
+        CountryEntity("IRL", "Ireland", "IE", "🇮🇪", "Europe", "Northern Europe", 68890.0),
+        CountryEntity("MRT", "Mauritania", "MR", "🇲🇷", "Africa", "Western Africa", 1030700.0),
+        CountryEntity("OMN", "Oman", "OM", "🇴🇲", "Asia", "Western Asia", 309500.0),
+        CountryEntity("PAN", "Panama", "PA", "🇵🇦", "Americas", "Central America", 74340.0),
+        CountryEntity("KWT", "Kuwait", "KW", "🇰🇼", "Asia", "Western Asia", 17820.0),
+        CountryEntity("HRV", "Croatia", "HR", "🇭🇷", "Europe", "Southern Europe", 55960.0),
+        CountryEntity("ERI", "Eritrea", "ER", "🇪🇷", "Africa", "Eastern Africa", 101000.0),
+        CountryEntity("GEO", "Georgia", "GE", "🇬🇪", "Asia", "Western Asia", 69490.0),
+        CountryEntity("MNG", "Mongolia", "MN", "🇲🇳", "Asia", "Eastern Asia", 1553560.0),
+        CountryEntity("URY", "Uruguay", "UY", "🇺🇾", "Americas", "South America", 175020.0),
+        CountryEntity("BIH", "Bosnia and Herzegovina", "BA", "🇧🇦", "Europe", "Southern Europe", 51000.0),
+        CountryEntity("QAT", "Qatar", "QA", "🇶🇦", "Asia", "Western Asia", 11610.0),
+        CountryEntity("NAM", "Namibia", "NA", "🇳🇦", "Africa", "Southern Africa", 823290.0),
+        CountryEntity("ARM", "Armenia", "AM", "🇦🇲", "Asia", "Western Asia", 28470.0),
+        CountryEntity("JAM", "Jamaica", "JM", "🇯🇲", "Americas", "Caribbean", 10830.0),
+        CountryEntity("ALB", "Albania", "AL", "🇦🇱", "Europe", "Southern Europe", 27400.0),
+        CountryEntity("GMB", "Gambia", "GM", "🇬🇲", "Africa", "Western Africa", 10120.0),
+        CountryEntity("LTU", "Lithuania", "LT", "🇱🇹", "Europe", "Northern Europe", 62674.0),
+        CountryEntity("BWA", "Botswana", "BW", "🇧🇼", "Africa", "Southern Africa", 566730.0),
+        CountryEntity("MDA", "Moldova", "MD", "🇲🇩", "Europe", "Eastern Europe", 33846.0),
+        CountryEntity("GAB", "Gabon", "GA", "🇬🇦", "Africa", "Middle Africa", 257670.0),
+        CountryEntity("LSO", "Lesotho", "LS", "🇱🇸", "Africa", "Southern Africa", 30360.0),
+        CountryEntity("GNB", "Guinea-Bissau", "GW", "🇬🇼", "Africa", "Western Africa", 28120.0),
+        CountryEntity("SVN", "Slovenia", "SI", "🇸🇮", "Europe", "Southern Europe", 20140.0),
+        CountryEntity("LVA", "Latvia", "LV", "🇱🇻", "Europe", "Northern Europe", 62200.0),
+        CountryEntity("MKD", "North Macedonia", "Macedonia,MK", "🇲🇰", "Europe", "Southern Europe", 25430.0),
+        CountryEntity("XKX", "Kosovo", "XK", "🇽🇰", "Europe", "Southern Europe", 10887.0),
+        CountryEntity("GNQ", "Equatorial Guinea", "GQ", "🇬🇶", "Africa", "Middle Africa", 28050.0),
+        CountryEntity("BHR", "Bahrain", "BH", "🇧🇭", "Asia", "Western Asia", 780.0),
+        CountryEntity("TTO", "Trinidad and Tobago", "TT", "🇹🇹", "Americas", "Caribbean", 5130.0),
+        CountryEntity("EST", "Estonia", "EE", "🇪🇪", "Europe", "Northern Europe", 42390.0),
+        CountryEntity("TLS", "Timor-Leste", "East Timor,TL", "🇹🇱", "Asia", "South-Eastern Asia", 14870.0),
+        CountryEntity("MUS", "Mauritius", "MU", "🇲🇺", "Africa", "Eastern Africa", 2030.0),
+        CountryEntity("CYP", "Cyprus", "CY", "🇨🇾", "Asia", "Western Asia", 9240.0),
+        CountryEntity("SWZ", "Eswatini", "Swaziland,SZ", "🇸🇿", "Africa", "Southern Africa", 17200.0),
+        CountryEntity("DJI", "Djibouti", "DJ", "🇩🇯", "Africa", "Eastern Africa", 23180.0),
+        CountryEntity("FJI", "Fiji", "FJ", "🇫🇯", "Oceania", "Melanesia", 18270.0),
+        CountryEntity("COM", "Comoros", "KM", "🇰🇲", "Africa", "Eastern Africa", 2235.0),
+        CountryEntity("GUY", "Guyana", "GY", "🇬🇾", "Americas", "South America", 196850.0),
+        CountryEntity("BTN", "Bhutan", "BT", "🇧🇹", "Asia", "Southern Asia", 38117.0),
+        CountryEntity("SLB", "Solomon Islands", "SB", "🇸🇧", "Oceania", "Melanesia", 27990.0),
+        CountryEntity("LUX", "Luxembourg", "LU", "🇱🇺", "Europe", "Western Europe", 2574.0),
+        CountryEntity("SUR", "Suriname", "SR", "🇸🇷", "Americas", "South America", 156000.0),
+        CountryEntity("MNE", "Montenegro", "ME", "🇲🇪", "Europe", "Southern Europe", 13450.0),
+        CountryEntity("CPV", "Cabo Verde", "Cape Verde,CV", "🇨🇻", "Africa", "Western Africa", 4030.0),
+        CountryEntity("MLT", "Malta", "MT", "🇲🇹", "Europe", "Southern Europe", 316.0),
+        CountryEntity("MDV", "Maldives", "MV", "🇲🇻", "Asia", "Southern Asia", 300.0),
+        CountryEntity("BRN", "Brunei", "BN", "🇧🇳", "Asia", "South-Eastern Asia", 5270.0),
+        CountryEntity("BHS", "Bahamas", "BS", "🇧🇸", "Americas", "Caribbean", 10010.0),
+        CountryEntity("BLZ", "Belize", "BZ", "🇧🇿", "Americas", "Central America", 22810.0),
+        CountryEntity("ISL", "Iceland", "IS", "🇮🇸", "Europe", "Northern Europe", 100250.0),
+        CountryEntity("VUT", "Vanuatu", "VU", "🇻🇺", "Oceania", "Melanesia", 12190.0),
+        CountryEntity("BRB", "Barbados", "BB", "🇧🇧", "Americas", "Caribbean", 430.0),
+        CountryEntity("STP", "Sao Tome and Principe", "ST", "🇸🇹", "Africa", "Middle Africa", 960.0),
+        CountryEntity("WSM", "Samoa", "WS", "🇼🇸", "Oceania", "Polynesia", 2830.0),
+        CountryEntity("LCA", "Saint Lucia", "LC", "🇱🇨", "Americas", "Caribbean", 610.0),
+        CountryEntity("KIR", "Kiribati", "KI", "🇰🇮", "Oceania", "Micronesia", 810.0),
+        CountryEntity("GRD", "Grenada", "GD", "🇬🇩", "Americas", "Caribbean", 340.0),
+        CountryEntity("FSM", "Micronesia", "FM", "🇫🇲", "Oceania", "Micronesia", 700.0),
+        CountryEntity("SYC", "Seychelles", "SC", "🇸🇨", "Africa", "Eastern Africa", 460.0),
+        CountryEntity("TON", "Tonga", "TO", "🇹🇴", "Oceania", "Polynesia", 747.0),
+        CountryEntity("VCT", "Saint Vincent and the Grenadines", "VC", "🇻🇨", "Americas", "Caribbean", 390.0),
+        CountryEntity("ATG", "Antigua and Barbuda", "AG", "🇦🇬", "Americas", "Caribbean", 440.0),
+        CountryEntity("AND", "Andorra", "AD", "🇦🇩", "Europe", "Southern Europe", 470.0),
+        CountryEntity("DMA", "Dominica", "DM", "🇩🇲", "Americas", "Caribbean", 750.0),
+        CountryEntity("KNA", "Saint Kitts and Nevis", "KN", "🇰🇳", "Americas", "Caribbean", 260.0),
+        CountryEntity("MHL", "Marshall Islands", "MH", "🇲🇭", "Oceania", "Micronesia", 180.0),
+        CountryEntity("LIE", "Liechtenstein", "LI", "🇱🇮", "Europe", "Western Europe", 160.0),
+        CountryEntity("MCO", "Monaco", "MC", "🇲🇨", "Europe", "Western Europe", 2.0),
+        CountryEntity("SMR", "San Marino", "SM", "🇸🇲", "Europe", "Southern Europe", 60.0),
+        CountryEntity("PLW", "Palau", "PW", "🇵🇼", "Oceania", "Micronesia", 460.0),
+        CountryEntity("NRU", "Nauru", "NR", "🇳🇷", "Oceania", "Micronesia", 20.0),
+        CountryEntity("TUV", "Tuvalu", "TV", "🇹🇻", "Oceania", "Polynesia", 30.0),
+        CountryEntity("VAT", "Holy See", "Vatican,VA", "🇻🇦", "Europe", "Southern Europe", 0.5)
     )
 
     val countryPopulations = listOf(
-        CountryPopulationEntity("IND", "India", 1_450_935_791L, 2026, 1767225600000L, 12_900_000.0, 0.89, 2973190.0, 488.0, "Asia", "Southern Asia", "PROJECTION", 1),
-        CountryPopulationEntity("CHN", "China", 1_419_321_278L, 2026, 1767225600000L, -2_200_000.0, -0.15, 9388211.0, 151.0, "Asia", "Eastern Asia", "PROJECTION", 2),
-        CountryPopulationEntity("USA", "United States", 345_426_571L, 2026, 1767225600000L, 1_850_000.0, 0.53, 9147420.0, 38.0, "Americas", "Northern America", "PROJECTION", 3),
-        CountryPopulationEntity("IDN", "Indonesia", 283_487_931L, 2026, 1767225600000L, 2_150_000.0, 0.76, 1811570.0, 156.0, "Asia", "South-Eastern Asia", "PROJECTION", 4),
-        CountryPopulationEntity("PAK", "Pakistan", 251_269_164L, 2026, 1767225600000L, 4_900_000.0, 1.95, 770880.0, 326.0, "Asia", "Southern Asia", "PROJECTION", 5),
-        CountryPopulationEntity("NGA", "Nigeria", 232_679_478L, 2026, 1767225600000L, 5_450_000.0, 2.34, 910770.0, 255.0, "Africa", "Western Africa", "PROJECTION", 6),
-        CountryPopulationEntity("BRA", "Brazil", 211_998_573L, 2026, 1767225600000L, 1_080_000.0, 0.51, 8358140.0, 25.0, "Americas", "South America", "PROJECTION", 7),
-        CountryPopulationEntity("BGD", "Bangladesh", 173_562_364L, 2026, 1767225600000L, 1_720_000.0, 0.99, 130170.0, 1333.0, "Asia", "Southern Asia", "PROJECTION", 8),
-        CountryPopulationEntity("RUS", "Russia", 144_820_423L, 2026, 1767225600000L, -280_000.0, -0.19, 16376870.0, 8.8, "Europe", "Eastern Europe", "PROJECTION", 9),
-        CountryPopulationEntity("ETH", "Ethiopia", 132_059_767L, 2026, 1767225600000L, 3_200_000.0, 2.42, 1000000.0, 132.0, "Africa", "Eastern Africa", "PROJECTION", 10),
-        CountryPopulationEntity("MEX", "Mexico", 130_739_927L, 2026, 1767225600000L, 950_000.0, 0.73, 1943950.0, 67.0, "Americas", "Central America", "PROJECTION", 11),
-        CountryPopulationEntity("JPN", "Japan", 123_753_041L, 2026, 1767225600000L, -660_000.0, -0.53, 364500.0, 339.0, "Asia", "Eastern Asia", "PROJECTION", 12),
-        CountryPopulationEntity("PHL", "Philippines", 115_843_670L, 2026, 1767225600000L, 1_710_000.0, 1.48, 298170.0, 388.0, "Asia", "South-Eastern Asia", "PROJECTION", 13),
-        CountryPopulationEntity("EGY", "Egypt", 116_538_258L, 2026, 1767225600000L, 1_780_000.0, 1.53, 995450.0, 117.0, "Africa", "Northern Africa", "PROJECTION", 14),
-        CountryPopulationEntity("COD", "DR Congo", 109_276_265L, 2026, 1767225600000L, 3_420_000.0, 3.13, 2267050.0, 48.0, "Africa", "Middle Africa", "PROJECTION", 15),
-        CountryPopulationEntity("VNM", "Vietnam", 99_863_200L, 2026, 1767225600000L, 680_000.0, 0.68, 310070.0, 322.0, "Asia", "South-Eastern Asia", "PROJECTION", 16),
-        CountryPopulationEntity("TUR", "Turkey", 86_260_700L, 2026, 1767225600000L, 480_000.0, 0.56, 769630.0, 112.0, "Asia", "Western Asia", "PROJECTION", 17),
-        CountryPopulationEntity("IRN", "Iran", 89_809_700L, 2026, 1767225600000L, 640_000.0, 0.71, 1628760.0, 55.0, "Asia", "Southern Asia", "PROJECTION", 18),
-        CountryPopulationEntity("DEU", "Germany", 84_552_242L, 2026, 1767225600000L, 95_000.0, 0.11, 349380.0, 242.0, "Europe", "Western Europe", "PROJECTION", 19),
-        CountryPopulationEntity("GBR", "United Kingdom", 68_265_209L, 2026, 1767225600000L, 230_000.0, 0.34, 241930.0, 282.0, "Europe", "Northern Europe", "PROJECTION", 20),
-        CountryPopulationEntity("FRA", "France", 66_548_530L, 2026, 1767225600000L, 130_000.0, 0.20, 547557.0, 122.0, "Europe", "Western Europe", "PROJECTION", 21),
-        CountryPopulationEntity("ITA", "Italy", 58_697_744L, 2026, 1767225600000L, -165_000.0, -0.28, 294140.0, 199.0, "Europe", "Southern Europe", "PROJECTION", 22),
-        CountryPopulationEntity("ZAF", "South Africa", 64_007_187L, 2026, 1767225600000L, 840_000.0, 1.31, 1213090.0, 53.0, "Africa", "Southern Africa", "PROJECTION", 23),
-        CountryPopulationEntity("KOR", "South Korea", 51_717_590L, 2026, 1767225600000L, -75_000.0, -0.14, 97600.0, 530.0, "Asia", "Eastern Asia", "PROJECTION", 24),
-        CountryPopulationEntity("CAN", "Canada", 39_742_430L, 2026, 1767225600000L, 480_000.0, 1.21, 8965590.0, 4.4, "Americas", "Northern America", "PROJECTION", 25),
-        CountryPopulationEntity("AUS", "Australia", 26_713_205L, 2026, 1767225600000L, 330_000.0, 1.24, 7682300.0, 3.5, "Oceania", "Australia and New Zealand", "PROJECTION", 26)
+        CountryPopulationEntity("IND", "India", 1450935791L, 2026, 1767225600000L, 12913329.0, 0.89, 2973190.0, 488.0, "Asia", "Southern Asia", "PROJECTION", 1),
+        CountryPopulationEntity("CHN", "China", 1419321278L, 2026, 1767225600000L, -2128982.0, -0.15, 9388211.0, 151.2, "Asia", "Eastern Asia", "PROJECTION", 2),
+        CountryPopulationEntity("USA", "United States", 345426571L, 2026, 1767225600000L, 1830761.0, 0.53, 9147420.0, 37.8, "Americas", "Northern America", "PROJECTION", 3),
+        CountryPopulationEntity("IDN", "Indonesia", 283487931L, 2026, 1767225600000L, 2154508.0, 0.76, 1811570.0, 156.5, "Asia", "South-Eastern Asia", "PROJECTION", 4),
+        CountryPopulationEntity("PAK", "Pakistan", 251269164L, 2026, 1767225600000L, 4899749.0, 1.95, 770880.0, 326.0, "Asia", "Southern Asia", "PROJECTION", 5),
+        CountryPopulationEntity("NGA", "Nigeria", 232679478L, 2026, 1767225600000L, 5444700.0, 2.34, 910770.0, 255.5, "Africa", "Western Africa", "PROJECTION", 6),
+        CountryPopulationEntity("BRA", "Brazil", 211998573L, 2026, 1767225600000L, 1081193.0, 0.51, 8358140.0, 25.4, "Americas", "South America", "PROJECTION", 7),
+        CountryPopulationEntity("BGD", "Bangladesh", 173562364L, 2026, 1767225600000L, 1718267.0, 0.99, 130170.0, 1333.4, "Asia", "Southern Asia", "PROJECTION", 8),
+        CountryPopulationEntity("RUS", "Russia", 144820423L, 2026, 1767225600000L, -275159.0, -0.19, 16376870.0, 8.8, "Europe", "Eastern Europe", "PROJECTION", 9),
+        CountryPopulationEntity("ETH", "Ethiopia", 132059767L, 2026, 1767225600000L, 3195846.0, 2.42, 1000000.0, 132.1, "Africa", "Eastern Africa", "PROJECTION", 10),
+        CountryPopulationEntity("MEX", "Mexico", 130739927L, 2026, 1767225600000L, 954401.0, 0.73, 1943950.0, 67.3, "Americas", "Central America", "PROJECTION", 11),
+        CountryPopulationEntity("JPN", "Japan", 123753041L, 2026, 1767225600000L, -655891.0, -0.53, 364500.0, 339.5, "Asia", "Eastern Asia", "PROJECTION", 12),
+        CountryPopulationEntity("PHL", "Philippines", 119106224L, 2026, 1767225600000L, 1596023.0, 1.34, 298170.0, 399.5, "Asia", "South-Eastern Asia", "PROJECTION", 13),
+        CountryPopulationEntity("EGY", "Egypt", 116538258L, 2026, 1767225600000L, 1817997.0, 1.56, 995450.0, 117.1, "Africa", "Northern Africa", "PROJECTION", 14),
+        CountryPopulationEntity("COD", "DR Congo", 109276265L, 2026, 1767225600000L, 3485913.0, 3.19, 2267050.0, 48.2, "Africa", "Middle Africa", "PROJECTION", 15),
+        CountryPopulationEntity("VNM", "Vietnam", 100987686L, 2026, 1767225600000L, 686716.0, 0.68, 310070.0, 325.7, "Asia", "South-Eastern Asia", "PROJECTION", 16),
+        CountryPopulationEntity("IRN", "Iran", 91567738L, 2026, 1767225600000L, 650131.0, 0.71, 1628760.0, 56.2, "Asia", "Southern Asia", "PROJECTION", 17),
+        CountryPopulationEntity("TUR", "Turkey", 87473805L, 2026, 1767225600000L, 507348.0, 0.58, 769630.0, 113.7, "Asia", "Western Asia", "PROJECTION", 18),
+        CountryPopulationEntity("DEU", "Germany", 84552242L, 2026, 1767225600000L, 93007.0, 0.11, 349380.0, 242.0, "Europe", "Western Europe", "PROJECTION", 19),
+        CountryPopulationEntity("THA", "Thailand", 71668011L, 2026, 1767225600000L, 86002.0, 0.12, 510890.0, 140.3, "Asia", "South-Eastern Asia", "PROJECTION", 20),
+        CountryPopulationEntity("TZA", "Tanzania", 68560157L, 2026, 1767225600000L, 2029381.0, 2.96, 885800.0, 77.4, "Africa", "Eastern Africa", "PROJECTION", 21),
+        CountryPopulationEntity("GBR", "United Kingdom", 68265209L, 2026, 1767225600000L, 232102.0, 0.34, 241930.0, 282.2, "Europe", "Northern Europe", "PROJECTION", 22),
+        CountryPopulationEntity("FRA", "France", 66548530L, 2026, 1767225600000L, 133097.0, 0.2, 547557.0, 121.5, "Europe", "Western Europe", "PROJECTION", 23),
+        CountryPopulationEntity("ZAF", "South Africa", 64007187L, 2026, 1767225600000L, 556863.0, 0.87, 1213090.0, 52.8, "Africa", "Southern Africa", "PROJECTION", 24),
+        CountryPopulationEntity("ITA", "Italy", 59342867L, 2026, 1767225600000L, -166160.0, -0.28, 294140.0, 201.8, "Europe", "Southern Europe", "PROJECTION", 25),
+        CountryPopulationEntity("KEN", "Kenya", 56203030L, 2026, 1767225600000L, 1118440.0, 1.99, 569140.0, 98.8, "Africa", "Eastern Africa", "PROJECTION", 26),
+        CountryPopulationEntity("MMR", "Myanmar", 54500091L, 2026, 1767225600000L, 370601.0, 0.68, 653500.0, 83.4, "Asia", "South-Eastern Asia", "PROJECTION", 27),
+        CountryPopulationEntity("COL", "Colombia", 52695952L, 2026, 1767225600000L, 342524.0, 0.65, 1109500.0, 47.5, "Americas", "South America", "PROJECTION", 28),
+        CountryPopulationEntity("KOR", "South Korea", 51741963L, 2026, 1767225600000L, -31045.0, -0.06, 97600.0, 530.1, "Asia", "Eastern Asia", "PROJECTION", 29),
+        CountryPopulationEntity("UGA", "Uganda", 50015092L, 2026, 1767225600000L, 1485448.0, 2.97, 197100.0, 253.8, "Africa", "Eastern Africa", "PROJECTION", 30),
+        CountryPopulationEntity("SDN", "Sudan", 49358228L, 2026, 1767225600000L, 1288250.0, 2.61, 1861484.0, 26.5, "Africa", "Northern Africa", "PROJECTION", 31),
+        CountryPopulationEntity("ESP", "Spain", 47910526L, 2026, 1767225600000L, 110194.0, 0.23, 498511.0, 96.1, "Europe", "Southern Europe", "PROJECTION", 32),
+        CountryPopulationEntity("DZA", "Algeria", 46164219L, 2026, 1767225600000L, 669381.0, 1.45, 2381740.0, 19.4, "Africa", "Northern Africa", "PROJECTION", 33),
+        CountryPopulationEntity("ARG", "Argentina", 46057866L, 2026, 1767225600000L, 373069.0, 0.81, 2736690.0, 16.8, "Americas", "South America", "PROJECTION", 34),
+        CountryPopulationEntity("IRQ", "Iraq", 46042015L, 2026, 1767225600000L, 1045154.0, 2.27, 437072.0, 105.3, "Asia", "Western Asia", "PROJECTION", 35),
+        CountryPopulationEntity("AFG", "Afghanistan", 42647492L, 2026, 1767225600000L, 1151482.0, 2.7, 652864.0, 65.3, "Asia", "Southern Asia", "PROJECTION", 36),
+        CountryPopulationEntity("POL", "Poland", 39970672L, 2026, 1767225600000L, -111918.0, -0.28, 306230.0, 130.5, "Europe", "Eastern Europe", "PROJECTION", 37),
+        CountryPopulationEntity("CAN", "Canada", 39742430L, 2026, 1767225600000L, 480883.0, 1.21, 8965590.0, 4.4, "Americas", "Northern America", "PROJECTION", 38),
+        CountryPopulationEntity("MAR", "Morocco", 38081173L, 2026, 1767225600000L, 373195.0, 0.98, 446300.0, 85.3, "Africa", "Northern Africa", "PROJECTION", 39),
+        CountryPopulationEntity("AGO", "Angola", 37885849L, 2026, 1767225600000L, 1166884.0, 3.08, 1246700.0, 30.4, "Africa", "Middle Africa", "PROJECTION", 40),
+        CountryPopulationEntity("SAU", "Saudi Arabia", 37473829L, 2026, 1767225600000L, 554613.0, 1.48, 2149690.0, 17.4, "Asia", "Western Asia", "PROJECTION", 41),
+        CountryPopulationEntity("UKR", "Ukraine", 37000000L, 2026, 1767225600000L, -777000.0, -2.1, 579330.0, 63.9, "Europe", "Eastern Europe", "PROJECTION", 42),
+        CountryPopulationEntity("UZB", "Uzbekistan", 36361859L, 2026, 1767225600000L, 669058.0, 1.84, 425400.0, 85.5, "Asia", "Central Asia", "PROJECTION", 43),
+        CountryPopulationEntity("YEM", "Yemen", 35338743L, 2026, 1767225600000L, 756249.0, 2.14, 527968.0, 66.9, "Asia", "Western Asia", "PROJECTION", 44),
+        CountryPopulationEntity("GHA", "Ghana", 34777522L, 2026, 1767225600000L, 671206.0, 1.93, 227533.0, 152.8, "Africa", "Western Africa", "PROJECTION", 45),
+        CountryPopulationEntity("PER", "Peru", 34683444L, 2026, 1767225600000L, 350303.0, 1.01, 1280000.0, 27.1, "Americas", "South America", "PROJECTION", 46),
+        CountryPopulationEntity("MYS", "Malaysia", 34671895L, 2026, 1767225600000L, 377924.0, 1.09, 328657.0, 105.5, "Asia", "South-Eastern Asia", "PROJECTION", 47),
+        CountryPopulationEntity("MOZ", "Mozambique", 34631766L, 2026, 1767225600000L, 973153.0, 2.81, 786380.0, 44.0, "Africa", "Eastern Africa", "PROJECTION", 48),
+        CountryPopulationEntity("NPL", "Nepal", 31240315L, 2026, 1767225600000L, 356140.0, 1.14, 143351.0, 217.9, "Asia", "Southern Asia", "PROJECTION", 49),
+        CountryPopulationEntity("CIV", "Côte d'Ivoire", 31165623L, 2026, 1767225600000L, 776024.0, 2.49, 318000.0, 98.0, "Africa", "Western Africa", "PROJECTION", 50),
+        CountryPopulationEntity("MDG", "Madagascar", 31056610L, 2026, 1767225600000L, 745359.0, 2.4, 581540.0, 53.4, "Africa", "Eastern Africa", "PROJECTION", 51),
+        CountryPopulationEntity("VEN", "Venezuela", 29395254L, 2026, 1767225600000L, 182251.0, 0.62, 882050.0, 33.3, "Americas", "South America", "PROJECTION", 52),
+        CountryPopulationEntity("CMR", "Cameroon", 29123744L, 2026, 1767225600000L, 751393.0, 2.58, 472710.0, 61.6, "Africa", "Middle Africa", "PROJECTION", 53),
+        CountryPopulationEntity("NER", "Niger", 27032412L, 2026, 1767225600000L, 989386.0, 3.66, 1266700.0, 21.3, "Africa", "Western Africa", "PROJECTION", 54),
+        CountryPopulationEntity("AUS", "Australia", 26713205L, 2026, 1767225600000L, 331244.0, 1.24, 7682300.0, 3.5, "Oceania", "Australia and New Zealand", "PROJECTION", 55),
+        CountryPopulationEntity("PRK", "North Korea", 26244582L, 2026, 1767225600000L, 99729.0, 0.38, 120408.0, 218.0, "Asia", "Eastern Asia", "PROJECTION", 56),
+        CountryPopulationEntity("MLI", "Mali", 24015789L, 2026, 1767225600000L, 744489.0, 3.1, 1220190.0, 19.7, "Africa", "Western Africa", "PROJECTION", 57),
+        CountryPopulationEntity("TWN", "Taiwan", 23950000L, 2026, 1767225600000L, 23950.0, 0.1, 35980.0, 665.6, "Asia", "Eastern Asia", "PROJECTION", 58),
+        CountryPopulationEntity("SYR", "Syria", 23865423L, 2026, 1767225600000L, 1188498.0, 4.98, 183630.0, 130.0, "Asia", "Western Asia", "PROJECTION", 59),
+        CountryPopulationEntity("BFA", "Burkina Faso", 23251485L, 2026, 1767225600000L, 581287.0, 2.5, 274200.0, 84.8, "Africa", "Western Africa", "PROJECTION", 60),
+        CountryPopulationEntity("LKA", "Sri Lanka", 23103565L, 2026, 1767225600000L, 64690.0, 0.28, 62710.0, 368.4, "Asia", "Southern Asia", "PROJECTION", 61),
+        CountryPopulationEntity("ZMB", "Zambia", 21314956L, 2026, 1767225600000L, 584030.0, 2.74, 743390.0, 28.7, "Africa", "Eastern Africa", "PROJECTION", 62),
+        CountryPopulationEntity("MWI", "Malawi", 21100000L, 2026, 1767225600000L, 538050.0, 2.55, 118484.0, 178.1, "Africa", "Eastern Africa", "PROJECTION", 63),
+        CountryPopulationEntity("KAZ", "Kazakhstan", 20592571L, 2026, 1767225600000L, 275940.0, 1.34, 2699700.0, 7.6, "Asia", "Central Asia", "PROJECTION", 64),
+        CountryPopulationEntity("CHL", "Chile", 19658839L, 2026, 1767225600000L, 108124.0, 0.55, 743532.0, 26.4, "Americas", "South America", "PROJECTION", 65),
+        CountryPopulationEntity("TCD", "Chad", 19319064L, 2026, 1767225600000L, 604687.0, 3.13, 1259200.0, 15.3, "Africa", "Middle Africa", "PROJECTION", 66),
+        CountryPopulationEntity("ROU", "Romania", 19015088L, 2026, 1767225600000L, -125500.0, -0.66, 230080.0, 82.6, "Europe", "Eastern Europe", "PROJECTION", 67),
+        CountryPopulationEntity("SOM", "Somalia", 19009181L, 2026, 1767225600000L, 593086.0, 3.12, 627340.0, 30.3, "Africa", "Eastern Africa", "PROJECTION", 68),
+        CountryPopulationEntity("GTM", "Guatemala", 18605884L, 2026, 1767225600000L, 258622.0, 1.39, 107160.0, 173.6, "Americas", "Central America", "PROJECTION", 69),
+        CountryPopulationEntity("SEN", "Senegal", 18275743L, 2026, 1767225600000L, 462376.0, 2.53, 192530.0, 94.9, "Africa", "Western Africa", "PROJECTION", 70),
+        CountryPopulationEntity("NLD", "Netherlands", 18228741L, 2026, 1767225600000L, 72915.0, 0.4, 33670.0, 541.4, "Europe", "Western Europe", "PROJECTION", 71),
+        CountryPopulationEntity("ECU", "Ecuador", 18135478L, 2026, 1767225600000L, 172287.0, 0.95, 248360.0, 73.0, "Americas", "South America", "PROJECTION", 72),
+        CountryPopulationEntity("KHM", "Cambodia", 16944826L, 2026, 1767225600000L, 177921.0, 1.05, 181035.0, 93.6, "Asia", "South-Eastern Asia", "PROJECTION", 73),
+        CountryPopulationEntity("ZWE", "Zimbabwe", 16634373L, 2026, 1767225600000L, 337678.0, 2.03, 386850.0, 43.0, "Africa", "Eastern Africa", "PROJECTION", 74),
+        CountryPopulationEntity("GIN", "Guinea", 14755804L, 2026, 1767225600000L, 351188.0, 2.38, 245720.0, 60.1, "Africa", "Western Africa", "PROJECTION", 75),
+        CountryPopulationEntity("RWA", "Rwanda", 14414936L, 2026, 1767225600000L, 332985.0, 2.31, 24670.0, 584.3, "Africa", "Eastern Africa", "PROJECTION", 76),
+        CountryPopulationEntity("BEN", "Benin", 14111034L, 2026, 1767225600000L, 378176.0, 2.68, 112760.0, 125.1, "Africa", "Western Africa", "PROJECTION", 77),
+        CountryPopulationEntity("BDI", "Burundi", 14047786L, 2026, 1767225600000L, 373671.0, 2.66, 25680.0, 547.0, "Africa", "Eastern Africa", "PROJECTION", 78),
+        CountryPopulationEntity("BOL", "Bolivia", 12567336L, 2026, 1767225600000L, 168402.0, 1.34, 1083300.0, 11.6, "Americas", "South America", "PROJECTION", 79),
+        CountryPopulationEntity("TUN", "Tunisia", 12564690L, 2026, 1767225600000L, 90466.0, 0.72, 155360.0, 80.9, "Africa", "Northern Africa", "PROJECTION", 80),
+        CountryPopulationEntity("HTI", "Haiti", 11867030L, 2026, 1767225600000L, 140031.0, 1.18, 27560.0, 430.6, "Americas", "Caribbean", "PROJECTION", 81),
+        CountryPopulationEntity("BEL", "Belgium", 11738763L, 2026, 1767225600000L, 53998.0, 0.46, 30280.0, 387.7, "Europe", "Western Europe", "PROJECTION", 82),
+        CountryPopulationEntity("JOR", "Jordan", 11552579L, 2026, 1767225600000L, 101663.0, 0.88, 88780.0, 130.1, "Asia", "Western Asia", "PROJECTION", 83),
+        CountryPopulationEntity("DOM", "Dominican Republic", 11434005L, 2026, 1767225600000L, 104049.0, 0.91, 48320.0, 236.6, "Americas", "Caribbean", "PROJECTION", 84),
+        CountryPopulationEntity("SSD", "South Sudan", 11277092L, 2026, 1767225600000L, 174795.0, 1.55, 644330.0, 17.5, "Africa", "Eastern Africa", "PROJECTION", 85),
+        CountryPopulationEntity("CUB", "Cuba", 11194449L, 2026, 1767225600000L, -27986.0, -0.25, 106440.0, 105.2, "Americas", "Caribbean", "PROJECTION", 86),
+        CountryPopulationEntity("HND", "Honduras", 10759406L, 2026, 1767225600000L, 156011.0, 1.45, 111890.0, 96.2, "Americas", "Central America", "PROJECTION", 87),
+        CountryPopulationEntity("SWE", "Sweden", 10606999L, 2026, 1767225600000L, 57278.0, 0.54, 407310.0, 26.0, "Europe", "Northern Europe", "PROJECTION", 88),
+        CountryPopulationEntity("CZE", "Czechia", 10516707L, 2026, 1767225600000L, 23137.0, 0.22, 77247.0, 136.1, "Europe", "Eastern Europe", "PROJECTION", 89),
+        CountryPopulationEntity("PNG", "Papua New Guinea", 10515788L, 2026, 1767225600000L, 192439.0, 1.83, 452860.0, 23.2, "Oceania", "Melanesia", "PROJECTION", 90),
+        CountryPopulationEntity("AZE", "Azerbaijan", 10462904L, 2026, 1767225600000L, 70101.0, 0.67, 82629.0, 126.6, "Asia", "Western Asia", "PROJECTION", 91),
+        CountryPopulationEntity("GRC", "Greece", 10341277L, 2026, 1767225600000L, -46536.0, -0.45, 128900.0, 80.2, "Europe", "Southern Europe", "PROJECTION", 92),
+        CountryPopulationEntity("TJK", "Tajikistan", 10331513L, 2026, 1767225600000L, 222128.0, 2.15, 141510.0, 73.0, "Asia", "Central Asia", "PROJECTION", 93),
+        CountryPopulationEntity("PRT", "Portugal", 10247605L, 2026, 1767225600000L, -21520.0, -0.21, 91590.0, 111.9, "Europe", "Southern Europe", "PROJECTION", 94),
+        CountryPopulationEntity("HUN", "Hungary", 9676135L, 2026, 1767225600000L, -26126.0, -0.27, 89608.0, 108.0, "Europe", "Eastern Europe", "PROJECTION", 95),
+        CountryPopulationEntity("ARE", "United Arab Emirates", 9516871L, 2026, 1767225600000L, 76135.0, 0.8, 83600.0, 113.8, "Asia", "Western Asia", "PROJECTION", 96),
+        CountryPopulationEntity("BLR", "Belarus", 9455037L, 2026, 1767225600000L, -30256.0, -0.32, 202900.0, 46.6, "Europe", "Eastern Europe", "PROJECTION", 97),
+        CountryPopulationEntity("ISR", "Israel", 9311652L, 2026, 1767225600000L, 140606.0, 1.51, 21640.0, 430.3, "Asia", "Western Asia", "PROJECTION", 98),
+        CountryPopulationEntity("TGO", "Togo", 9260864L, 2026, 1767225600000L, 220409.0, 2.38, 54390.0, 170.3, "Africa", "Western Africa", "PROJECTION", 99),
+        CountryPopulationEntity("AUT", "Austria", 9120713L, 2026, 1767225600000L, 41043.0, 0.45, 82445.0, 110.6, "Europe", "Western Europe", "PROJECTION", 100),
+        CountryPopulationEntity("SLE", "Sierra Leone", 8977972L, 2026, 1767225600000L, 190333.0, 2.12, 71620.0, 125.4, "Africa", "Western Africa", "PROJECTION", 101),
+        CountryPopulationEntity("CHE", "Switzerland", 8921956L, 2026, 1767225600000L, 66022.0, 0.74, 39516.0, 225.8, "Europe", "Western Europe", "PROJECTION", 102),
+        CountryPopulationEntity("LAO", "Laos", 7736681L, 2026, 1767225600000L, 104445.0, 1.35, 230800.0, 33.5, "Asia", "South-Eastern Asia", "PROJECTION", 103),
+        CountryPopulationEntity("HKG", "Hong Kong", 7496681L, 2026, 1767225600000L, -11245.0, -0.15, 1050.0, 7139.7, "Asia", "Eastern Asia", "PROJECTION", 104),
+        CountryPopulationEntity("KGZ", "Kyrgyzstan", 7186009L, 2026, 1767225600000L, 122162.0, 1.7, 191800.0, 37.5, "Asia", "Central Asia", "PROJECTION", 105),
+        CountryPopulationEntity("NIC", "Nicaragua", 7142529L, 2026, 1767225600000L, 89282.0, 1.25, 120340.0, 59.4, "Americas", "Central America", "PROJECTION", 106),
+        CountryPopulationEntity("SRB", "Serbia", 7097028L, 2026, 1767225600000L, -59615.0, -0.84, 87460.0, 81.1, "Europe", "Southern Europe", "PROJECTION", 107),
+        CountryPopulationEntity("LBY", "Libya", 6964197L, 2026, 1767225600000L, 76606.0, 1.1, 1759540.0, 4.0, "Africa", "Northern Africa", "PROJECTION", 108),
+        CountryPopulationEntity("PRY", "Paraguay", 6947270L, 2026, 1767225600000L, 81978.0, 1.18, 397300.0, 17.5, "Americas", "South America", "PROJECTION", 109),
+        CountryPopulationEntity("BGR", "Bulgaria", 6687717L, 2026, 1767225600000L, -46814.0, -0.7, 108612.0, 61.6, "Europe", "Eastern Europe", "PROJECTION", 110),
+        CountryPopulationEntity("TKM", "Turkmenistan", 6598071L, 2026, 1767225600000L, 89074.0, 1.35, 469930.0, 14.0, "Asia", "Central Asia", "PROJECTION", 111),
+        CountryPopulationEntity("SLV", "El Salvador", 6396289L, 2026, 1767225600000L, 25585.0, 0.4, 20720.0, 308.7, "Americas", "Central America", "PROJECTION", 112),
+        CountryPopulationEntity("COG", "Congo", 6244547L, 2026, 1767225600000L, 143625.0, 2.3, 341500.0, 18.3, "Africa", "Middle Africa", "PROJECTION", 113),
+        CountryPopulationEntity("SGP", "Singapore", 6036900L, 2026, 1767225600000L, 51314.0, 0.85, 719.0, 8396.2, "Asia", "South-Eastern Asia", "PROJECTION", 114),
+        CountryPopulationEntity("DNK", "Denmark", 5939695L, 2026, 1767225600000L, 28511.0, 0.48, 42434.0, 140.0, "Europe", "Northern Europe", "PROJECTION", 115),
+        CountryPopulationEntity("CAF", "Central African Republic", 5742315L, 2026, 1767225600000L, 123460.0, 2.15, 622984.0, 9.2, "Africa", "Middle Africa", "PROJECTION", 116),
+        CountryPopulationEntity("SVK", "Slovakia", 5702832L, 2026, 1767225600000L, -5703.0, -0.1, 48088.0, 118.6, "Europe", "Eastern Europe", "PROJECTION", 117),
+        CountryPopulationEntity("FIN", "Finland", 5545475L, 2026, 1767225600000L, 8873.0, 0.16, 303890.0, 18.2, "Europe", "Northern Europe", "PROJECTION", 118),
+        CountryPopulationEntity("LBR", "Liberia", 5536949L, 2026, 1767225600000L, 116276.0, 2.1, 96320.0, 57.5, "Africa", "Western Africa", "PROJECTION", 119),
+        CountryPopulationEntity("NOR", "Norway", 5514477L, 2026, 1767225600000L, 38601.0, 0.7, 365268.0, 15.1, "Europe", "Northern Europe", "PROJECTION", 120),
+        CountryPopulationEntity("PSE", "Palestine", 5494963L, 2026, 1767225600000L, 126384.0, 2.3, 6020.0, 912.8, "Asia", "Western Asia", "PROJECTION", 121),
+        CountryPopulationEntity("LBN", "Lebanon", 5353930L, 2026, 1767225600000L, -96371.0, -1.8, 10452.0, 512.2, "Asia", "Western Asia", "PROJECTION", 122),
+        CountryPopulationEntity("NZL", "New Zealand", 5269939L, 2026, 1767225600000L, 65874.0, 1.25, 263310.0, 20.0, "Oceania", "Australia and New Zealand", "PROJECTION", 123),
+        CountryPopulationEntity("CRI", "Costa Rica", 5246329L, 2026, 1767225600000L, 31478.0, 0.6, 51060.0, 102.7, "Americas", "Central America", "PROJECTION", 124),
+        CountryPopulationEntity("IRL", "Ireland", 5127170L, 2026, 1767225600000L, 58962.0, 1.15, 68890.0, 74.4, "Europe", "Northern Europe", "PROJECTION", 125),
+        CountryPopulationEntity("MRT", "Mauritania", 5022443L, 2026, 1767225600000L, 133095.0, 2.65, 1030700.0, 4.9, "Africa", "Western Africa", "PROJECTION", 126),
+        CountryPopulationEntity("OMN", "Oman", 4644384L, 2026, 1767225600000L, 69666.0, 1.5, 309500.0, 15.0, "Asia", "Western Asia", "PROJECTION", 127),
+        CountryPopulationEntity("PAN", "Panama", 4527961L, 2026, 1767225600000L, 58863.0, 1.3, 74340.0, 60.9, "Americas", "Central America", "PROJECTION", 128),
+        CountryPopulationEntity("KWT", "Kuwait", 4349315L, 2026, 1767225600000L, 39144.0, 0.9, 17820.0, 244.1, "Asia", "Western Asia", "PROJECTION", 129),
+        CountryPopulationEntity("HRV", "Croatia", 4008617L, 2026, 1767225600000L, -18039.0, -0.45, 55960.0, 71.6, "Europe", "Southern Europe", "PROJECTION", 130),
+        CountryPopulationEntity("ERI", "Eritrea", 3748901L, 2026, 1767225600000L, 52485.0, 1.4, 101000.0, 37.1, "Africa", "Eastern Africa", "PROJECTION", 131),
+        CountryPopulationEntity("GEO", "Georgia", 3728282L, 2026, 1767225600000L, -7457.0, -0.2, 69490.0, 53.7, "Asia", "Western Asia", "PROJECTION", 132),
+        CountryPopulationEntity("MNG", "Mongolia", 3475540L, 2026, 1767225600000L, 48658.0, 1.4, 1553560.0, 2.2, "Asia", "Eastern Asia", "PROJECTION", 133),
+        CountryPopulationEntity("URY", "Uruguay", 3423108L, 2026, 1767225600000L, 5135.0, 0.15, 175020.0, 19.6, "Americas", "South America", "PROJECTION", 134),
+        CountryPopulationEntity("BIH", "Bosnia and Herzegovina", 3210847L, 2026, 1767225600000L, -28898.0, -0.9, 51000.0, 63.0, "Europe", "Southern Europe", "PROJECTION", 135),
+        CountryPopulationEntity("QAT", "Qatar", 3048423L, 2026, 1767225600000L, 36581.0, 1.2, 11610.0, 262.6, "Asia", "Western Asia", "PROJECTION", 136),
+        CountryPopulationEntity("NAM", "Namibia", 3030131L, 2026, 1767225600000L, 57572.0, 1.9, 823290.0, 3.7, "Africa", "Southern Africa", "PROJECTION", 137),
+        CountryPopulationEntity("ARM", "Armenia", 2973840L, 2026, 1767225600000L, 5948.0, 0.2, 28470.0, 104.5, "Asia", "Western Asia", "PROJECTION", 138),
+        CountryPopulationEntity("JAM", "Jamaica", 2825544L, 2026, 1767225600000L, -2826.0, -0.1, 10830.0, 260.9, "Americas", "Caribbean", "PROJECTION", 139),
+        CountryPopulationEntity("ALB", "Albania", 2791765L, 2026, 1767225600000L, -13959.0, -0.5, 27400.0, 101.9, "Europe", "Southern Europe", "PROJECTION", 140),
+        CountryPopulationEntity("GMB", "Gambia", 2773168L, 2026, 1767225600000L, 66556.0, 2.4, 10120.0, 274.0, "Africa", "Western Africa", "PROJECTION", 141),
+        CountryPopulationEntity("LTU", "Lithuania", 2718352L, 2026, 1767225600000L, 5437.0, 0.2, 62674.0, 43.4, "Europe", "Northern Europe", "PROJECTION", 142),
+        CountryPopulationEntity("BWA", "Botswana", 2675352L, 2026, 1767225600000L, 48156.0, 1.8, 566730.0, 4.7, "Africa", "Southern Africa", "PROJECTION", 143),
+        CountryPopulationEntity("MDA", "Moldova", 2513000L, 2026, 1767225600000L, -22617.0, -0.9, 33846.0, 74.2, "Europe", "Eastern Europe", "PROJECTION", 144),
+        CountryPopulationEntity("GAB", "Gabon", 2436566L, 2026, 1767225600000L, 51168.0, 2.1, 257670.0, 9.5, "Africa", "Middle Africa", "PROJECTION", 145),
+        CountryPopulationEntity("LSO", "Lesotho", 2330318L, 2026, 1767225600000L, 25633.0, 1.1, 30360.0, 76.8, "Africa", "Southern Africa", "PROJECTION", 146),
+        CountryPopulationEntity("GNB", "Guinea-Bissau", 2150842L, 2026, 1767225600000L, 49469.0, 2.3, 28120.0, 76.5, "Africa", "Western Africa", "PROJECTION", 147),
+        CountryPopulationEntity("SVN", "Slovenia", 2119675L, 2026, 1767225600000L, 2120.0, 0.1, 20140.0, 105.2, "Europe", "Southern Europe", "PROJECTION", 148),
+        CountryPopulationEntity("LVA", "Latvia", 1871871L, 2026, 1767225600000L, -11231.0, -0.6, 62200.0, 30.1, "Europe", "Northern Europe", "PROJECTION", 149),
+        CountryPopulationEntity("MKD", "North Macedonia", 1823009L, 2026, 1767225600000L, -5469.0, -0.3, 25430.0, 71.7, "Europe", "Southern Europe", "PROJECTION", 150),
+        CountryPopulationEntity("XKX", "Kosovo", 1760000L, 2026, 1767225600000L, 7040.0, 0.4, 10887.0, 161.7, "Europe", "Southern Europe", "PROJECTION", 151),
+        CountryPopulationEntity("GNQ", "Equatorial Guinea", 1714671L, 2026, 1767225600000L, 37723.0, 2.2, 28050.0, 61.1, "Africa", "Middle Africa", "PROJECTION", 152),
+        CountryPopulationEntity("BHR", "Bahrain", 1577059L, 2026, 1767225600000L, 18925.0, 1.2, 780.0, 2021.9, "Asia", "Western Asia", "PROJECTION", 153),
+        CountryPopulationEntity("TTO", "Trinidad and Tobago", 1534937L, 2026, 1767225600000L, 4605.0, 0.3, 5130.0, 299.2, "Americas", "Caribbean", "PROJECTION", 154),
+        CountryPopulationEntity("EST", "Estonia", 1365884L, 2026, 1767225600000L, 1366.0, 0.1, 42390.0, 32.2, "Europe", "Northern Europe", "PROJECTION", 155),
+        CountryPopulationEntity("TLS", "Timor-Leste", 1360596L, 2026, 1767225600000L, 20409.0, 1.5, 14870.0, 91.5, "Asia", "South-Eastern Asia", "PROJECTION", 156),
+        CountryPopulationEntity("MUS", "Mauritius", 1300557L, 2026, 1767225600000L, 1301.0, 0.1, 2030.0, 640.7, "Africa", "Eastern Africa", "PROJECTION", 157),
+        CountryPopulationEntity("CYP", "Cyprus", 1260138L, 2026, 1767225600000L, 8821.0, 0.7, 9240.0, 136.4, "Asia", "Western Asia", "PROJECTION", 158),
+        CountryPopulationEntity("SWZ", "Eswatini", 1210822L, 2026, 1767225600000L, 13319.0, 1.1, 17200.0, 70.4, "Africa", "Southern Africa", "PROJECTION", 159),
+        CountryPopulationEntity("DJI", "Djibouti", 1136455L, 2026, 1767225600000L, 14774.0, 1.3, 23180.0, 49.0, "Africa", "Eastern Africa", "PROJECTION", 160),
+        CountryPopulationEntity("FJI", "Fiji", 936375L, 2026, 1767225600000L, 5618.0, 0.6, 18270.0, 51.3, "Oceania", "Melanesia", "PROJECTION", 161),
+        CountryPopulationEntity("COM", "Comoros", 852075L, 2026, 1767225600000L, 15337.0, 1.8, 2235.0, 381.2, "Africa", "Eastern Africa", "PROJECTION", 162),
+        CountryPopulationEntity("GUY", "Guyana", 813834L, 2026, 1767225600000L, 4069.0, 0.5, 196850.0, 4.1, "Americas", "South America", "PROJECTION", 163),
+        CountryPopulationEntity("BTN", "Bhutan", 787424L, 2026, 1767225600000L, 6299.0, 0.8, 38117.0, 20.7, "Asia", "Southern Asia", "PROJECTION", 164),
+        CountryPopulationEntity("SLB", "Solomon Islands", 740424L, 2026, 1767225600000L, 15549.0, 2.1, 27990.0, 26.5, "Oceania", "Melanesia", "PROJECTION", 165),
+        CountryPopulationEntity("LUX", "Luxembourg", 672050L, 2026, 1767225600000L, 12769.0, 1.9, 2574.0, 261.1, "Europe", "Western Europe", "PROJECTION", 166),
+        CountryPopulationEntity("SUR", "Suriname", 623236L, 2026, 1767225600000L, 4986.0, 0.8, 156000.0, 4.0, "Americas", "South America", "PROJECTION", 167),
+        CountryPopulationEntity("MNE", "Montenegro", 620739L, 2026, 1767225600000L, -1241.0, -0.2, 13450.0, 46.2, "Europe", "Southern Europe", "PROJECTION", 168),
+        CountryPopulationEntity("CPV", "Cabo Verde", 598682L, 2026, 1767225600000L, 5388.0, 0.9, 4030.0, 148.6, "Africa", "Western Africa", "PROJECTION", 169),
+        CountryPopulationEntity("MLT", "Malta", 535064L, 2026, 1767225600000L, 11236.0, 2.1, 316.0, 1693.2, "Europe", "Southern Europe", "PROJECTION", 170),
+        CountryPopulationEntity("MDV", "Maldives", 521021L, 2026, 1767225600000L, 8857.0, 1.7, 300.0, 1736.7, "Asia", "Southern Asia", "PROJECTION", 171),
+        CountryPopulationEntity("BRN", "Brunei", 452524L, 2026, 1767225600000L, 3620.0, 0.8, 5270.0, 85.9, "Asia", "South-Eastern Asia", "PROJECTION", 172),
+        CountryPopulationEntity("BHS", "Bahamas", 412623L, 2026, 1767225600000L, 2888.0, 0.7, 10010.0, 41.2, "Americas", "Caribbean", "PROJECTION", 173),
+        CountryPopulationEntity("BLZ", "Belize", 410825L, 2026, 1767225600000L, 5752.0, 1.4, 22810.0, 18.0, "Americas", "Central America", "PROJECTION", 174),
+        CountryPopulationEntity("ISL", "Iceland", 393359L, 2026, 1767225600000L, 5900.0, 1.5, 100250.0, 3.9, "Europe", "Northern Europe", "PROJECTION", 175),
+        CountryPopulationEntity("VUT", "Vanuatu", 334506L, 2026, 1767225600000L, 7359.0, 2.2, 12190.0, 27.4, "Oceania", "Melanesia", "PROJECTION", 176),
+        CountryPopulationEntity("BRB", "Barbados", 281995L, 2026, 1767225600000L, 282.0, 0.1, 430.0, 655.8, "Americas", "Caribbean", "PROJECTION", 177),
+        CountryPopulationEntity("STP", "Sao Tome and Principe", 231856L, 2026, 1767225600000L, 4405.0, 1.9, 960.0, 241.5, "Africa", "Middle Africa", "PROJECTION", 178),
+        CountryPopulationEntity("WSM", "Samoa", 225681L, 2026, 1767225600000L, 2708.0, 1.2, 2830.0, 79.7, "Oceania", "Polynesia", "PROJECTION", 179),
+        CountryPopulationEntity("LCA", "Saint Lucia", 180251L, 2026, 1767225600000L, 541.0, 0.3, 610.0, 295.5, "Americas", "Caribbean", "PROJECTION", 180),
+        CountryPopulationEntity("KIR", "Kiribati", 133515L, 2026, 1767225600000L, 2136.0, 1.6, 810.0, 164.8, "Oceania", "Micronesia", "PROJECTION", 181),
+        CountryPopulationEntity("GRD", "Grenada", 126183L, 2026, 1767225600000L, 631.0, 0.5, 340.0, 371.1, "Americas", "Caribbean", "PROJECTION", 182),
+        CountryPopulationEntity("FSM", "Micronesia", 115224L, 2026, 1767225600000L, 922.0, 0.8, 700.0, 164.6, "Oceania", "Micronesia", "PROJECTION", 183),
+        CountryPopulationEntity("SYC", "Seychelles", 107660L, 2026, 1767225600000L, 646.0, 0.6, 460.0, 234.0, "Africa", "Eastern Africa", "PROJECTION", 184),
+        CountryPopulationEntity("TON", "Tonga", 106858L, 2026, 1767225600000L, -214.0, -0.2, 747.0, 143.0, "Oceania", "Polynesia", "PROJECTION", 185),
+        CountryPopulationEntity("VCT", "Saint Vincent and the Grenadines", 103698L, 2026, 1767225600000L, -207.0, -0.2, 390.0, 265.9, "Americas", "Caribbean", "PROJECTION", 186),
+        CountryPopulationEntity("ATG", "Antigua and Barbuda", 94298L, 2026, 1767225600000L, 566.0, 0.6, 440.0, 214.3, "Americas", "Caribbean", "PROJECTION", 187),
+        CountryPopulationEntity("AND", "Andorra", 80088L, 2026, 1767225600000L, 961.0, 1.2, 470.0, 170.4, "Europe", "Southern Europe", "PROJECTION", 188),
+        CountryPopulationEntity("DMA", "Dominica", 73040L, 2026, 1767225600000L, 146.0, 0.2, 750.0, 97.4, "Americas", "Caribbean", "PROJECTION", 189),
+        CountryPopulationEntity("KNA", "Saint Kitts and Nevis", 47755L, 2026, 1767225600000L, 191.0, 0.4, 260.0, 183.7, "Americas", "Caribbean", "PROJECTION", 190),
+        CountryPopulationEntity("MHL", "Marshall Islands", 41996L, 2026, 1767225600000L, 168.0, 0.4, 180.0, 233.3, "Oceania", "Micronesia", "PROJECTION", 191),
+        CountryPopulationEntity("LIE", "Liechtenstein", 39584L, 2026, 1767225600000L, 238.0, 0.6, 160.0, 247.4, "Europe", "Western Europe", "PROJECTION", 192),
+        CountryPopulationEntity("MCO", "Monaco", 39050L, 2026, 1767225600000L, 195.0, 0.5, 2.0, 19525.0, "Europe", "Western Europe", "PROJECTION", 193),
+        CountryPopulationEntity("SMR", "San Marino", 33660L, 2026, 1767225600000L, 34.0, 0.1, 60.0, 561.0, "Europe", "Southern Europe", "PROJECTION", 194),
+        CountryPopulationEntity("PLW", "Palau", 18058L, 2026, 1767225600000L, 18.0, 0.1, 460.0, 39.3, "Oceania", "Micronesia", "PROJECTION", 195),
+        CountryPopulationEntity("NRU", "Nauru", 12780L, 2026, 1767225600000L, 89.0, 0.7, 20.0, 639.0, "Oceania", "Micronesia", "PROJECTION", 196),
+        CountryPopulationEntity("TUV", "Tuvalu", 11396L, 2026, 1767225600000L, 103.0, 0.9, 30.0, 379.9, "Oceania", "Polynesia", "PROJECTION", 197),
+        CountryPopulationEntity("VAT", "Holy See", 825L, 2026, 1767225600000L, 0.0, 0.0, 0.5, 1683.7, "Europe", "Southern Europe", "PROJECTION", 198)
     )
 
     fun getHistoricalPopulations(): List<HistoricalPopulationEntity> {
         val list = mutableListOf<HistoricalPopulationEntity>()
-        val years = listOf(1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020, 2026, 2030, 2040, 2050, 2070, 2100)
-        
-        // World historical & projected (UN WPP 2024 Medium Variant)
-        val worldHistory = mapOf(
-            1950 to 2_499_000_000L,
-            1960 to 3_034_000_000L,
-            1970 to 3_700_000_000L,
-            1980 to 4_458_000_000L,
-            1990 to 5_327_000_000L,
-            2000 to 6_143_000_000L,
-            2010 to 6_956_000_000L,
-            2020 to 7_840_000_000L,
-            2026 to 8_203_000_000L,
-            2030 to 8_512_000_000L,
-            2040 to 9_188_000_000L,
-            2050 to 9_709_000_000L,
-            2070 to 10_250_000_000L,
-            2100 to 10_180_000_000L
-        )
-        for ((y, pop) in worldHistory) {
-            val type = when {
-                y < 2024 -> "HISTORICAL"
-                y == 2024 -> "ESTIMATE"
-                else -> "PROJECTION"
-            }
-            list.add(HistoricalPopulationEntity("WLD", y, pop, type))
+        val years = listOf(1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020, 2024)
+        val worldPops = listOf(2_536_431_149L, 3_034_949_748L, 3_700_437_046L, 4_458_003_514L, 5_327_231_061L, 6_143_493_823L, 6_956_823_603L, 7_840_952_880L, 8_161_972_572L)
+        years.forEachIndexed { idx, yr ->
+            list.add(HistoricalPopulationEntity("WLD", yr, worldPops[idx], "HISTORICAL"))
         }
-
-        // India historical & projected
-        val indHistory = mapOf(
-            1950 to 376_325_200L,
-            1960 to 449_649_900L,
-            1970 to 557_501_300L,
-            1980 to 696_828_385L,
-            1990 to 870_452_165L,
-            2000 to 1_059_633_675L,
-            2010 to 1_240_613_620L,
-            2020 to 1_396_387_127L,
-            2026 to 1_450_935_791L,
-            2030 to 1_515_000_000L,
-            2040 to 1_605_000_000L,
-            2050 to 1_670_000_000L,
-            2070 to 1_685_000_000L,
-            2100 to 1_530_000_000L
-        )
-        for ((y, pop) in indHistory) {
-            val type = if (y <= 2023) "HISTORICAL" else "PROJECTION"
-            list.add(HistoricalPopulationEntity("IND", y, pop, type))
-        }
-
-        // China
-        val chnHistory = mapOf(
-            1950 to 543_979_233L,
-            1960 to 667_070_000L,
-            1970 to 818_315_000L,
-            1980 to 981_235_000L,
-            1990 to 1_135_185_000L,
-            2000 to 1_262_645_000L,
-            2010 to 1_348_191_368L,
-            2020 to 1_424_929_781L,
-            2026 to 1_419_321_278L,
-            2030 to 1_400_000_000L,
-            2040 to 1_360_000_000L,
-            2050 to 1_295_000_000L,
-            2070 to 1_080_000_000L,
-            2100 to 766_000_000L
-        )
-        for ((y, pop) in chnHistory) {
-            val type = if (y <= 2023) "HISTORICAL" else "PROJECTION"
-            list.add(HistoricalPopulationEntity("CHN", y, pop, type))
-        }
-
-        // USA
-        val usaHistory = mapOf(
-            1950 to 158_804_395L,
-            1960 to 186_808_228L,
-            1970 to 209_588_150L,
-            1980 to 229_763_052L,
-            1990 to 252_529_950L,
-            2000 to 282_398_554L,
-            2010 to 311_182_845L,
-            2020 to 335_942_003L,
-            2026 to 345_426_571L,
-            2030 to 352_000_000L,
-            2040 to 366_000_000L,
-            2050 to 375_000_000L,
-            2070 to 388_000_000L,
-            2100 to 394_000_000L
-        )
-        for ((y, pop) in usaHistory) {
-            val type = if (y <= 2023) "HISTORICAL" else "PROJECTION"
-            list.add(HistoricalPopulationEntity("USA", y, pop, type))
-        }
-
-        // Japan
-        val jpnHistory = mapOf(
-            1950 to 82_199_470L,
-            1960 to 92_500_572L,
-            1970 to 104_665_171L,
-            1980 to 117_060_396L,
-            1990 to 123_611_167L,
-            2000 to 126_843_000L,
-            2010 to 128_070_000L,
-            2020 to 126_261_000L,
-            2026 to 123_753_041L,
-            2030 to 119_500_000L,
-            2040 to 110_900_000L,
-            2050 to 104_000_000L,
-            2070 to 87_000_000L,
-            2100 to 74_000_000L
-        )
-        for ((y, pop) in jpnHistory) {
-            val type = if (y <= 2023) "HISTORICAL" else "PROJECTION"
-            list.add(HistoricalPopulationEntity("JPN", y, pop, type))
-        }
-
-        // Nigeria
-        val ngaHistory = mapOf(
-            1950 to 37_859_744L,
-            1960 to 45_138_458L,
-            1970 to 55_981_400L,
-            1980 to 73_460_724L,
-            1990 to 95_214_257L,
-            2000 to 122_851_984L,
-            2010 to 160_952_853L,
-            2020 to 208_327_405L,
-            2026 to 232_679_478L,
-            2030 to 263_000_000L,
-            2040 to 326_000_000L,
-            2050 to 377_000_000L,
-            2070 to 470_000_000L,
-            2100 to 546_000_000L
-        )
-        for ((y, pop) in ngaHistory) {
-            val type = if (y <= 2023) "HISTORICAL" else "PROJECTION"
-            list.add(HistoricalPopulationEntity("NGA", y, pop, type))
-        }
-
-        // Germany
-        val deuHistory = mapOf(
-            1950 to 70_000_000L,
-            1970 to 78_000_000L,
-            1990 to 79_000_000L,
-            2010 to 81_700_000L,
-            2020 to 83_200_000L,
-            2026 to 84_552_242L,
-            2050 to 80_500_000L,
-            2100 to 68_900_000L
-        )
-        for ((y, pop) in deuHistory) {
-            val type = if (y <= 2023) "HISTORICAL" else "PROJECTION"
-            list.add(HistoricalPopulationEntity("DEU", y, pop, type))
-        }
-
         return list
     }
 
-    // UN WPP 2024 5-year Age brackets (0-4 to 100+)
     fun getAgeGenderBrackets(): List<AgeGenderPopulationEntity> {
-        val list = mutableListOf<AgeGenderPopulationEntity>()
-
-        // Helper to add 21 5-year age groups: 0-4, 5-9 ... 95-99, 100+
-        fun addPyramid(
-            iso: String,
-            year: Int,
-            dataType: String,
-            maleCounts: List<Long>,
-            femaleCounts: List<Long>
-        ) {
-            for (i in 0 until 21) {
-                val start = i * 5
-                val end = if (i == 20) null else start + 4
-                val m = maleCounts.getOrElse(i) { 0L }
-                val f = femaleCounts.getOrElse(i) { 0L }
-                list.add(
-                    AgeGenderPopulationEntity(
-                        isoCode = iso,
-                        year = year,
-                        ageStart = start,
-                        ageEnd = end,
-                        malePopulation = m,
-                        femalePopulation = f,
-                        totalPopulation = m + f,
-                        dataType = dataType
-                    )
-                )
-            }
-        }
-
-        // India 2026 UN WPP (Medium projection)
-        // 1.45B total (~748M male, ~702M female)
-        val ind2026M = listOf(
-            58_200_000L, 59_800_000L, 62_100_000L, 62_400_000L, 60_800_000L,
-            57_900_000L, 55_400_000L, 53_100_000L, 50_200_000L, 46_800_000L,
-            42_900_000L, 38_100_000L, 32_800_000L, 26_100_000L, 19_400_000L,
-            12_800_000L, 7_500_000L, 3_800_000L, 1_600_000L, 500_000L, 110_000L
+        return listOf(
+            AgeGenderPopulationEntity("WLD", 2024, 0, 4, 340000000L, 320000000L, 660000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 5, 9, 345000000L, 325000000L, 670000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 10, 14, 342000000L, 323000000L, 665000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 15, 19, 335000000L, 318000000L, 653000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 20, 24, 325000000L, 310000000L, 635000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 25, 29, 315000000L, 302000000L, 617000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 30, 34, 310000000L, 298000000L, 608000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 35, 39, 290000000L, 280000000L, 570000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 40, 44, 270000000L, 262000000L, 532000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 45, 49, 255000000L, 250000000L, 505000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 50, 54, 245000000L, 242000000L, 487000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 55, 59, 220000000L, 222000000L, 442000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 60, 64, 185000000L, 195000000L, 380000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 65, 69, 150000000L, 165000000L, 315000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 70, 74, 115000000L, 135000000L, 250000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 75, 79, 75000000L, 95000000L, 170000000L, "ESTIMATE"),
+            AgeGenderPopulationEntity("WLD", 2024, 80, null, 60000000L, 95000000L, 155000000L, "ESTIMATE")
         )
-        val ind2026F = listOf(
-            53_500_000L, 55_200_000L, 57_900_000L, 58_400_000L, 57_200_000L,
-            54_800_000L, 52_600_000L, 50_500_000L, 48_000_000L, 44_900_000L,
-            41_300_000L, 37_000_000L, 32_500_000L, 26_600_000L, 20_500_000L,
-            14_100_000L, 8_900_000L, 4_900_000L, 2_200_000L, 800_000L, 210_000L
-        )
-        addPyramid("IND", 2026, "PROJECTION", ind2026M, ind2026F)
-
-        // India 1970 UN WPP Historical
-        val ind1970M = listOf(
-            46_100_000L, 40_200_000L, 34_800_000L, 29_100_000L, 24_300_000L,
-            20_800_000L, 18_100_000L, 15_900_000L, 13_800_000L, 11_900_000L,
-            10_200_000L, 8_500_000L, 6_800_000L, 5_100_000L, 3_600_000L,
-            2_200_000L, 1_100_000L, 500_000L, 200_000L, 60_000L, 10_000L
-        )
-        val ind1970F = listOf(
-            43_500_000L, 37_900_000L, 32_500_000L, 27_200_000L, 22_700_000L,
-            19_500_000L, 17_000_000L, 14_900_000L, 12_900_000L, 11_000_000L,
-            9_400_000L, 7_800_000L, 6_200_000L, 4_700_000L, 3_300_000L,
-            2_000_000L, 1_000_000L, 450_000L, 180_000L, 50_000L, 8_000L
-        )
-        addPyramid("IND", 1970, "HISTORICAL", ind1970M, ind1970F)
-
-        // India 2050 UN WPP Projection
-        val ind2050M = listOf(
-            45_200_000L, 46_800_000L, 48_100_000L, 49_900_000L, 52_000_000L,
-            54_800_000L, 57_200_000L, 59_100_000L, 60_200_000L, 59_400_000L,
-            57_100_000L, 54_000_000L, 50_500_000L, 46_200_000L, 40_500_000L,
-            33_500_000L, 25_100_000L, 16_800_000L, 9_500_000L, 4_200_000L, 1_500_000L
-        )
-        val ind2050F = listOf(
-            42_100_000L, 43_800_000L, 45_200_000L, 47_100_000L, 49_400_000L,
-            52_300_000L, 54_800_000L, 56_900_000L, 58_100_000L, 57_600_000L,
-            55_700_000L, 53_200_000L, 50_600_000L, 47_100_000L, 42_200_000L,
-            36_200_000L, 28_700_000L, 20_500_000L, 12_800_000L, 6_500_000L, 2_800_000L
-        )
-        addPyramid("IND", 2050, "PROJECTION", ind2050M, ind2050F)
-
-        // China 2026 UN WPP
-        val chn2026M = listOf(
-            33_200_000L, 38_500_000L, 42_100_000L, 43_800_000L, 44_200_000L,
-            47_500_000L, 56_900_000L, 66_400_000L, 54_100_000L, 51_500_000L,
-            64_800_000L, 65_200_000L, 52_100_000L, 45_500_000L, 36_800_000L,
-            24_200_000L, 15_100_000L, 8_200_000L, 3_500_000L, 1_100_000L, 250_000L
-        )
-        val chn2026F = listOf(
-            29_800_000L, 34_100_000L, 37_200_000L, 38_900_000L, 39_500_000L,
-            42_800_000L, 51_800_000L, 61_200_000L, 50_200_000L, 48_100_000L,
-            61_200_000L, 62_400_000L, 50_700_000L, 45_800_000L, 38_500_000L,
-            27_100_000L, 18_400_000L, 11_200_000L, 5_600_000L, 2_100_000L, 650_000L
-        )
-        addPyramid("CHN", 2026, "PROJECTION", chn2026M, chn2026F)
-
-        // United States 2026 UN WPP
-        val usa2026M = listOf(
-            9_800_000L, 10_200_000L, 10_500_000L, 10_800_000L, 11_400_000L,
-            11_900_000L, 12_200_000L, 11_800_000L, 11_200_000L, 10_800_000L,
-            10_400_000L, 10_200_000L, 10_500_000L, 10_100_000L, 8_900_000L,
-            6_800_000L, 4_500_000L, 2_600_000L, 1_200_000L, 400_000L, 110_000L
-        )
-        val usa2026F = listOf(
-            9_400_000L, 9_800_000L, 10_100_000L, 10_400_000L, 10_900_000L,
-            11_400_000L, 11_700_000L, 11_400_000L, 10_900_000L, 10_600_000L,
-            10_300_000L, 10_300_000L, 10_800_000L, 10_700_000L, 9_800_000L,
-            7_900_000L, 5_600_000L, 3_600_000L, 1_900_000L, 750_000L, 250_000L
-        )
-        addPyramid("USA", 2026, "PROJECTION", usa2026M, usa2026F)
-
-        // Japan 2026 UN WPP (Inverted pyramid, aging population)
-        val jpn2026M = listOf(
-            2_050_000L, 2_250_000L, 2_450_000L, 2_700_000L, 3_050_000L,
-            3_200_000L, 3_350_000L, 3_550_000L, 3_750_000L, 4_100_000L,
-            4_850_000L, 4_700_000L, 3_950_000L, 3_800_000L, 4_400_000L,
-            3_850_000L, 2_800_000L, 1_650_000L, 750_000L, 220_000L, 45_000L
-        )
-        val jpn2026F = listOf(
-            1_950_000L, 2_150_000L, 2_350_000L, 2_550_000L, 2_850_000L,
-            3_000_000L, 3_150_000L, 3_350_000L, 3_550_000L, 3_900_000L,
-            4_650_000L, 4_550_000L, 3_900_000L, 3_900_000L, 4_700_000L,
-            4_450_000L, 3_600_000L, 2_550_000L, 1_500_000L, 620_000L, 160_000L
-        )
-        addPyramid("JPN", 2026, "PROJECTION", jpn2026M, jpn2026F)
-
-        // Nigeria 2026 UN WPP (Expansive pyramid, very young population)
-        val nga2026M = listOf(
-            18_500_000L, 16_800_000L, 15_100_000L, 13_400_000L, 11_700_000L,
-            10_100_000L, 8_600_000L, 7_200_000L, 5_900_000L, 4_700_000L,
-            3_700_000L, 2_800_000L, 2_100_000L, 1_500_000L, 1_000_000L,
-            650_000L, 380_000L, 190_000L, 80_000L, 25_000L, 5_000L
-        )
-        val nga2026F = listOf(
-            17_800_000L, 16_100_000L, 14_400_000L, 12_800_000L, 11_200_000L,
-            9_700_000L, 8_300_000L, 7_000_000L, 5_800_000L, 4_700_000L,
-            3_800_000L, 2_950_000L, 2_250_000L, 1_650_000L, 1_150_000L,
-            780_000L, 490_000L, 270_000L, 120_000L, 45_000L, 12_000L
-        )
-        addPyramid("NGA", 2026, "PROJECTION", nga2026M, nga2026F)
-
-        // World 2026 UN WPP
-        val wld2026M = listOf(
-            345_000_000L, 342_000_000L, 338_000_000L, 329_000_000L, 322_000_000L,
-            312_000_000L, 305_000_000L, 292_000_000L, 274_000_000L, 252_000_000L,
-            230_000_000L, 204_000_000L, 175_000_000L, 142_000_000L, 108_000_000L,
-            74_000_000L, 44_000_000L, 23_000_000L, 9_500_000L, 3_000_000L, 700_000L
-        )
-        val wld2026F = listOf(
-            324_000_000L, 321_000_000L, 317_000_000L, 309_000_000L, 303_000_000L,
-            295_000_000L, 289_000_000L, 278_000_000L, 262_000_000L, 244_000_000L,
-            226_000_000L, 204_000_000L, 179_000_000L, 151_000_000L, 121_000_000L,
-            90_000_000L, 59_000_000L, 34_000_000L, 16_000_000L, 5_800_000L, 1_600_000L
-        )
-        addPyramid("WLD", 2026, "PROJECTION", wld2026M, wld2026F)
-
-        return list
     }
 
-    // Authoritative Demographic Indicators (UN WPP 2024 / World Bank)
     fun getDemographicIndicators(): List<DemographicIndicatorEntity> {
-        val list = mutableListOf<DemographicIndicatorEntity>()
-        fun addInd(iso: String, key: String, name: String, value: Double, unit: String, src: String = "UN WPP 2024") {
-            list.add(
-                DemographicIndicatorEntity(
-                    isoCode = iso,
-                    year = 2026,
-                    indicatorKey = key,
-                    indicatorName = name,
-                    value = value,
-                    unit = unit,
-                    source = src,
-                    dataType = "PROJECTION"
-                )
-            )
-        }
-
-        // World
-        addInd("WLD", "MEDIAN_AGE", "Median Age", 30.5, "years")
-        addInd("WLD", "FERTILITY_RATE", "Fertility Rate", 2.25, "births/woman")
-        addInd("WLD", "LIFE_EXPECTANCY", "Life Expectancy at Birth", 73.4, "years")
-        addInd("WLD", "BIRTH_RATE", "Crude Birth Rate", 16.4, "per 1,000")
-        addInd("WLD", "DEATH_RATE", "Crude Death Rate", 7.8, "per 1,000")
-        addInd("WLD", "INFANT_MORTALITY", "Infant Mortality Rate", 26.7, "per 1,000 live births")
-        addInd("WLD", "URBAN_POP_PCT", "Urban Population", 57.5, "%", "World Bank 2024")
-        addInd("WLD", "RURAL_POP_PCT", "Rural Population", 42.5, "%", "World Bank 2024")
-        addInd("WLD", "DEPENDENCY_RATIO", "Dependency Ratio", 53.8, "per 100 working-age")
-
-        // India
-        addInd("IND", "MEDIAN_AGE", "Median Age", 28.7, "years")
-        addInd("IND", "FERTILITY_RATE", "Fertility Rate", 1.98, "births/woman")
-        addInd("IND", "LIFE_EXPECTANCY", "Life Expectancy at Birth", 71.2, "years")
-        addInd("IND", "BIRTH_RATE", "Crude Birth Rate", 15.8, "per 1,000")
-        addInd("IND", "DEATH_RATE", "Crude Death Rate", 6.9, "per 1,000")
-        addInd("IND", "INFANT_MORTALITY", "Infant Mortality Rate", 25.3, "per 1,000 live births")
-        addInd("IND", "NET_MIGRATION", "Net Migration", -510000.0, "annual net migrants")
-        addInd("IND", "URBAN_POP_PCT", "Urban Population", 36.4, "%", "World Bank 2024")
-        addInd("IND", "RURAL_POP_PCT", "Rural Population", 63.6, "%", "World Bank 2024")
-        addInd("IND", "DEPENDENCY_RATIO", "Dependency Ratio", 46.2, "per 100 working-age")
-
-        // China
-        addInd("CHN", "MEDIAN_AGE", "Median Age", 39.6, "years")
-        addInd("CHN", "FERTILITY_RATE", "Fertility Rate", 1.00, "births/woman")
-        addInd("CHN", "LIFE_EXPECTANCY", "Life Expectancy at Birth", 78.6, "years")
-        addInd("CHN", "BIRTH_RATE", "Crude Birth Rate", 6.4, "per 1,000")
-        addInd("CHN", "DEATH_RATE", "Crude Death Rate", 7.9, "per 1,000")
-        addInd("CHN", "INFANT_MORTALITY", "Infant Mortality Rate", 5.2, "per 1,000 live births")
-        addInd("CHN", "NET_MIGRATION", "Net Migration", -310000.0, "annual net migrants")
-        addInd("CHN", "URBAN_POP_PCT", "Urban Population", 66.2, "%", "World Bank 2024")
-        addInd("CHN", "RURAL_POP_PCT", "Rural Population", 33.8, "%", "World Bank 2024")
-        addInd("CHN", "DEPENDENCY_RATIO", "Dependency Ratio", 46.8, "per 100 working-age")
-
-        // USA
-        addInd("USA", "MEDIAN_AGE", "Median Age", 38.9, "years")
-        addInd("USA", "FERTILITY_RATE", "Fertility Rate", 1.62, "births/woman")
-        addInd("USA", "LIFE_EXPECTANCY", "Life Expectancy at Birth", 79.5, "years")
-        addInd("USA", "BIRTH_RATE", "Crude Birth Rate", 11.0, "per 1,000")
-        addInd("USA", "DEATH_RATE", "Crude Death Rate", 8.8, "per 1,000")
-        addInd("USA", "INFANT_MORTALITY", "Infant Mortality Rate", 5.4, "per 1,000 live births")
-        addInd("USA", "NET_MIGRATION", "Net Migration", 1200000.0, "annual net migrants")
-        addInd("USA", "URBAN_POP_PCT", "Urban Population", 83.3, "%", "World Bank 2024")
-        addInd("USA", "RURAL_POP_PCT", "Rural Population", 16.7, "%", "World Bank 2024")
-        addInd("USA", "DEPENDENCY_RATIO", "Dependency Ratio", 54.9, "per 100 working-age")
-
-        // Japan
-        addInd("JPN", "MEDIAN_AGE", "Median Age", 49.1, "years")
-        addInd("JPN", "FERTILITY_RATE", "Fertility Rate", 1.20, "births/woman")
-        addInd("JPN", "LIFE_EXPECTANCY", "Life Expectancy at Birth", 84.8, "years")
-        addInd("JPN", "BIRTH_RATE", "Crude Birth Rate", 6.0, "per 1,000")
-        addInd("JPN", "DEATH_RATE", "Crude Death Rate", 12.1, "per 1,000")
-        addInd("JPN", "INFANT_MORTALITY", "Infant Mortality Rate", 1.8, "per 1,000 live births")
-        addInd("JPN", "NET_MIGRATION", "Net Migration", 110000.0, "annual net migrants")
-        addInd("JPN", "URBAN_POP_PCT", "Urban Population", 92.0, "%", "World Bank 2024")
-        addInd("JPN", "RURAL_POP_PCT", "Rural Population", 8.0, "%", "World Bank 2024")
-        addInd("JPN", "DEPENDENCY_RATIO", "Dependency Ratio", 71.2, "per 100 working-age")
-
-        // Nigeria
-        addInd("NGA", "MEDIAN_AGE", "Median Age", 17.7, "years")
-        addInd("NGA", "FERTILITY_RATE", "Fertility Rate", 4.95, "births/woman")
-        addInd("NGA", "LIFE_EXPECTANCY", "Life Expectancy at Birth", 54.1, "years")
-        addInd("NGA", "BIRTH_RATE", "Crude Birth Rate", 35.8, "per 1,000")
-        addInd("NGA", "DEATH_RATE", "Crude Death Rate", 11.2, "per 1,000")
-        addInd("NGA", "INFANT_MORTALITY", "Infant Mortality Rate", 67.2, "per 1,000 live births")
-        addInd("NGA", "NET_MIGRATION", "Net Migration", -60000.0, "annual net migrants")
-        addInd("NGA", "URBAN_POP_PCT", "Urban Population", 54.3, "%", "World Bank 2024")
-        addInd("NGA", "RURAL_POP_PCT", "Rural Population", 45.7, "%", "World Bank 2024")
-        addInd("NGA", "DEPENDENCY_RATIO", "Dependency Ratio", 86.4, "per 100 working-age")
-
-        // Germany
-        addInd("DEU", "MEDIAN_AGE", "Median Age", 45.3, "years")
-        addInd("DEU", "FERTILITY_RATE", "Fertility Rate", 1.46, "births/woman")
-        addInd("DEU", "LIFE_EXPECTANCY", "Life Expectancy at Birth", 81.3, "years")
-        addInd("DEU", "BIRTH_RATE", "Crude Birth Rate", 8.5, "per 1,000")
-        addInd("DEU", "DEATH_RATE", "Crude Death Rate", 12.2, "per 1,000")
-        addInd("DEU", "INFANT_MORTALITY", "Infant Mortality Rate", 3.1, "per 1,000 live births")
-        addInd("DEU", "NET_MIGRATION", "Net Migration", 380000.0, "annual net migrants")
-        addInd("DEU", "URBAN_POP_PCT", "Urban Population", 77.8, "%", "World Bank 2024")
-        addInd("DEU", "RURAL_POP_PCT", "Rural Population", 22.2, "%", "World Bank 2024")
-        addInd("DEU", "DEPENDENCY_RATIO", "Dependency Ratio", 56.1, "per 100 working-age")
-
-        return list
+        return listOf(
+            DemographicIndicatorEntity("WLD", 2024, "fertility_rate", "Fertility Rate", 2.25, "births per woman", "UN WPP 2024", "ESTIMATE"),
+            DemographicIndicatorEntity("WLD", 2024, "life_expectancy", "Life Expectancy at Birth", 73.4, "years", "UN WPP 2024", "ESTIMATE"),
+            DemographicIndicatorEntity("WLD", 2024, "median_age", "Median Age", 30.5, "years", "UN WPP 2024", "ESTIMATE"),
+            DemographicIndicatorEntity("WLD", 2024, "infant_mortality", "Infant Mortality Rate", 27.2, "per 1,000 live births", "UN WPP 2024", "ESTIMATE"),
+            DemographicIndicatorEntity("WLD", 2024, "crude_birth_rate", "Crude Birth Rate", 16.8, "per 1,000 people", "UN WPP 2024", "ESTIMATE"),
+            DemographicIndicatorEntity("WLD", 2024, "crude_death_rate", "Crude Death Rate", 7.6, "per 1,000 people", "UN WPP 2024", "ESTIMATE"),
+            DemographicIndicatorEntity("WLD", 2024, "sex_ratio", "Sex Ratio at Birth", 105.8, "males per 100 females", "UN WPP 2024", "ESTIMATE")
+        )
     }
 }
