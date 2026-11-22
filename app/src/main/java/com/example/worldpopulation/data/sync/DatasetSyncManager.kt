@@ -46,8 +46,10 @@ class DatasetSyncManager @Inject constructor(
             if (indicatorDao.getIndicatorCount() < 40) {
                 indicatorDao.insertIndicators(com.example.worldpopulation.data.local.DefaultIndicators.list)
             }
-            if (indicatorDao.getValuesCount() < 500) {
-                indicatorDao.insertValues(com.example.worldpopulation.data.local.DefaultIndicatorValues.list)
+            if (indicatorDao.getValuesCount() < 50) {
+                com.example.worldpopulation.data.local.DefaultIndicatorValues.list.chunked(250).forEach {
+                    indicatorDao.insertValues(it)
+                }
             }
         } catch (e: Exception) {
             android.util.Log.e("DatasetSyncManager", "Failed to insert default baseline", e)
@@ -56,7 +58,7 @@ class DatasetSyncManager @Inject constructor(
         val valuesCount = indicatorDao.getValuesCount()
         val categoryCount = categoryDao.getCategoryCount()
         val indicatorCount = indicatorDao.getIndicatorCount()
-        if (categoryCount >= 20 && indicatorCount >= 40 && valuesCount > 500) {
+        if (categoryCount >= 20 && indicatorCount >= 40 && valuesCount >= 9000) {
             return@withContext false
         }
 
@@ -207,9 +209,11 @@ class DatasetSyncManager @Inject constructor(
                 }
             }
 
-            // Batch insert indicator values and manifest records
+            // Batch insert indicator values and manifest records safely chunked to satisfy SQLite variable limits
             if (allIndicatorValues.isNotEmpty()) {
-                indicatorDao.insertValues(allIndicatorValues)
+                allIndicatorValues.chunked(250).forEach { chunk ->
+                    indicatorDao.insertValues(chunk)
+                }
             }
             if (manifestEntities.isNotEmpty()) {
                 syncManifestDao.insertAll(manifestEntities)
@@ -285,7 +289,9 @@ class DatasetSyncManager @Inject constructor(
                         }
 
                         if (updatedValues.isNotEmpty()) {
-                            indicatorDao.insertValues(updatedValues)
+                            updatedValues.chunked(250).forEach { chunk ->
+                                indicatorDao.insertValues(chunk)
+                            }
                         }
                         syncManifestDao.insertAll(
                             listOf(
