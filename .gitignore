@@ -11,6 +11,8 @@ captures
 .cxx
 *.apk
 *.aab
+!play_store_assets/*.apk
+!play_store_assets/*.aab
 *.jks
 *.keystore
 keystore.properties
