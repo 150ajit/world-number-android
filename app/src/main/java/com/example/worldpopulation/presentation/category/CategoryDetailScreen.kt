@@ -21,6 +21,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +33,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -53,6 +60,8 @@ fun CategoryDetailScreen(
     viewModel: CategoryDetailViewModel,
     onBackClick: () -> Unit,
     onCountryClick: (String) -> Unit,
+    onSubcategoryClick: (String) -> Unit = {},
+    onIndicatorClick: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -163,101 +172,67 @@ fun CategoryDetailScreen(
                 }
             }
 
-            // 2. Indicator Selector Chips
-            if (state.indicators.isNotEmpty()) {
-                item {
-                    Column {
-                        Text(
-                            text = "AVAILABLE INDICATORS",
-                            style = MaterialTheme.typography.labelSmall,
-                            letterSpacing = 1.sp,
-                            color = Color(0xFF94A3B8)
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(state.indicators, key = { it.indicatorId }) { ind ->
-                                val selected = state.selectedIndicator?.indicatorId == ind.indicatorId
-                                FilterChip(
-                                    selected = selected,
-                                    onClick = { viewModel.selectIndicator(ind) },
-                                    label = {
-                                        Text(
-                                            text = ind.name,
-                                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                                            fontSize = 12.sp
-                                        )
-                                    },
-                                    colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = Color(0xFF0284C7),
-                                        selectedLabelColor = Color.White,
-                                        containerColor = Color(0xFF1A212E),
-                                        labelColor = Color(0xFFCBD5E1)
-                                    ),
-                                    border = FilterChipDefaults.filterChipBorder(
-                                        enabled = true,
-                                        selected = selected,
-                                        borderColor = Color(0xFF2B3648),
-                                        selectedBorderColor = Color(0xFF38BDF8)
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-            } else {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Loading official category indicators...",
-                            color = Color(0xFF94A3B8),
-                            fontSize = 13.sp
-                        )
-                    }
-                }
-            }
-
-            // 3. Selected Indicator Details Header
-            val selectedInd = state.selectedIndicator
-            if (selectedInd != null) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                text = selectedInd.name,
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Text(
-                                text = "Unit: ${selectedInd.unit} • Source: ${selectedInd.sourceName}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF64748B),
-                                fontSize = 11.sp
-                            )
-                        }
-
-                        Text(
-                            text = "${state.indicatorValues.size} countries",
-                            style = MaterialTheme.typography.labelSmall,
+            // 2. View Mode Tabs: Subcategories vs Indicators
+            item {
+                TabRow(
+                    selectedTabIndex = state.selectedTab,
+                    containerColor = Color(0xFF121721),
+                    contentColor = Color.White,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.SecondaryIndicator(
+                            Modifier.tabIndicatorOffset(tabPositions[state.selectedTab]),
                             color = Color(0xFF38BDF8)
                         )
                     }
+                ) {
+                    Tab(
+                        selected = state.selectedTab == 0,
+                        onClick = { viewModel.setTab(0) },
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Layers,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = if (state.selectedTab == 0) Color(0xFF38BDF8) else Color(0xFF64748B)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Subcategories (${state.subcategories.size})",
+                                    fontWeight = if (state.selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (state.selectedTab == 0) Color.White else Color(0xFF94A3B8),
+                                    fontSize = 13.sp
+                                )
+                            }
+                        }
+                    )
+                    Tab(
+                        selected = state.selectedTab == 1,
+                        onClick = { viewModel.setTab(1) },
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.Speed,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = if (state.selectedTab == 1) Color(0xFF38BDF8) else Color(0xFF64748B)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Key Indicators (${state.indicators.size})",
+                                    fontWeight = if (state.selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (state.selectedTab == 1) Color.White else Color(0xFF94A3B8),
+                                    fontSize = 13.sp
+                                )
+                            }
+                        }
+                    )
                 }
+            }
 
-                if (state.indicatorValues.isEmpty()) {
+            // 3. Tab 0: Subcategories Catalog View
+            if (state.selectedTab == 0) {
+                if (state.subcategories.isEmpty()) {
                     item {
                         Box(
                             modifier = Modifier
@@ -266,29 +241,131 @@ fun CategoryDetailScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Loading verified indicator statistics...",
+                                text = "Loading official subcategories...",
                                 color = Color(0xFF94A3B8),
                                 fontSize = 13.sp
                             )
                         }
                     }
                 } else {
-                    // 4. Country Indicator Rankings Table / Bars
-                    val maxValue = state.indicatorValues.maxOfOrNull { it.value } ?: 1.0
-
-                    itemsIndexed(
-                        items = state.indicatorValues,
-                        key = { _, item -> item.isoCode }
-                    ) { index, item ->
-                        val country = state.countriesMap[item.isoCode]
-                        CountryIndicatorRow(
-                            rank = index + 1,
-                            item = item,
-                            country = country,
-                            maxValue = maxValue,
-                            unit = selectedInd.unit,
-                            onClick = { onCountryClick(item.isoCode) }
+                    items(state.subcategories, key = { it.id }) { subcat ->
+                        SubcategoryCard(
+                            subcategory = subcat,
+                            onClick = { onSubcategoryClick(subcat.id) }
                         )
+                    }
+                }
+            } else {
+                // 4. Tab 1: Key Indicators View
+                if (state.indicators.isNotEmpty()) {
+                    item {
+                        Column {
+                            Text(
+                                text = "AVAILABLE INDICATORS",
+                                style = MaterialTheme.typography.labelSmall,
+                                letterSpacing = 1.sp,
+                                color = Color(0xFF94A3B8)
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(state.indicators, key = { it.indicatorId }) { ind ->
+                                    val selected = state.selectedIndicator?.indicatorId == ind.indicatorId
+                                    FilterChip(
+                                        selected = selected,
+                                        onClick = { viewModel.selectIndicator(ind) },
+                                        label = {
+                                            Text(
+                                                text = ind.name,
+                                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                                fontSize = 12.sp
+                                            )
+                                        },
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = Color(0xFF0284C7),
+                                            selectedLabelColor = Color.White,
+                                            containerColor = Color(0xFF1A212E),
+                                            labelColor = Color(0xFFCBD5E1)
+                                        ),
+                                        border = FilterChipDefaults.filterChipBorder(
+                                            enabled = true,
+                                            selected = selected,
+                                            borderColor = Color(0xFF2B3648),
+                                            selectedBorderColor = Color(0xFF38BDF8)
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                val selectedInd = state.selectedIndicator
+                if (selectedInd != null) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = selectedInd.name,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = "Unit: ${selectedInd.unit} • Source: ${selectedInd.sourceName}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color(0xFF64748B),
+                                    fontSize = 11.sp
+                                )
+                            }
+
+                            Text(
+                                text = "${state.indicatorValues.size} countries",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF38BDF8)
+                            )
+                        }
+                    }
+
+                    if (state.indicatorValues.isEmpty()) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Loading verified indicator statistics...",
+                                    color = Color(0xFF94A3B8),
+                                    fontSize = 13.sp
+                                )
+                            }
+                        }
+                    } else {
+                        val maxValue = state.indicatorValues.maxOfOrNull { it.value } ?: 1.0
+
+                        itemsIndexed(
+                            items = state.indicatorValues,
+                            key = { _, item -> item.isoCode }
+                        ) { index, item ->
+                            val country = state.countriesMap[item.isoCode]
+                            CountryIndicatorRow(
+                                rank = index + 1,
+                                item = item,
+                                country = country,
+                                maxValue = maxValue,
+                                unit = selectedInd.unit,
+                                onClick = { onCountryClick(item.isoCode) }
+                            )
+                        }
                     }
                 }
             }
@@ -296,6 +373,71 @@ fun CategoryDetailScreen(
             item {
                 Spacer(modifier = Modifier.height(24.dp))
             }
+        }
+    }
+}
+
+@Composable
+private fun SubcategoryCard(
+    subcategory: com.example.worldpopulation.data.local.entity.SubcategoryEntity,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF141923)),
+        border = BorderStroke(1.dp, Color(0xFF222B3A))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xFF0284C7).copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "${subcategory.orderIndex}",
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF38BDF8),
+                    fontSize = 13.sp
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = subcategory.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(3.dp))
+                Text(
+                    text = subcategory.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF94A3B8),
+                    fontSize = 12.sp,
+                    maxLines = 2
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = Color(0xFF475569),
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }

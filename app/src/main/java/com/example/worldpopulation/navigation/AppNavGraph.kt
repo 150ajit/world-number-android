@@ -42,6 +42,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.worldpopulation.presentation.category.CategoryDetailScreen
 import com.example.worldpopulation.presentation.category.CategoryDetailViewModel
+import com.example.worldpopulation.presentation.subcategory.SubcategoryDetailScreen
+import com.example.worldpopulation.presentation.subcategory.SubcategoryDetailViewModel
+import com.example.worldpopulation.presentation.indicator.IndicatorDetailScreen
+import com.example.worldpopulation.presentation.indicator.IndicatorDetailViewModel
 import com.example.worldpopulation.presentation.compare.CompareCountriesScreen
 import com.example.worldpopulation.presentation.compare.CompareCountriesViewModel
 import com.example.worldpopulation.presentation.countries.CountriesScreen
@@ -286,6 +290,33 @@ private fun NavHostContent(navController: NavHostController) {
         ) {
             val vm: CategoryDetailViewModel = hiltViewModel()
             CategoryDetailScreen(
+                viewModel = vm,
+                onBackClick = { navController.popBackStack() },
+                onCountryClick = { iso -> navController.navigate(Screen.CountryDetails.createRoute(iso)) },
+                onSubcategoryClick = { subcatId -> navController.navigate(Screen.SubcategoryDetails.createRoute(subcatId)) },
+                onIndicatorClick = { indId -> navController.navigate(Screen.IndicatorDetails.createRoute(indId)) }
+            )
+        }
+
+        composable(
+            route = Screen.SubcategoryDetails.route,
+            arguments = listOf(navArgument("subcategoryId") { type = NavType.StringType })
+        ) {
+            val vm: SubcategoryDetailViewModel = hiltViewModel()
+            SubcategoryDetailScreen(
+                viewModel = vm,
+                onBackClick = { navController.popBackStack() },
+                onCountryClick = { iso -> navController.navigate(Screen.CountryDetails.createRoute(iso)) },
+                onIndicatorClick = { indId -> navController.navigate(Screen.IndicatorDetails.createRoute(indId)) }
+            )
+        }
+
+        composable(
+            route = Screen.IndicatorDetails.route,
+            arguments = listOf(navArgument("indicatorId") { type = NavType.StringType })
+        ) {
+            val vm: IndicatorDetailViewModel = hiltViewModel()
+            IndicatorDetailScreen(
                 viewModel = vm,
                 onBackClick = { navController.popBackStack() },
                 onCountryClick = { iso -> navController.navigate(Screen.CountryDetails.createRoute(iso)) }

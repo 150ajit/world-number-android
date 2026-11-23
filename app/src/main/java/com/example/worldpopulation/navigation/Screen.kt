@@ -32,6 +32,12 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object CategoryDetails : Screen("category/{categoryId}", "Category") {
         fun createRoute(categoryId: String): String = "category/$categoryId"
     }
+    object SubcategoryDetails : Screen("subcategory/{subcategoryId}", "Subcategory") {
+        fun createRoute(subcategoryId: String): String = "subcategory/$subcategoryId"
+    }
+    object IndicatorDetails : Screen("indicator/{indicatorId}", "Indicator") {
+        fun createRoute(indicatorId: String): String = "indicator/$indicatorId"
+    }
     object Stories : Screen("stories", "Stories", Icons.Default.AutoAwesome)
     object Methodology : Screen("methodology", "Methodology")
     object DataSourceInfo : Screen("data_source_info", "Data Sources")

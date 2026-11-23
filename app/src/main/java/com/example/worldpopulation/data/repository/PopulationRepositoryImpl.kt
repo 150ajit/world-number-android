@@ -53,6 +53,7 @@ class PopulationRepositoryImpl @Inject constructor(
 
     // 20 Categories & Data Discovery DAOs
     private val categoryDao = database.categoryDao()
+    private val subcategoryDao = database.subcategoryDao()
     private val categoryIndicatorDao = database.indicatorDao()
     private val discoveryDao = database.discoveryDao()
     private val storyDao = database.storyDao()
@@ -168,6 +169,22 @@ class PopulationRepositoryImpl @Inject constructor(
         return categoryDao.getCategory(id).flowOn(ioDispatcher)
     }
 
+    override fun getSubcategoriesForCategory(categoryId: String): Flow<List<com.example.worldpopulation.data.local.entity.SubcategoryEntity>> {
+        return subcategoryDao.getSubcategoriesForCategory(categoryId).map { list ->
+            if (list.isEmpty()) {
+                com.example.worldpopulation.data.local.DefaultSubcategories.getSubcategoriesForCategory(categoryId)
+            } else {
+                list
+            }
+        }.flowOn(ioDispatcher)
+    }
+
+    override fun getSubcategory(id: String): Flow<com.example.worldpopulation.data.local.entity.SubcategoryEntity?> {
+        return subcategoryDao.getSubcategory(id).map { subcat ->
+            subcat ?: com.example.worldpopulation.data.local.DefaultSubcategories.getSubcategory(id)
+        }.flowOn(ioDispatcher)
+    }
+
     override fun getIndicatorsForCategory(categoryId: String): Flow<List<CategoryIndicatorEntity>> {
         return categoryIndicatorDao.getIndicatorsForCategory(categoryId).map { list ->
             if (list.isEmpty()) {
@@ -175,6 +192,23 @@ class PopulationRepositoryImpl @Inject constructor(
             } else {
                 list
             }
+        }.flowOn(ioDispatcher)
+    }
+
+    override fun getIndicatorsForSubcategory(subcategoryId: String): Flow<List<CategoryIndicatorEntity>> {
+        return categoryIndicatorDao.getIndicatorsForSubcategory(subcategoryId).map { list ->
+            if (list.isEmpty()) {
+                com.example.worldpopulation.data.local.DefaultIndicators.getIndicatorsForSubcategory(subcategoryId)
+            } else {
+                list
+            }
+        }.flowOn(ioDispatcher)
+    }
+
+    override fun getIndicator(indicatorId: String): Flow<CategoryIndicatorEntity?> {
+        return categoryIndicatorDao.getAllIndicators().map { list ->
+            list.find { it.indicatorId.equals(indicatorId, ignoreCase = true) }
+                ?: com.example.worldpopulation.data.local.DefaultIndicators.list.find { it.indicatorId.equals(indicatorId, ignoreCase = true) }
         }.flowOn(ioDispatcher)
     }
 

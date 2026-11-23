@@ -27,7 +27,11 @@ interface PopulationRepository {
     // 20 Categories & Global Information
     fun getAllCategories(): Flow<List<CategoryEntity>>
     fun getCategory(id: String): Flow<CategoryEntity?>
+    fun getSubcategoriesForCategory(categoryId: String): Flow<List<com.example.worldpopulation.data.local.entity.SubcategoryEntity>>
+    fun getSubcategory(id: String): Flow<com.example.worldpopulation.data.local.entity.SubcategoryEntity?>
     fun getIndicatorsForCategory(categoryId: String): Flow<List<CategoryIndicatorEntity>>
+    fun getIndicatorsForSubcategory(subcategoryId: String): Flow<List<CategoryIndicatorEntity>>
+    fun getIndicator(indicatorId: String): Flow<CategoryIndicatorEntity?>
     fun getIndicatorValues(indicatorId: String, sortDesc: Boolean = true): Flow<List<CountryIndicatorValueEntity>>
     fun getValuesForCountry(isoCode: String): Flow<List<CountryIndicatorValueEntity>>
     fun getDailyDiscovery(dayOfYear: Int): Flow<DailyDiscoveryEntity?>

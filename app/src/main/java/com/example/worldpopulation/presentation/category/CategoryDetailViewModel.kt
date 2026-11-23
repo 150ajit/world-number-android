@@ -17,10 +17,12 @@ import javax.inject.Inject
 
 data class CategoryDetailUiState(
     val category: CategoryEntity? = null,
+    val subcategories: List<com.example.worldpopulation.data.local.entity.SubcategoryEntity> = emptyList(),
     val indicators: List<CategoryIndicatorEntity> = emptyList(),
     val selectedIndicator: CategoryIndicatorEntity? = null,
     val indicatorValues: List<CountryIndicatorValueEntity> = emptyList(),
     val countriesMap: Map<String, CountryPopulation> = emptyMap(),
+    val selectedTab: Int = 0, // 0: Subcategories, 1: Key Indicators
     val isLoading: Boolean = false
 )
 
@@ -36,6 +38,7 @@ class CategoryDetailViewModel @Inject constructor(
         it.id.equals(categoryId, ignoreCase = true)
     }
 
+    private val defaultSubcategories = com.example.worldpopulation.data.local.DefaultSubcategories.getSubcategoriesForCategory(categoryId)
     private val defaultIndicators = com.example.worldpopulation.data.local.DefaultIndicators.getIndicatorsForCategory(categoryId)
     private val initialIndicator = defaultIndicators.firstOrNull()
     private val initialValues = initialIndicator?.let {
@@ -46,9 +49,11 @@ class CategoryDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         CategoryDetailUiState(
             category = defaultCategory,
+            subcategories = defaultSubcategories,
             indicators = defaultIndicators,
             selectedIndicator = initialIndicator,
             indicatorValues = initialValues,
+            selectedTab = 0,
             isLoading = false
         )
     )
@@ -82,6 +87,14 @@ class CategoryDetailViewModel @Inject constructor(
             }
         }
 
+        // Load Subcategories for Category
+        viewModelScope.launch {
+            repository.getSubcategoriesForCategory(categoryId).collect { subcatList ->
+                val active = if (subcatList.isNotEmpty()) subcatList else defaultSubcategories
+                _uiState.value = _uiState.value.copy(subcategories = active)
+            }
+        }
+
         // Load Indicators for Category
         viewModelScope.launch {
             repository.getIndicatorsForCategory(categoryId).collect { indicatorList ->
@@ -101,6 +114,10 @@ class CategoryDetailViewModel @Inject constructor(
         }
     }
 
+    fun setTab(index: Int) {
+        _uiState.value = _uiState.value.copy(selectedTab = index)
+    }
+
     fun selectIndicator(indicator: CategoryIndicatorEntity) {
         val sortDesc = indicator.sortDirection.equals("DESC", ignoreCase = true)
         val immediateFallback = com.example.worldpopulation.data.local.DefaultIndicatorValues.getValuesForIndicator(indicator.indicatorId, sortDesc)
@@ -118,7 +135,14 @@ class CategoryDetailViewModel @Inject constructor(
         valuesJob = viewModelScope.launch {
             val sortDesc = indicator.sortDirection.equals("DESC", ignoreCase = true)
             repository.getIndicatorValues(indicator.indicatorId, sortDesc).collect { values ->
-                _uiState.value = _uiState.value.copy(indicatorValues = values)
+                val fallback = if (values.isEmpty()) {
+                    com.example.worldpopulation.data.local.DefaultIndicatorValues.getValuesForIndicator(indicator.indicatorId, sortDesc)
+                } else {
+                    values
+                }
+                _uiState.value = _uiState.value.copy(
+                    indicatorValues = if (fallback.isNotEmpty()) fallback else _uiState.value.indicatorValues
+                )
             }
         }
     }

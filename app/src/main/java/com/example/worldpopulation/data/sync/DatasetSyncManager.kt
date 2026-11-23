@@ -27,6 +27,7 @@ class DatasetSyncManager @Inject constructor(
     private val gson: Gson
 ) {
     private val categoryDao = database.categoryDao()
+    private val subcategoryDao = database.subcategoryDao()
     private val indicatorDao = database.indicatorDao()
     private val countryDao = database.countryDao()
     private val discoveryDao = database.discoveryDao()
@@ -42,6 +43,9 @@ class DatasetSyncManager @Inject constructor(
         try {
             if (categoryDao.getCategoryCount() < 20) {
                 categoryDao.insertCategories(com.example.worldpopulation.data.local.DefaultCategories.list)
+            }
+            if (subcategoryDao.getSubcategoryCount() < 270) {
+                subcategoryDao.insertSubcategories(com.example.worldpopulation.data.local.DefaultSubcategories.list)
             }
             if (indicatorDao.getIndicatorCount() < 40) {
                 indicatorDao.insertIndicators(com.example.worldpopulation.data.local.DefaultIndicators.list)
@@ -97,6 +101,18 @@ class DatasetSyncManager @Inject constructor(
             categoryDao.insertCategories(categoryEntities)
         } catch (e: Exception) {
             android.util.Log.e("DatasetSyncManager", "Failed to seed categories", e)
+        }
+
+        // 2b. Seed Subcategories
+        try {
+            val subcatJson = assetManager.open("data/subcategories.json").use {
+                InputStreamReader(it).readText()
+            }
+            val subcatType = object : TypeToken<List<com.example.worldpopulation.data.local.entity.SubcategoryEntity>>() {}.type
+            val subcatEntities: List<com.example.worldpopulation.data.local.entity.SubcategoryEntity> = gson.fromJson(subcatJson, subcatType)
+            subcategoryDao.insertSubcategories(subcatEntities)
+        } catch (e: Exception) {
+            android.util.Log.e("DatasetSyncManager", "Failed to seed subcategories", e)
         }
 
         // 3. Seed Indicators
@@ -157,7 +173,6 @@ class DatasetSyncManager @Inject constructor(
             val manifestObj = JsonParser.parseString(manifestJson).asJsonObject
             val datasetsArray = manifestObj.getAsJsonArray("datasets")
             val manifestEntities = mutableListOf<SyncManifestEntity>()
-            val allIndicatorValues = mutableListOf<CountryIndicatorValueEntity>()
 
             for (datasetElement in datasetsArray) {
                 val dsObj = datasetElement.asJsonObject
@@ -177,12 +192,13 @@ class DatasetSyncManager @Inject constructor(
                     val year = if (datasetPayload.has("year")) datasetPayload.get("year").asInt else 2024
                     val countriesObj = datasetPayload.getAsJsonObject("countries")
 
+                    val dsIndicatorValues = mutableListOf<CountryIndicatorValueEntity>()
                     if (countriesObj != null) {
                         for (isoKey in countriesObj.keySet()) {
                             val countryData = countriesObj.getAsJsonObject(isoKey)
                             for (indicatorKey in countryData.keySet()) {
                                 val value = countryData.get(indicatorKey).asDouble
-                                allIndicatorValues.add(
+                                dsIndicatorValues.add(
                                     CountryIndicatorValueEntity(
                                         isoCode = isoKey,
                                         indicatorId = indicatorKey,
@@ -193,6 +209,13 @@ class DatasetSyncManager @Inject constructor(
                                     )
                                 )
                             }
+                        }
+                    }
+
+                    // Insert each dataset's values immediately so categories are instantly available
+                    if (dsIndicatorValues.isNotEmpty()) {
+                        dsIndicatorValues.chunked(250).forEach { chunk ->
+                            indicatorDao.insertValues(chunk)
                         }
                     }
 
@@ -209,12 +232,6 @@ class DatasetSyncManager @Inject constructor(
                 }
             }
 
-            // Batch insert indicator values and manifest records safely chunked to satisfy SQLite variable limits
-            if (allIndicatorValues.isNotEmpty()) {
-                allIndicatorValues.chunked(250).forEach { chunk ->
-                    indicatorDao.insertValues(chunk)
-                }
-            }
             if (manifestEntities.isNotEmpty()) {
                 syncManifestDao.insertAll(manifestEntities)
             }

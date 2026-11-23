@@ -61,6 +61,9 @@ object DatabaseModule {
     fun provideCategoryDao(db: AppDatabase): CategoryDao = db.categoryDao()
 
     @Provides
+    fun provideSubcategoryDao(db: AppDatabase): com.example.worldpopulation.data.local.dao.SubcategoryDao = db.subcategoryDao()
+
+    @Provides
     fun provideIndicatorDao(db: AppDatabase): IndicatorDao = db.indicatorDao()
 
     @Provides

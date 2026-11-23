@@ -17,13 +17,31 @@ data class CategoryEntity(
 )
 
 @Entity(
-    tableName = "category_indicators",
+    tableName = "subcategories",
     indices = [Index(value = ["categoryId"])]
+)
+data class SubcategoryEntity(
+    @PrimaryKey
+    val id: String,
+    val categoryId: String,
+    val name: String,
+    val description: String,
+    val orderIndex: Int,
+    val iconKey: String? = null
+)
+
+@Entity(
+    tableName = "category_indicators",
+    indices = [
+        Index(value = ["categoryId"]),
+        Index(value = ["subcategoryId"])
+    ]
 )
 data class CategoryIndicatorEntity(
     @PrimaryKey
     val indicatorId: String,
     val categoryId: String,
+    val subcategoryId: String? = null,
     val name: String,
     val unit: String,
     val sortDirection: String, // "ASC" or "DESC"

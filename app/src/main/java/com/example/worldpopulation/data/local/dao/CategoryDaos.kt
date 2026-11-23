@@ -31,9 +31,33 @@ interface CategoryDao {
 }
 
 @Dao
+interface SubcategoryDao {
+    @Query("SELECT * FROM subcategories WHERE categoryId = :categoryId ORDER BY orderIndex ASC")
+    fun getSubcategoriesForCategory(categoryId: String): Flow<List<com.example.worldpopulation.data.local.entity.SubcategoryEntity>>
+
+    @Query("SELECT * FROM subcategories WHERE categoryId = :categoryId ORDER BY orderIndex ASC")
+    suspend fun getSubcategoriesForCategoryDirect(categoryId: String): List<com.example.worldpopulation.data.local.entity.SubcategoryEntity>
+
+    @Query("SELECT * FROM subcategories WHERE id = :id LIMIT 1")
+    fun getSubcategory(id: String): Flow<com.example.worldpopulation.data.local.entity.SubcategoryEntity?>
+
+    @Query("SELECT * FROM subcategories WHERE id = :id LIMIT 1")
+    suspend fun getSubcategoryDirect(id: String): com.example.worldpopulation.data.local.entity.SubcategoryEntity?
+
+    @Query("SELECT COUNT(*) FROM subcategories")
+    suspend fun getSubcategoryCount(): Int
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSubcategories(subcategories: List<com.example.worldpopulation.data.local.entity.SubcategoryEntity>)
+}
+
+@Dao
 interface IndicatorDao {
     @Query("SELECT * FROM category_indicators WHERE categoryId = :categoryId")
     fun getIndicatorsForCategory(categoryId: String): Flow<List<CategoryIndicatorEntity>>
+
+    @Query("SELECT * FROM category_indicators WHERE subcategoryId = :subcategoryId")
+    fun getIndicatorsForSubcategory(subcategoryId: String): Flow<List<CategoryIndicatorEntity>>
 
     @Query("SELECT * FROM category_indicators")
     fun getAllIndicators(): Flow<List<CategoryIndicatorEntity>>

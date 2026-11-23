@@ -38,13 +38,14 @@ import com.example.worldpopulation.data.local.entity.WorldPopulationEntity
         DemographicIndicatorEntity::class,
         DataSourceMetadataEntity::class,
         CategoryEntity::class,
+        com.example.worldpopulation.data.local.entity.SubcategoryEntity::class,
         CategoryIndicatorEntity::class,
         CountryIndicatorValueEntity::class,
         DailyDiscoveryEntity::class,
         DataStoryEntity::class,
         SyncManifestEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -56,6 +57,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun demographicIndicatorDao(): DemographicIndicatorDao
     abstract fun dataSourceMetadataDao(): DataSourceMetadataDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun subcategoryDao(): com.example.worldpopulation.data.local.dao.SubcategoryDao
     abstract fun indicatorDao(): IndicatorDao
     abstract fun discoveryDao(): DiscoveryDao
     abstract fun storyDao(): StoryDao

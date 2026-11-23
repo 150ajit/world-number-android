@@ -440,4 +440,11 @@ object DefaultIndicators {
     fun getIndicatorsForCategory(categoryId: String): List<CategoryIndicatorEntity> {
         return list.filter { it.categoryId.equals(categoryId, ignoreCase = true) }
     }
+
+    fun getIndicatorsForSubcategory(subcategoryId: String): List<CategoryIndicatorEntity> {
+        val direct = list.filter { it.subcategoryId.equals(subcategoryId, ignoreCase = true) }
+        if (direct.isNotEmpty()) return direct
+        val catId = DefaultSubcategories.getSubcategory(subcategoryId)?.categoryId
+        return if (catId != null) getIndicatorsForCategory(catId) else emptyList()
+    }
 }

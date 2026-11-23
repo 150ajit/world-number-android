@@ -11,6 +11,7 @@ import com.example.worldpopulation.data.sync.DatasetSyncManager
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -140,10 +141,30 @@ class DatasetAssetsJsonTest {
             for (iso in countriesObj.keySet()) {
                 val countryData = countriesObj.getAsJsonObject(iso)
                 for (ind in countryData.keySet()) {
+                    val value = countryData.get(ind).asDouble
                     totalValues++
                 }
             }
         }
         println("Successfully parsed all datasets, total indicator values: $totalValues")
+    }
+
+    @Test
+    fun testAllCategoriesMatchIndicatorsAndValues() {
+        val categoryIds = com.example.worldpopulation.data.local.DefaultCategories.list.map { it.id }.toSet()
+        assertEquals(20, categoryIds.size)
+
+        for (cat in com.example.worldpopulation.data.local.DefaultCategories.list) {
+            val indicators = com.example.worldpopulation.data.local.DefaultIndicators.getIndicatorsForCategory(cat.id)
+            assertFalse("Category ${cat.id} has no indicators", indicators.isEmpty())
+            for (ind in indicators) {
+                assertEquals("Indicator ${ind.indicatorId} category mismatch", cat.id, ind.categoryId)
+                val values = com.example.worldpopulation.data.local.DefaultIndicatorValues.getValuesForIndicator(ind.indicatorId)
+                assertFalse("Indicator ${ind.indicatorId} has no values", values.isEmpty())
+                for (v in values) {
+                    assertEquals("Value category mismatch for ${ind.indicatorId}", cat.id, v.categoryId)
+                }
+            }
+        }
     }
 }
