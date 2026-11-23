@@ -22,7 +22,7 @@ fun WorldPopulationEntity.toDomain(): WorldPopulation {
         baselineTimestamp = baselineTimestamp,
         annualChange = annualChange,
         growthRate = growthRate,
-        dataType = DataType.valueOf(dataType)
+        dataType = DataType.fromString(dataType)
     )
 }
 
@@ -51,7 +51,7 @@ fun CountryPopulationEntity.toDomain(flagEmoji: String = ""): CountryPopulation 
         density = density,
         region = region,
         subregion = subregion,
-        dataType = DataType.valueOf(dataType),
+        dataType = DataType.fromString(dataType),
         flagEmoji = flagEmoji
     )
 }
@@ -79,7 +79,7 @@ fun HistoricalPopulationEntity.toDomain(): HistoricalPopulation {
         isoCode = isoCode,
         year = year,
         population = population,
-        dataType = DataType.valueOf(dataType)
+        dataType = DataType.fromString(dataType)
     )
 }
 
@@ -101,7 +101,7 @@ fun AgeGenderPopulationEntity.toDomain(): AgeGenderPopulation {
         malePopulation = malePopulation,
         femalePopulation = femalePopulation,
         totalPopulation = totalPopulation,
-        dataType = DataType.valueOf(dataType)
+        dataType = DataType.fromString(dataType)
     )
 }
 
@@ -128,7 +128,7 @@ fun DemographicIndicatorEntity.toDomain(): DemographicIndicator {
         value = value,
         unit = unit,
         source = source,
-        dataType = DataType.valueOf(dataType)
+        dataType = DataType.fromString(dataType)
     )
 }
 
@@ -153,7 +153,7 @@ fun DataSourceMetadataEntity.toDomain(): DataSourceMetadata {
         referenceYear = referenceYear,
         retrievedAt = retrievedAt,
         sourceUrl = sourceUrl,
-        dataType = DataType.valueOf(dataType),
+        dataType = DataType.fromString(dataType),
         projectionVariant = projectionVariant
     )
 }
