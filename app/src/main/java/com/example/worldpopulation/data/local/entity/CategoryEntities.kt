@@ -50,11 +50,12 @@ data class CategoryIndicatorEntity(
 
 @Entity(
     tableName = "country_indicator_values",
-    primaryKeys = ["isoCode", "indicatorId"],
+    primaryKeys = ["isoCode", "indicatorId", "year"],
     indices = [
         Index(value = ["categoryId"]),
         Index(value = ["indicatorId"]),
-        Index(value = ["isoCode"])
+        Index(value = ["isoCode"]),
+        Index(value = ["year"])
     ]
 )
 data class CountryIndicatorValueEntity(

@@ -279,6 +279,71 @@ fun IndicatorDetailScreen(
                             }
                         }
                     }
+
+                    // 3b. Historical Multi-Year Trend Card (2015 – 2024)
+                    if (state.historicalValuesA.isNotEmpty() || state.historicalValuesB.isNotEmpty()) {
+                        val allYears = (state.historicalValuesA.map { it.year } + state.historicalValuesB.map { it.year }).distinct().sorted()
+                        if (allYears.size > 1) {
+                            item {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(14.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color(0xFF161C26)),
+                                    border = BorderStroke(1.dp, Color(0xFF263040))
+                                ) {
+                                    Column(modifier = Modifier.padding(14.dp)) {
+                                        Text(
+                                            text = "HISTORICAL TREND (2015 – 2024)",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 1.sp,
+                                            color = Color(0xFF10B981)
+                                        )
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        allYears.forEach { yr ->
+                                            val valA = state.historicalValuesA.find { it.year == yr }
+                                            val valB = state.historicalValuesB.find { it.year == yr }
+
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 4.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            ) {
+                                                Text(
+                                                    text = "$yr",
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = Color(0xFF94A3B8),
+                                                    fontSize = 12.sp,
+                                                    modifier = Modifier.width(42.dp)
+                                                )
+
+                                                if (valA != null) {
+                                                    Text(
+                                                        text = "${countryA?.countryName?.take(10) ?: compA.isoCode}: ${valA.formattedValue ?: valA.value}",
+                                                        color = Color(0xFF38BDF8),
+                                                        fontSize = 12.sp,
+                                                        fontWeight = FontWeight.SemiBold
+                                                    )
+                                                }
+
+                                                if (valB != null) {
+                                                    Text(
+                                                        text = "${countryB?.countryName?.take(10) ?: compB.isoCode}: ${valB.formattedValue ?: valB.value}",
+                                                        color = Color(0xFFF59E0B),
+                                                        fontSize = 12.sp,
+                                                        fontWeight = FontWeight.SemiBold
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 

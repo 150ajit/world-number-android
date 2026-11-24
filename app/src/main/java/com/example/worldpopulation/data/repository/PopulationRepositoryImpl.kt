@@ -222,6 +222,10 @@ class PopulationRepositoryImpl @Inject constructor(
         }.flowOn(ioDispatcher)
     }
 
+    override fun getHistoricalValues(isoCode: String, indicatorId: String): Flow<List<CountryIndicatorValueEntity>> {
+        return categoryIndicatorDao.getHistoricalValues(isoCode, indicatorId).flowOn(ioDispatcher)
+    }
+
     override fun getValuesForCountry(isoCode: String): Flow<List<CountryIndicatorValueEntity>> {
         return categoryIndicatorDao.getValuesForCountry(isoCode).map { list ->
             if (list.isEmpty()) {

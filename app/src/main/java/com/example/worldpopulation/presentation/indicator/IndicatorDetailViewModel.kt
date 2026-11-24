@@ -17,6 +17,8 @@ import javax.inject.Inject
 data class IndicatorDetailUiState(
     val indicator: CategoryIndicatorEntity? = null,
     val indicatorValues: List<CountryIndicatorValueEntity> = emptyList(),
+    val historicalValuesA: List<CountryIndicatorValueEntity> = emptyList(),
+    val historicalValuesB: List<CountryIndicatorValueEntity> = emptyList(),
     val countriesMap: Map<String, CountryPopulation> = emptyMap(),
     val searchQuery: String = "",
     val compareCountryA: String? = null,
@@ -82,11 +84,38 @@ class IndicatorDetailViewModel @Inject constructor(
                     values
                 }
                 val activeValues = if (fallback.isNotEmpty()) fallback else _uiState.value.indicatorValues
+                val targetA = _uiState.value.compareCountryA ?: activeValues.firstOrNull()?.isoCode
+                val targetB = _uiState.value.compareCountryB ?: activeValues.getOrNull(1)?.isoCode
                 _uiState.value = _uiState.value.copy(
                     indicatorValues = activeValues,
-                    compareCountryA = _uiState.value.compareCountryA ?: activeValues.firstOrNull()?.isoCode,
-                    compareCountryB = _uiState.value.compareCountryB ?: activeValues.getOrNull(1)?.isoCode
+                    compareCountryA = targetA,
+                    compareCountryB = targetB
                 )
+                loadHistorical()
+            }
+        }
+    }
+
+    private var histAJob: kotlinx.coroutines.Job? = null
+    private var histBJob: kotlinx.coroutines.Job? = null
+
+    private fun loadHistorical() {
+        val isoA = _uiState.value.compareCountryA
+        val isoB = _uiState.value.compareCountryB
+        if (isoA != null) {
+            histAJob?.cancel()
+            histAJob = viewModelScope.launch {
+                repository.getHistoricalValues(isoA, indicatorId).collect { hist ->
+                    _uiState.value = _uiState.value.copy(historicalValuesA = hist)
+                }
+            }
+        }
+        if (isoB != null) {
+            histBJob?.cancel()
+            histBJob = viewModelScope.launch {
+                repository.getHistoricalValues(isoB, indicatorId).collect { hist ->
+                    _uiState.value = _uiState.value.copy(historicalValuesB = hist)
+                }
             }
         }
     }
@@ -97,9 +126,11 @@ class IndicatorDetailViewModel @Inject constructor(
 
     fun selectCompareCountryA(iso: String) {
         _uiState.value = _uiState.value.copy(compareCountryA = iso)
+        loadHistorical()
     }
 
     fun selectCompareCountryB(iso: String) {
         _uiState.value = _uiState.value.copy(compareCountryB = iso)
+        loadHistorical()
     }
 }

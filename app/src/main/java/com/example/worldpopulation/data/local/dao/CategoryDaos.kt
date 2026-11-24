@@ -68,8 +68,16 @@ interface IndicatorDao {
     @Query("SELECT * FROM category_indicators WHERE indicatorId = :indicatorId LIMIT 1")
     suspend fun getIndicatorDirect(indicatorId: String): CategoryIndicatorEntity?
 
-    @Query("SELECT * FROM country_indicator_values WHERE indicatorId = :indicatorId ORDER BY CASE WHEN :sortDesc = 1 THEN value END DESC, CASE WHEN :sortDesc = 0 THEN value END ASC")
+    @Query("""
+        SELECT * FROM country_indicator_values 
+        WHERE indicatorId = :indicatorId 
+        AND year = (SELECT MAX(year) FROM country_indicator_values WHERE indicatorId = :indicatorId)
+        ORDER BY CASE WHEN :sortDesc = 1 THEN value END DESC, CASE WHEN :sortDesc = 0 THEN value END ASC
+    """)
     fun getValuesForIndicator(indicatorId: String, sortDesc: Boolean): Flow<List<CountryIndicatorValueEntity>>
+
+    @Query("SELECT * FROM country_indicator_values WHERE isoCode = :isoCode AND indicatorId = :indicatorId ORDER BY year ASC")
+    fun getHistoricalValues(isoCode: String, indicatorId: String): Flow<List<CountryIndicatorValueEntity>>
 
     @Query("SELECT * FROM country_indicator_values WHERE isoCode = :isoCode")
     fun getValuesForCountry(isoCode: String): Flow<List<CountryIndicatorValueEntity>>

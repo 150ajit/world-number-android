@@ -33,6 +33,7 @@ interface PopulationRepository {
     fun getIndicatorsForSubcategory(subcategoryId: String): Flow<List<CategoryIndicatorEntity>>
     fun getIndicator(indicatorId: String): Flow<CategoryIndicatorEntity?>
     fun getIndicatorValues(indicatorId: String, sortDesc: Boolean = true): Flow<List<CountryIndicatorValueEntity>>
+    fun getHistoricalValues(isoCode: String, indicatorId: String): Flow<List<CountryIndicatorValueEntity>>
     fun getValuesForCountry(isoCode: String): Flow<List<CountryIndicatorValueEntity>>
     fun getDailyDiscovery(dayOfYear: Int): Flow<DailyDiscoveryEntity?>
     fun getDataStories(): Flow<List<DataStoryEntity>>

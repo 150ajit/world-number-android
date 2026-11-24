@@ -134,6 +134,18 @@ class DatasetAssetsJsonTest {
             assertTrue("Dataset file $dsPath must exist", dsFile.exists())
             val dsJson = dsFile.readText()
             val payload = JsonParser.parseString(dsJson).asJsonObject
+            if (dsId == "historical_trends" || dsPath.contains("historical_trends")) {
+                assertTrue("historical_trends should have data", payload.has("data"))
+                val dataObj = payload.getAsJsonObject("data")
+                for (iso in dataObj.keySet()) {
+                    val countryObj = dataObj.getAsJsonObject(iso)
+                    for (ind in countryObj.keySet()) {
+                        val yearsObj = countryObj.getAsJsonObject(ind)
+                        totalValues += yearsObj.size()
+                    }
+                }
+                continue
+            }
             val categoryKey = payload.get("categoryKey").asString
             val catId = categoryKey.substringAfter("_")
             val countriesObj = payload.getAsJsonObject("countries")

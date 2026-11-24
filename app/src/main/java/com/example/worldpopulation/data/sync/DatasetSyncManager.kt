@@ -47,10 +47,10 @@ class DatasetSyncManager @Inject constructor(
             if (subcategoryDao.getSubcategoryCount() < 270) {
                 subcategoryDao.insertSubcategories(com.example.worldpopulation.data.local.DefaultSubcategories.list)
             }
-            if (indicatorDao.getIndicatorCount() < 40) {
+            if (indicatorDao.getIndicatorCount() < 270) {
                 indicatorDao.insertIndicators(com.example.worldpopulation.data.local.DefaultIndicators.list)
             }
-            if (indicatorDao.getValuesCount() < 50) {
+            if (indicatorDao.getValuesCount() < 500) {
                 com.example.worldpopulation.data.local.DefaultIndicatorValues.list.chunked(250).forEach {
                     indicatorDao.insertValues(it)
                 }
@@ -62,7 +62,7 @@ class DatasetSyncManager @Inject constructor(
         val valuesCount = indicatorDao.getValuesCount()
         val categoryCount = categoryDao.getCategoryCount()
         val indicatorCount = indicatorDao.getIndicatorCount()
-        if (categoryCount >= 20 && indicatorCount >= 40 && valuesCount >= 9000) {
+        if (categoryCount >= 20 && indicatorCount >= 270 && valuesCount >= 50000) {
             return@withContext false
         }
 
@@ -187,35 +187,67 @@ class DatasetSyncManager @Inject constructor(
                     }
 
                     val datasetPayload = JsonParser.parseString(datasetJson).asJsonObject
-                    val categoryKey = datasetPayload.get("categoryKey").asString
-                    val catId = categoryKey.substringAfter("_")
-                    val year = if (datasetPayload.has("year")) datasetPayload.get("year").asInt else 2024
-                    val countriesObj = datasetPayload.getAsJsonObject("countries")
-
-                    val dsIndicatorValues = mutableListOf<CountryIndicatorValueEntity>()
-                    if (countriesObj != null) {
-                        for (isoKey in countriesObj.keySet()) {
-                            val countryData = countriesObj.getAsJsonObject(isoKey)
-                            for (indicatorKey in countryData.keySet()) {
-                                val value = countryData.get(indicatorKey).asDouble
-                                dsIndicatorValues.add(
-                                    CountryIndicatorValueEntity(
-                                        isoCode = isoKey,
-                                        indicatorId = indicatorKey,
-                                        categoryId = catId,
-                                        year = year,
-                                        value = value,
-                                        formattedValue = formatVal(value)
-                                    )
-                                )
+                    if (dsId == "historical_trends" || dsPath.contains("historical_trends")) {
+                        val histDataObj = datasetPayload.getAsJsonObject("data")
+                        val histValues = mutableListOf<CountryIndicatorValueEntity>()
+                        if (histDataObj != null) {
+                            for (isoKey in histDataObj.keySet()) {
+                                val isoObj = histDataObj.getAsJsonObject(isoKey)
+                                for (indKey in isoObj.keySet()) {
+                                    val seriesObj = isoObj.getAsJsonObject(indKey)
+                                    for (yrStr in seriesObj.keySet()) {
+                                        val yr = yrStr.toIntOrNull() ?: 2024
+                                        val v = seriesObj.get(yrStr).asDouble
+                                        histValues.add(
+                                            CountryIndicatorValueEntity(
+                                                isoCode = isoKey,
+                                                indicatorId = indKey,
+                                                categoryId = "historical",
+                                                year = yr,
+                                                value = v,
+                                                formattedValue = formatVal(v)
+                                            )
+                                        )
+                                    }
+                                }
                             }
                         }
-                    }
+                        if (histValues.isNotEmpty()) {
+                            histValues.chunked(250).forEach { chunk ->
+                                indicatorDao.insertValues(chunk)
+                            }
+                        }
+                    } else {
+                        val categoryKey = if (datasetPayload.has("categoryKey")) datasetPayload.get("categoryKey").asString else dsId
+                        val catId = categoryKey.substringAfter("_")
+                        val year = if (datasetPayload.has("year")) datasetPayload.get("year").asInt else 2024
+                        val countriesObj = datasetPayload.getAsJsonObject("countries")
 
-                    // Insert each dataset's values immediately so categories are instantly available
-                    if (dsIndicatorValues.isNotEmpty()) {
-                        dsIndicatorValues.chunked(250).forEach { chunk ->
-                            indicatorDao.insertValues(chunk)
+                        val dsIndicatorValues = mutableListOf<CountryIndicatorValueEntity>()
+                        if (countriesObj != null) {
+                            for (isoKey in countriesObj.keySet()) {
+                                val countryData = countriesObj.getAsJsonObject(isoKey)
+                                for (indicatorKey in countryData.keySet()) {
+                                    val value = countryData.get(indicatorKey).asDouble
+                                    dsIndicatorValues.add(
+                                        CountryIndicatorValueEntity(
+                                            isoCode = isoKey,
+                                            indicatorId = indicatorKey,
+                                            categoryId = catId,
+                                            year = year,
+                                            value = value,
+                                            formattedValue = formatVal(value)
+                                        )
+                                    )
+                                }
+                            }
+                        }
+
+                        // Insert each dataset's values immediately so categories are instantly available
+                        if (dsIndicatorValues.isNotEmpty()) {
+                            dsIndicatorValues.chunked(250).forEach { chunk ->
+                                indicatorDao.insertValues(chunk)
+                            }
                         }
                     }
 
