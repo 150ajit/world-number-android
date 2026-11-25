@@ -114,6 +114,7 @@ if (fs.existsSync(energyCsvPath)) {
         setIf('elecGenTwh', cols[col('electricity_generation')]);
         setIf('perCapElec', cols[col('per_capita_electricity')]);
         setIf('lowCarbonShareElec', cols[col('low_carbon_share_elec')]);
+        setIf('renewablesShareElec', cols[col('renewables_share_elec')]);
         setIf('solarElecTwh', cols[col('solar_electricity')]);
         setIf('windElecTwh', cols[col('wind_electricity')]);
         setIf('hydroElecTwh', cols[col('hydro_electricity')]);
@@ -150,17 +151,47 @@ if (fs.existsSync(co2CsvPath)) {
     }
 }
 
+// 5. Additional OWID CSVs (Life Expectancy, HALE, Fertility, Capital Pop, CPI, Literacy)
+function loadOwidEntityLatest(filename) {
+    const map = {};
+    const p = path.join(scratchDataDir, filename);
+    if (!fs.existsSync(p)) return map;
+    fs.readFileSync(p, 'utf8').split('\n').slice(1).forEach(line => {
+        if (!line.trim()) return;
+        const parts = line.split(',');
+        if (parts.length < 3) return;
+        const entity = parts[0].replace(/^"|"$/g, '').trim().toLowerCase();
+        const val = parseFloat(parts[2]);
+        if (!isNaN(val)) map[entity] = val;
+    });
+    return map;
+}
+const lifeExpByName = loadOwidEntityLatest('life_exp.csv');
+const haleByName = loadOwidEntityLatest('hale.csv');
+const fertilityByName = loadOwidEntityLatest('fertility.csv');
+const capitalPopByName = loadOwidEntityLatest('capital_pop.csv');
+const cpiByName = loadOwidEntityLatest('cpi.csv');
+const literacyByName = loadOwidEntityLatest('literacy.csv');
+
 countries.forEach(c => {
     const pData = popMap[c.isoCode] || {};
+    const lname = c.name.toLowerCase();
     c.iso = c.isoCode;
     c.pop = pData.pop || (c.landArea ? Math.round(c.landArea * 45) : 10_000_000);
     c.growth = pData.growth !== undefined ? pData.growth : 1.0;
     c.landArea = pData.landArea || c.landArea || 100_000;
     c.gdp = imf2024GdpOverrides[c.isoCode] || wbGdpMap[c.isoCode] || Math.round((c.pop * 4500) / 1e9) || 5;
-    c.hdi = hdiIsoOverrides[c.isoCode] || hdiByName[c.name.toLowerCase()] || 0.70;
+    c.hdi = hdiIsoOverrides[c.isoCode] || hdiByName[lname] || 0.70;
     c.owidEnergy = owidEnergyMap[c.isoCode] || {};
     c.owidCo2 = owidCo2Map[c.isoCode] || {};
     c.co2 = c.owidCo2.co2PerCapita !== undefined ? c.owidCo2.co2PerCapita : 3.5;
+    c.lifeExp = lifeExpByName[lname] !== undefined ? +lifeExpByName[lname].toFixed(1) : +(58.0 + c.hdi * 27.0).toFixed(1);
+    c.hale = haleByName[lname] !== undefined ? +haleByName[lname].toFixed(1) : +(c.lifeExp * 0.875).toFixed(1);
+    c.fertility = fertilityByName[lname] !== undefined ? +fertilityByName[lname].toFixed(2) : +(Math.max(1.1, Math.min(6.2, 5.4 - c.hdi * 4.2))).toFixed(2);
+    c.medianAge = +(Math.max(15.2, Math.min(49.8, 14.0 + c.hdi * 34.0 - (c.fertility - 1.5) * 2.2))).toFixed(1);
+    c.capitalPop = capitalPopByName[lname] ? Math.round(capitalPopByName[lname]) : Math.round(Math.min(25_000_000, Math.max(5_000, c.pop * 0.14)));
+    c.cpi = cpiByName[lname] !== undefined ? Math.round(cpiByName[lname]) : Math.round(Math.max(12, Math.min(90, c.hdi * 90 - 6)));
+    c.literacy = literacyByName[lname] !== undefined ? +literacyByName[lname].toFixed(1) : +(Math.max(28.0, Math.min(99.9, c.hdi * 112.0 - 5.0))).toFixed(1);
 });
 
 // Define comprehensive Subcategory to Indicator registry with definitions, units, sources, and methodologies
@@ -3053,7 +3084,7 @@ function computeCountryIndicatorValue(c, indId) {
         case "co2_per_capita": return co2;
 
         // Health
-        case "healthy_life_expectancy": return +(lifeExp * 0.88).toFixed(1);
+        case "healthy_life_expectancy": return c.hale || +(lifeExp * 0.875).toFixed(1);
         case "mortality_under5": return +(Math.max(2.0, Math.min(125.0, (86.0 - lifeExp) * 3.8))).toFixed(1);
         case "maternal_mortality_ratio": return Math.round(Math.max(2, Math.min(850, (86.0 - lifeExp) * 22.0)));
         case "ncd_mortality_rate": return +(Math.max(8.0, Math.min(35.0, 36.0 - (hdi * 22.0)))).toFixed(1);
@@ -3146,10 +3177,50 @@ function computeCountryIndicatorValue(c, indId) {
 
         // Global Indices
         case "hdi_score": return hdi;
-        case "happiness_score": return +(Math.max(1.8, Math.min(7.85, 2.5 + (hdi * 5.4)))).toFixed(2);
-        case "global_peace_index": return +(Math.max(1.12, Math.min(3.85, 3.6 - (hdi * 2.3)))).toFixed(3);
-        case "cpi_score": return Math.round(Math.max(12, Math.min(90, hdi * 92 - 6)));
-        case "democracy_index": return +(Math.max(1.1, Math.min(9.85, hdi * 10.5 - 1.2))).toFixed(2);
+        case "happiness_score": {
+            const whr2024 = {
+                FIN: 7.74, DNK: 7.58, ISL: 7.53, SWE: 7.34, ISR: 7.34, NLD: 7.32, NOR: 7.30,
+                LUX: 7.12, CHE: 7.06, AUS: 7.06, NZL: 7.03, CRI: 6.96, KWT: 6.95, AUT: 6.91,
+                CAN: 6.90, BEL: 6.89, IRL: 6.84, CZE: 6.82, LTU: 6.82, GBR: 6.75, SVN: 6.74,
+                ARE: 6.73, USA: 6.73, DEU: 6.72, MEX: 6.68, URY: 6.61, FRA: 6.61, SAU: 6.59,
+                SGP: 6.52, TWN: 6.50, ROU: 6.49, SLV: 6.47, EST: 6.45, POL: 6.44, ESP: 6.42,
+                SRB: 6.41, CHL: 6.36, PAN: 6.36, MLT: 6.35, ITA: 6.32, SVK: 6.26, BRA: 6.27,
+                JPN: 6.06, KOR: 6.06, CHN: 5.97, IND: 4.05, AFG: 1.72
+            };
+            if (whr2024[c.iso] !== undefined) return whr2024[c.iso];
+            return +(Math.max(1.8, Math.min(7.0, 2.4 + (hdi * 5.0)))).toFixed(2);
+        }
+        case "global_peace_index": {
+            const gpi2024 = {
+                ISL: 1.112, IRL: 1.303, AUT: 1.313, NZL: 1.323, SGP: 1.339, CHE: 1.350, PRT: 1.372,
+                DNK: 1.382, SVN: 1.395, MYS: 1.427, CAN: 1.449, CZE: 1.459, FIN: 1.474, HUN: 1.502,
+                HRV: 1.504, BEL: 1.510, JPN: 1.525, NLD: 1.527, AUS: 1.536, DEU: 1.542, NOR: 1.543,
+                USA: 2.622, CHN: 2.101, IND: 2.319, RUS: 3.249, UKR: 3.280, YEM: 3.397, SDN: 3.327
+            };
+            if (gpi2024[c.iso] !== undefined) return gpi2024[c.iso];
+            return +(Math.max(1.38, Math.min(3.45, 3.35 - (hdi * 1.95)))).toFixed(3);
+        }
+        case "cpi_score": {
+            const ti2024 = {
+                DNK: 90, FIN: 87, NZL: 85, NOR: 84, SGP: 83, SWE: 82, CHE: 82, NLD: 79,
+                DEU: 78, LUX: 78, IRL: 77, CAN: 76, EST: 76, GBR: 71, AUS: 75, HKG: 75,
+                JPN: 73, URY: 73, BEL: 73, FRA: 71, AUT: 71, USA: 69, ARE: 68, TWN: 67,
+                KOR: 63, ESP: 60, ITA: 56, POL: 54, SAU: 52, CHN: 45, IND: 39, BRA: 36,
+                IDN: 34, TUR: 34, UKR: 36, MEX: 31, PAK: 29, RUS: 26, NGA: 25, SOM: 11, SSD: 13
+            };
+            return ti2024[c.iso] !== undefined ? ti2024[c.iso] : c.cpi;
+        }
+        case "democracy_index": {
+            const eiu2024 = {
+                NOR: 9.81, NZL: 9.61, ISL: 9.45, SWE: 9.39, FIN: 9.30, DNK: 9.28, IRL: 9.19,
+                CHE: 9.14, NLD: 9.00, TWN: 8.92, LUX: 8.81, DEU: 8.80, CAN: 8.69, AUS: 8.66,
+                URY: 8.66, JPN: 8.40, CRI: 8.29, AUT: 8.28, GBR: 8.28, GRC: 8.14, KOR: 8.09,
+                FRA: 8.07, ESP: 8.07, CHL: 7.98, USA: 7.85, IND: 7.18, BRA: 6.68, IDN: 6.53,
+                CHN: 2.12, RUS: 2.22, PRK: 1.08, AFG: 0.26
+            };
+            if (eiu2024[c.iso] !== undefined) return eiu2024[c.iso];
+            return +(Math.max(1.1, Math.min(8.9, hdi * 9.8 - 1.0))).toFixed(2);
+        }
         case "press_freedom_score": return +(Math.max(18.0, Math.min(93.0, hdi * 95.0 - 5.0))).toFixed(2);
         case "gender_gap_index": return +(Math.max(0.55, Math.min(0.92, 0.58 + (hdi * 0.32)))).toFixed(3);
         case "economic_freedom_index": return +(Math.max(28.0, Math.min(88.0, hdi * 82.0))).toFixed(1);
@@ -3160,6 +3231,8 @@ function computeCountryIndicatorValue(c, indId) {
         case "global_competitiveness_idx": return +(Math.max(25.0, Math.min(98.0, hdi * 95.0))).toFixed(1);
 
         // Geography
+        case "land_area": return Math.round(area);
+        case "capital_population": return c.capitalPop || Math.round(Math.max(5000, pop * 0.14));
         case "land_area_sqmi": return Math.round(area * 0.386102);
         case "water_area_pct": return +(Math.max(0.2, Math.min(18.0, (area % 12) * 1.1))).toFixed(1);
         case "coastline_length": return Math.round(Math.sqrt(area) * 3.8);
@@ -3200,9 +3273,11 @@ function computeCountryIndicatorValue(c, indId) {
             if (c.owidEnergy && c.owidEnergy.elecGenTwh > 0) return Math.round(c.owidEnergy.elecGenTwh);
             return Math.round(Math.max(0.5, gdp * 0.65));
         }
+        case "renewable_energy_share":
         case "clean_power_share": {
-            if (c.owidEnergy && c.owidEnergy.lowCarbonShareElec !== undefined) return +(c.owidEnergy.lowCarbonShareElec).toFixed(1);
-            return +(Math.max(5.0, Math.min(98.0, hdi * 52.0 + 12.0))).toFixed(1);
+            if (c.owidEnergy && c.owidEnergy.renewablesShareElec !== undefined) return +(c.owidEnergy.renewablesShareElec).toFixed(2);
+            if (c.owidEnergy && c.owidEnergy.lowCarbonShareElec !== undefined) return +(c.owidEnergy.lowCarbonShareElec).toFixed(2);
+            return +(Math.max(2.0, Math.min(95.0, (c.lat ? Math.abs(c.lat) * 0.9 : 20.0) + 12.0))).toFixed(1);
         }
         case "solar_generation_twh": {
             if (c.owidEnergy && c.owidEnergy.solarElecTwh !== undefined) return +(c.owidEnergy.solarElecTwh).toFixed(1);
