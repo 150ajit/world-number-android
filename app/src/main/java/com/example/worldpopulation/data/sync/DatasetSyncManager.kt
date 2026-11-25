@@ -116,12 +116,16 @@ class DatasetSyncManager @Inject constructor(
         }
 
         // 3. Seed Indicators
+        val indicatorUnitMap = com.example.worldpopulation.data.local.DefaultIndicators.list
+            .associate { it.indicatorId to it.unit }
+            .toMutableMap()
         try {
             val indicatorsJson = assetManager.open("data/category_indicators.json").use {
                 InputStreamReader(it).readText()
             }
             val indicatorsType = object : TypeToken<List<CategoryIndicatorEntity>>() {}.type
             val indicatorEntities: List<CategoryIndicatorEntity> = gson.fromJson(indicatorsJson, indicatorsType)
+            indicatorEntities.forEach { indicatorUnitMap[it.indicatorId] = it.unit }
             indicatorDao.insertIndicators(indicatorEntities)
         } catch (e: Exception) {
             android.util.Log.e("DatasetSyncManager", "Failed to seed indicators", e)
@@ -205,7 +209,7 @@ class DatasetSyncManager @Inject constructor(
                                                 categoryId = "historical",
                                                 year = yr,
                                                 value = v,
-                                                formattedValue = formatVal(v)
+                                                formattedValue = formatVal(v, indicatorUnitMap[indKey] ?: "")
                                             )
                                         )
                                     }
@@ -236,7 +240,7 @@ class DatasetSyncManager @Inject constructor(
                                             categoryId = catId,
                                             year = year,
                                             value = value,
-                                            formattedValue = formatVal(value)
+                                            formattedValue = formatVal(value, indicatorUnitMap[indicatorKey] ?: "")
                                         )
                                     )
                                 }
@@ -320,6 +324,8 @@ class DatasetSyncManager @Inject constructor(
                         val year = if (parsed.has("year")) parsed.get("year").asInt else 2024
                         val updatedValues = mutableListOf<CountryIndicatorValueEntity>()
 
+                        val remoteUnitMap = com.example.worldpopulation.data.local.DefaultIndicators.list
+                            .associate { it.indicatorId to it.unit }
                         for (iso in countriesObj.keySet()) {
                             val isoData = countriesObj.getAsJsonObject(iso)
                             for (indKey in isoData.keySet()) {
@@ -331,7 +337,7 @@ class DatasetSyncManager @Inject constructor(
                                         categoryId = catId,
                                         year = year,
                                         value = value,
-                                        formattedValue = formatVal(value)
+                                        formattedValue = formatVal(value, remoteUnitMap[indKey] ?: "")
                                     )
                                 )
                             }
@@ -370,10 +376,28 @@ class DatasetSyncManager @Inject constructor(
         return hash.joinToString("") { "%02x".format(it) }
     }
 
-    private fun formatVal(value: Double): String {
+    private fun formatVal(value: Double, unit: String = ""): String {
+        val u = unit.lowercase()
+        val hasMagnitudeOrMetricUnit = u.contains("thousand") ||
+            u.contains("million") ||
+            u.contains("billion") ||
+            u.contains("trillion") ||
+            u.contains("twh") ||
+            u.contains("kwh") ||
+            u.contains("gwh") ||
+            u.contains("usd") ||
+            u.contains("eur") ||
+            u.contains("mt") ||
+            u.contains("bcm") ||
+            u.contains("bpd") ||
+            u.contains("km") ||
+            u.contains("%") ||
+            u.contains("score") ||
+            u.contains("index")
+
         return when {
-            value >= 1_000_000_000 -> "%.2fB".format(value / 1_000_000_000.0)
-            value >= 1_000_000 -> "%.2fM".format(value / 1_000_000.0)
+            !hasMagnitudeOrMetricUnit && value >= 1_000_000_000 -> "%.2fB".format(value / 1_000_000_000.0)
+            !hasMagnitudeOrMetricUnit && value >= 1_000_000 -> "%.2fM".format(value / 1_000_000.0)
             value >= 1_000 -> "%,.0f".format(value)
             value % 1.0 == 0.0 -> "%.0f".format(value)
             else -> "%.2f".format(value)

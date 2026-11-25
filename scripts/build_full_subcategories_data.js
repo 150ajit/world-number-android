@@ -38,11 +38,129 @@ bundledKt.split('\n').forEach(line => {
 });
 console.log(`Extracted demographic data for ${Object.keys(popMap).length} sovereign countries from BundledPopulationData.kt.`);
 
+// Load authoritative external datasets (World Bank GDP, UNDP HDI, OWID Energy, OWID CO2)
+const scratchDataDir = 'C:/Users/Admin/.gemini/antigravity/brain/39cd75b3-573e-4c77-81ea-0ee8df32f316/scratch';
+
+// 1. Nominal GDP (Billion USD) from World Bank gdp.csv + IMF WEO 2024 top-30 updates
+const wbGdpMap = {};
+const gdpCsvPath = path.join(scratchDataDir, 'gdp.csv');
+if (fs.existsSync(gdpCsvPath)) {
+    fs.readFileSync(gdpCsvPath, 'utf8').split('\n').slice(1).forEach(line => {
+        const m = line.match(/,([A-Z]{3}),(\d{4}),([\d.]+)/);
+        if (m) wbGdpMap[m[1]] = parseFloat(m[3]) / 1e9;
+    });
+}
+const imf2024GdpOverrides = {
+    USA: 28781, CHN: 18533, DEU: 4591, JPN: 4110, IND: 3937, GBR: 3495, FRA: 3130, ITA: 2328,
+    BRA: 2331, CAN: 2242, RUS: 2056, MEX: 2017, AUS: 1790, KOR: 1761, ESP: 1647, IDN: 1476,
+    NLD: 1143, TUR: 1114, SAU: 1107, CHE: 938, POL: 845, TWN: 803, BEL: 655, SWE: 623,
+    ARG: 604, IRL: 564, ARE: 528, AUT: 542, SGP: 525, THA: 548, ISR: 531, NOR: 527,
+    PHL: 472, VNM: 466, MYS: 446, BGD: 455, ZAF: 373, DNK: 410, HKG: 407, COL: 386,
+    EGY: 348, CHL: 334, ROU: 369, CZE: 343, PAK: 375, FIN: 308, PRT: 299, IRN: 464,
+    NGA: 253, KAZ: 297, PER: 282, NZL: 258, IRQ: 265, QAT: 245, UKR: 189
+};
+
+// 2. UNDP Human Development Index (HDI)
+const hdiByName = {};
+const hdiCsvPath = path.join(scratchDataDir, 'hdi.csv');
+if (fs.existsSync(hdiCsvPath)) {
+    fs.readFileSync(hdiCsvPath, 'utf8').split('\n').slice(1).forEach(line => {
+        const idxLast = line.lastIndexOf(',');
+        const idxPrev = line.lastIndexOf(',', idxLast - 1);
+        if (idxPrev > 0 && idxLast > idxPrev) {
+            const name = line.slice(0, idxPrev).replace(/^"|"$/g, '').trim().toLowerCase();
+            const val = parseFloat(line.slice(idxLast + 1));
+            if (!isNaN(val)) hdiByName[name] = val;
+        }
+    });
+}
+const hdiIsoOverrides = {
+    CHE: 0.967, NOR: 0.966, ISL: 0.959, HKG: 0.956, DNK: 0.952, SWE: 0.952, IRL: 0.950, DEU: 0.950,
+    SGP: 0.949, NLD: 0.946, AUS: 0.946, BEL: 0.942, FIN: 0.942, GBR: 0.940, NZL: 0.939, ARE: 0.937,
+    CAN: 0.935, KOR: 0.929, LUX: 0.927, USA: 0.927, AUT: 0.926, SVN: 0.926, JPN: 0.920, ISR: 0.915,
+    FRA: 0.910, ESP: 0.911, ITA: 0.906, CZE: 0.895, GRC: 0.893, POL: 0.881, SAU: 0.875, CHL: 0.860,
+    TUR: 0.855, ARG: 0.849, RUS: 0.821, MYS: 0.807, THA: 0.803, CHN: 0.788, MEX: 0.781, BRA: 0.760,
+    COL: 0.758, UKR: 0.734, EGY: 0.728, VNM: 0.726, IDN: 0.713, PHL: 0.710, ZAF: 0.717, MAR: 0.698,
+    BGD: 0.670, IND: 0.644, PAK: 0.540, NGA: 0.548, ETH: 0.492, TCD: 0.394, SOM: 0.380, SSD: 0.381, NER: 0.394
+};
+
+// 3. OWID Energy Data (IEA / Energy Institute / EIA)
+const owidEnergyMap = {};
+const energyCsvPath = path.join(scratchDataDir, 'owid-energy-data.csv');
+if (fs.existsSync(energyCsvPath)) {
+    const eLines = fs.readFileSync(energyCsvPath, 'utf8').split('\n');
+    const eH = eLines[0].split(',');
+    const col = k => eH.indexOf(k);
+    for (let i = 1; i < eLines.length; i++) {
+        const cols = eLines[i].split(',');
+        const iso = cols[col('iso_code')];
+        if (!iso || iso.length !== 3) continue;
+        const yr = parseInt(cols[col('year')], 10);
+        if (yr < 2018) continue;
+        if (!owidEnergyMap[iso]) owidEnergyMap[iso] = {};
+        const setIf = (k, raw) => {
+            const v = parseFloat(raw);
+            if (!isNaN(v)) owidEnergyMap[iso][k] = v;
+        };
+        const coalP = parseFloat(cols[col('coal_production')]) || 0;
+        const oilP = parseFloat(cols[col('oil_production')]) || 0;
+        const gasP = parseFloat(cols[col('gas_production')]) || 0;
+        const lowC = parseFloat(cols[col('low_carbon_consumption')]) || 0;
+        if (coalP + oilP + gasP + lowC > 0) {
+            owidEnergyMap[iso].totalProdTwh = Math.round(coalP + oilP + gasP + lowC);
+        }
+        setIf('oilProdTwh', cols[col('oil_production')]);
+        setIf('gasProdTwh', cols[col('gas_production')]);
+        setIf('elecGenTwh', cols[col('electricity_generation')]);
+        setIf('perCapElec', cols[col('per_capita_electricity')]);
+        setIf('lowCarbonShareElec', cols[col('low_carbon_share_elec')]);
+        setIf('solarElecTwh', cols[col('solar_electricity')]);
+        setIf('windElecTwh', cols[col('wind_electricity')]);
+        setIf('hydroElecTwh', cols[col('hydro_electricity')]);
+        setIf('nuclearElecTwh', cols[col('nuclear_electricity')]);
+        setIf('coalShareElec', cols[col('coal_share_elec')]);
+        setIf('energyPerGdp', cols[col('energy_per_gdp')]);
+        setIf('primaryConsTwh', cols[col('primary_energy_consumption')]);
+    }
+}
+
+// 4. OWID CO2 & Emissions Data
+const owidCo2Map = {};
+const co2CsvPath = path.join(scratchDataDir, 'owid-co2-data.csv');
+if (fs.existsSync(co2CsvPath)) {
+    const cLines = fs.readFileSync(co2CsvPath, 'utf8').split('\n');
+    const cH = cLines[0].split(',');
+    const col = k => cH.indexOf(k);
+    for (let i = 1; i < cLines.length; i++) {
+        const cols = cLines[i].split(',');
+        const iso = cols[col('iso_code')];
+        if (!iso || iso.length !== 3) continue;
+        const yr = parseInt(cols[col('year')], 10);
+        if (yr < 2018) continue;
+        if (!owidCo2Map[iso]) owidCo2Map[iso] = {};
+        const setIf = (k, raw) => {
+            const v = parseFloat(raw);
+            if (!isNaN(v)) owidCo2Map[iso][k] = v;
+        };
+        setIf('co2', cols[col('co2')]);
+        setIf('co2PerCapita', cols[col('co2_per_capita')]);
+        setIf('totalGhg', cols[col('total_ghg')]);
+        setIf('methane', cols[col('methane')]);
+        setIf('nitrousOxide', cols[col('nitrous_oxide')]);
+    }
+}
+
 countries.forEach(c => {
     const pData = popMap[c.isoCode] || {};
+    c.iso = c.isoCode;
     c.pop = pData.pop || (c.landArea ? Math.round(c.landArea * 45) : 10_000_000);
     c.growth = pData.growth !== undefined ? pData.growth : 1.0;
     c.landArea = pData.landArea || c.landArea || 100_000;
+    c.gdp = imf2024GdpOverrides[c.isoCode] || wbGdpMap[c.isoCode] || Math.round((c.pop * 4500) / 1e9) || 5;
+    c.hdi = hdiIsoOverrides[c.isoCode] || hdiByName[c.name.toLowerCase()] || 0.70;
+    c.owidEnergy = owidEnergyMap[c.isoCode] || {};
+    c.owidCo2 = owidCo2Map[c.isoCode] || {};
+    c.co2 = c.owidCo2.co2PerCapita !== undefined ? c.owidCo2.co2PerCapita : 3.5;
 });
 
 // Define comprehensive Subcategory to Indicator registry with definitions, units, sources, and methodologies
@@ -795,7 +913,7 @@ const subcategoryIndicatorMap = [
         subcatId: "mil_personnel",
         indId: "military_personnel_active",
         name: "Active Duty Military Personnel",
-        unit: "thousands",
+        unit: "personnel",
         sort: "DESC",
         source: "IISS Military Balance 2024",
         def: "Total uniformed military personnel on active full-time service in armed forces branches.",
@@ -2977,8 +3095,33 @@ function computeCountryIndicatorValue(c, indId) {
         case "high_tech_exports_pct": return +(Math.max(1.0, Math.min(45.0, hdi * 28.0))).toFixed(1);
 
         // Military
-        case "defense_budget_usd": return +(Math.max(0.05, gdp * (Math.max(1.1, Math.min(6.5, 1.8 + (gdp > 600 ? 0.9 : 0.0))) / 100))).toFixed(1);
-        case "military_personnel_active": return Math.round(Math.max(1, (pop / 1000) * (Math.max(1.2, Math.min(18.0, 2.5 + (gdp > 500 ? 1.5 : 0.0))))));
+        case "defense_budget_usd": {
+            const sipri2024 = {
+                USA: 997.0, CHN: 314.0, RUS: 149.4, DEU: 88.5, IND: 86.1, GBR: 81.8, SAU: 80.3,
+                UKR: 64.7, FRA: 64.7, JPN: 55.3, KOR: 47.6, ISR: 46.5, POL: 38.0, ITA: 38.0,
+                AUS: 33.8, CAN: 29.3, TUR: 25.0, ESP: 24.6, NLD: 23.2, BRA: 20.9, TWN: 16.5,
+                SGP: 15.1, MEX: 14.8, SWE: 11.7, IDN: 10.6, NOR: 10.1, DZA: 18.3, PAK: 8.5,
+                ARE: 22.0, IRN: 10.3, EGY: 4.5, NGA: 3.1
+            };
+            if (sipri2024[c.iso] !== undefined) return sipri2024[c.iso];
+            return +(Math.max(0.02, gdp * 0.017)).toFixed(2);
+        }
+        case "military_personnel_active": {
+            const iiss2024 = {
+                CHN: 2035000, IND: 1460000, USA: 1326000, PRK: 1280000, RUS: 1134000,
+                UKR: 800000, PAK: 660000, IRN: 610000, ETH: 503000, TUR: 481000,
+                KOR: 450000, VNM: 450000, EGY: 438500, COL: 429000, IDN: 404500,
+                MAR: 400000, MEX: 387000, BRA: 376000, THA: 360000, MMR: 350000,
+                SAU: 257000, JPN: 247000, FRA: 204000, ERI: 200000, IRQ: 193000,
+                DEU: 181600, ISR: 169500, TWN: 169000, ITA: 165500, POL: 164000,
+                BGD: 163000, GBR: 144400, NGA: 135000, GRC: 132000, DZA: 130000,
+                SYR: 130000, ESP: 122000, LKA: 115000, PHL: 115000, MYS: 113000,
+                VEN: 123000, PER: 95000, CHL: 80000, ARG: 75000, ZAF: 70200,
+                CAN: 68000, AUS: 57350, ROU: 71500, SGP: 51000
+            };
+            if (iiss2024[c.iso] !== undefined) return iiss2024[c.iso];
+            return Math.round(Math.max(500, Math.min(95000, pop * 0.0025)));
+        }
         case "battle_tanks_count": return Math.round(Math.max(0, Math.min(12500, (gdp * 1.8) + (pop / 200_000))));
         case "combat_aircraft_count": return Math.round(Math.max(0, Math.min(3200, (gdp * 0.45) + (pop / 500_000))));
         case "naval_fleet_strength": return Math.round(Math.max(0, Math.min(750, (Math.sqrt(area) * 0.08) + (gdp * 0.06))));
@@ -3045,17 +3188,50 @@ function computeCountryIndicatorValue(c, indId) {
         case "visa_free_access_destinations": return Math.max(32, Math.min(194, Math.round(hdi * 190)));
 
         // Energy
-        case "total_energy_production_twh": return Math.round(Math.max(2, gdp * 2.2 + (pop / 1_500_000)));
-        case "energy_consumption_pc": return Math.round(Math.max(250, Math.min(26000, hdi * 11500 - 1500)));
-        case "electricity_generation": return Math.round(Math.max(1, gdp * 1.5 + (pop / 2_000_000)));
-        case "clean_power_share": return +(Math.max(5.0, Math.min(98.0, hdi * 52.0 + 12.0))).toFixed(1);
-        case "solar_generation_twh": return +(Math.max(0.1, Math.min(550.0, (gdp * 0.08) * (Math.abs(lat) < 35 ? 1.5 : 0.8)))).toFixed(1);
-        case "wind_generation_twh": return +(Math.max(0.1, Math.min(750.0, (gdp * 0.09) * (Math.abs(lat) > 30 ? 1.4 : 0.6)))).toFixed(1);
-        case "hydro_generation_twh": return +(Math.max(0.1, Math.min(1200.0, Math.sqrt(area) * 0.35))).toFixed(1);
-        case "nuclear_generation_twh": return +(Math.max(0.0, (c.iso === "USA" ? 775.0 : (c.iso === "FRA" ? 320.0 : (c.iso === "CHN" ? 400.0 : (c.iso === "RUS" ? 215.0 : (gdp > 800 ? (gdp * 0.04) : 0.0))))))).toFixed(1);
-        case "coal_share_electricity": return +(Math.max(0.0, Math.min(78.0, (1.0 - hdi) * 45.0 + (c.iso === "CHN" || c.iso === "IND" || c.iso === "POL" || c.iso === "ZAF" ? 35.0 : 5.0)))).toFixed(1);
-        case "oil_production_bpd": return Math.round(Math.max(0, (c.iso === "USA" ? 12900 : (c.iso === "SAU" ? 9200 : (c.iso === "RUS" ? 9800 : (c.iso === "CAN" ? 4800 : (c.iso === "IRQ" ? 4300 : (c.iso === "CHN" ? 4100 : (c.iso === "BRA" ? 3400 : (gdp > 300 ? 180 : 5))))))))));
-        case "gas_production_bcm": return +(Math.max(0.0, (c.iso === "USA" ? 1025.0 : (c.iso === "RUS" ? 640.0 : (c.iso === "IRN" ? 250.0 : (c.iso === "CHN" ? 230.0 : (c.iso === "QAT" ? 180.0 : (c.iso === "CAN" ? 190.0 : (gdp * 0.04))))))))).toFixed(1);
+        case "total_energy_production_twh": {
+            if (c.owidEnergy && c.owidEnergy.totalProdTwh > 0) return c.owidEnergy.totalProdTwh;
+            return Math.round(Math.max(1, (c.owidEnergy?.primaryConsTwh || Math.min(250, gdp * 0.85))));
+        }
+        case "energy_consumption_pc": {
+            if (c.owidEnergy && c.owidEnergy.perCapElec > 0) return Math.round(c.owidEnergy.perCapElec);
+            return Math.round(Math.max(180, Math.min(26000, hdi * 11500 - 1500)));
+        }
+        case "electricity_generation": {
+            if (c.owidEnergy && c.owidEnergy.elecGenTwh > 0) return Math.round(c.owidEnergy.elecGenTwh);
+            return Math.round(Math.max(0.5, gdp * 0.65));
+        }
+        case "clean_power_share": {
+            if (c.owidEnergy && c.owidEnergy.lowCarbonShareElec !== undefined) return +(c.owidEnergy.lowCarbonShareElec).toFixed(1);
+            return +(Math.max(5.0, Math.min(98.0, hdi * 52.0 + 12.0))).toFixed(1);
+        }
+        case "solar_generation_twh": {
+            if (c.owidEnergy && c.owidEnergy.solarElecTwh !== undefined) return +(c.owidEnergy.solarElecTwh).toFixed(1);
+            return +(Math.max(0.0, (gdp * 0.02))).toFixed(1);
+        }
+        case "wind_generation_twh": {
+            if (c.owidEnergy && c.owidEnergy.windElecTwh !== undefined) return +(c.owidEnergy.windElecTwh).toFixed(1);
+            return +(Math.max(0.0, (gdp * 0.025))).toFixed(1);
+        }
+        case "hydro_generation_twh": {
+            if (c.owidEnergy && c.owidEnergy.hydroElecTwh !== undefined) return +(c.owidEnergy.hydroElecTwh).toFixed(1);
+            return +(Math.max(0.0, Math.sqrt(area) * 0.12)).toFixed(1);
+        }
+        case "nuclear_generation_twh": {
+            if (c.owidEnergy && c.owidEnergy.nuclearElecTwh !== undefined) return +(c.owidEnergy.nuclearElecTwh).toFixed(1);
+            return 0.0;
+        }
+        case "coal_share_electricity": {
+            if (c.owidEnergy && c.owidEnergy.coalShareElec !== undefined) return +(c.owidEnergy.coalShareElec).toFixed(1);
+            return 0.0;
+        }
+        case "oil_production_bpd": {
+            if (c.owidEnergy && c.owidEnergy.oilProdTwh > 0) return Math.round(c.owidEnergy.oilProdTwh * 1.62);
+            return 0;
+        }
+        case "gas_production_bcm": {
+            if (c.owidEnergy && c.owidEnergy.gasProdTwh > 0) return +(c.owidEnergy.gasProdTwh * 0.0928).toFixed(1);
+            return 0.0;
+        }
         case "electricity_access_pct": return +(Math.max(25.0, Math.min(100.0, hdi * 125.0 - 15.0))).toFixed(1);
         case "energy_intensity_level": return +(Math.max(2.2, Math.min(12.5, 9.5 - (hdi * 6.5)))).toFixed(2);
         case "energy_transition_index": return +(Math.max(35.0, Math.min(78.0, 30.0 + (hdi * 46.0)))).toFixed(1);
@@ -3125,7 +3301,11 @@ function computeCountryIndicatorValue(c, indId) {
         case "sea_level_rise_mm_yr": return +(Math.max(1.8, Math.min(6.5, 3.4 + (lat < 15 ? 1.1 : 0.0)))).toFixed(2);
         case "glacier_mass_balance_mwe": return +(-Math.max(0.2, Math.min(2.2, 0.6 + (hdi * 0.5)))).toFixed(2);
         case "sea_ice_extent_sqkm": return Math.round(Math.max(0, Math.abs(lat) > 60 ? 450 : 0));
-        case "total_ghg_emissions_mt": return +(Math.max(0.2, (pop * co2) / 1_000_000)).toFixed(1);
+        case "total_ghg_emissions_mt": {
+            if (c.owidCo2 && c.owidCo2.totalGhg > 0) return +(c.owidCo2.totalGhg).toFixed(1);
+            if (c.owidCo2 && c.owidCo2.co2 > 0) return +(c.owidCo2.co2 * 1.25).toFixed(1);
+            return +(Math.max(0.2, (pop * co2) / 1_000_000)).toFixed(1);
+        }
         case "climate_vulnerability_idx": return +(Math.max(0.24, Math.min(0.72, 0.68 - (hdi * 0.42)))).toFixed(3);
         case "projected_temp_rise_2050": return +(Math.max(1.1, Math.min(3.2, 1.4 + (Math.abs(lat) > 50 ? 0.9 : 0.2)))).toFixed(2);
 
@@ -3566,10 +3746,17 @@ console.log(`Generated DefaultIndicators.kt with ${categoryIndicators.length} in
 // Generate DefaultIndicatorValues.kt
 // Group values by indicator and take top 12 countries per indicator
 const kotlinDefaultValuesPath = path.join(baseDir, 'app/src/main/java/com/example/worldpopulation/data/local/DefaultIndicatorValues.kt');
-function formatVal(value) {
-    if (value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
-    if (value >= 1_000_000) return (value / 1_000_000).toFixed(2) + "M";
-    if (value >= 1_000) return Math.round(value).toString();
+function formatVal(value, unit = "") {
+    const u = (unit || "").toLowerCase();
+    const hasMagnitudeOrMetricUnit =
+        u.includes("thousand") || u.includes("million") || u.includes("billion") || u.includes("trillion") ||
+        u.includes("twh") || u.includes("kwh") || u.includes("gwh") || u.includes("usd") || u.includes("eur") ||
+        u.includes("mt") || u.includes("bcm") || u.includes("bpd") || u.includes("km") ||
+        u.includes("%") || u.includes("score") || u.includes("index");
+
+    if (!hasMagnitudeOrMetricUnit && value >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + "B";
+    if (!hasMagnitudeOrMetricUnit && value >= 1_000_000) return (value / 1_000_000).toFixed(2) + "M";
+    if (value >= 1_000) return Math.round(value).toLocaleString("en-US");
     if (value % 1 === 0) return value.toString();
     return value.toFixed(2);
 }
@@ -3590,7 +3777,7 @@ categoryIndicators.forEach(ind => {
     list.sort((a, b) => isDesc ? b.value - a.value : a.value - b.value);
     const topN = list.slice(0, 12);
     topN.forEach(item => {
-        const fv = formatVal(item.value).replace(/,/g, '');
+        const fv = formatVal(item.value, ind.unit).replace(/,/g, '');
         defaultCsvLines.push(`${item.isoCode},${item.indicatorId},${item.categoryId},2024,${item.value},${fv}`);
     });
 });

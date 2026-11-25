@@ -88,7 +88,7 @@ Every indicator maps directly to an official subcategory under the 20 primary gl
 | 71 | `undefined` | Robotics and Automation | **Industrial Robot Density** | `robot_density` | units / 10k workers | DESC | International Federation of Robotics (IFR 2024) |
 | 72 | `undefined` | Technology Exports | **High-Technology Exports Share** | `high_tech_exports_pct` | % of mfg exports | DESC | World Bank / UN Comtrade 2024 |
 | 73 | `undefined` | Defence Budget | **Annual Defense Budget** | `defense_budget_usd` | Billion USD | DESC | SIPRI Military Expenditure Database 2024 |
-| 74 | `undefined` | Military Personnel | **Active Duty Military Personnel** | `military_personnel_active` | thousands | DESC | IISS Military Balance 2024 |
+| 74 | `undefined` | Military Personnel | **Active Duty Military Personnel** | `military_personnel_active` | personnel | DESC | IISS Military Balance 2024 |
 | 75 | `undefined` | Army | **Main Battle Tanks Inventory** | `battle_tanks_count` | tanks | DESC | IISS Military Balance 2024 |
 | 76 | `undefined` | Air Force | **Military Combat Aircraft** | `combat_aircraft_count` | aircraft | DESC | FlightGlobal World Air Forces / IISS 2024 |
 | 77 | `undefined` | Navy | **Total Naval Fleet Assets** | `naval_fleet_strength` | vessels | DESC | Global Firepower / IISS Military Balance |
@@ -880,7 +880,7 @@ Every indicator maps directly to an official subcategory under the 20 primary gl
 ### 74. Active Duty Military Personnel (`military_personnel_active`)
 - **Subcategory:** Military Personnel (`mil_personnel`)
 - **Category:** `undefined`
-- **Unit:** `thousands` (Sort: `DESC`)
+- **Unit:** `personnel` (Sort: `DESC`)
 - **Authoritative Source:** IISS Military Balance 2024
 - **Official Definition:** Total uniformed military personnel on active full-time service in armed forces branches.
 - **Measurement Methodology:** Verified annual order-of-battle counts from defense ministries and parliamentary committee reports.

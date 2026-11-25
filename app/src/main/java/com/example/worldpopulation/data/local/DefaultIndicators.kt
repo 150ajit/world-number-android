@@ -666,7 +666,7 @@ object DefaultIndicators {
             subcategoryId = "mil_personnel",
             indicatorId = "military_personnel_active",
             name = "Active Duty Military Personnel",
-            unit = "thousands",
+            unit = "personnel",
             sortDirection = "DESC",
             sourceName = "IISS Military Balance 2024"
         ),
