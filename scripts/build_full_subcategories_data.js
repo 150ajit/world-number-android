@@ -57,7 +57,8 @@ const imf2024GdpOverrides = {
     ARG: 604, IRL: 564, ARE: 528, AUT: 542, SGP: 525, THA: 548, ISR: 531, NOR: 527,
     PHL: 472, VNM: 466, MYS: 446, BGD: 455, ZAF: 373, DNK: 410, HKG: 407, COL: 386,
     EGY: 348, CHL: 334, ROU: 369, CZE: 343, PAK: 375, FIN: 308, PRT: 299, IRN: 464,
-    NGA: 253, KAZ: 297, PER: 282, NZL: 258, IRQ: 265, QAT: 245, UKR: 189
+    NGA: 253, KAZ: 297, PER: 282, NZL: 258, IRQ: 265, QAT: 245, UKR: 189,
+    VAT: 0.03, MCO: 8.8, LIE: 7.3
 };
 
 // 2. UNDP Human Development Index (HDI)
@@ -3114,44 +3115,108 @@ function computeCountryIndicatorValue(c, indId) {
         // Economy
         case "gdp_nominal": return gdp;
         case "gdp_per_capita": return Math.round((gdp * 1_000_000_000) / pop);
-        case "inflation_rate": return +(Math.max(0.8, Math.min(28.0, 3.8 - (hdi - 0.7) * 4.0 + ((c.hash % 9) - 4) * 0.3))).toFixed(1);
+        case "inflation_rate": {
+            const imfInf = {
+                ARG: 219.9, SDN: 145.0, ZWE: 105.0, VEN: 59.6, TUR: 58.5, LBN: 45.2, NGA: 33.2,
+                IRN: 32.5, EGY: 28.3, GHA: 22.9, ETH: 21.4, AGO: 28.2, MWI: 32.0, SLE: 24.5,
+                PAK: 12.6, RUS: 8.4, UKR: 6.5, BRA: 4.4, MEX: 4.7, IND: 4.7, IDN: 2.3,
+                USA: 2.9, GBR: 2.6, DEU: 2.4, FRA: 2.3, JPN: 2.6, KOR: 2.3, CAN: 2.4,
+                AUS: 3.1, CHE: 1.1, CHN: 0.3, THA: 0.5, SGP: 2.4, SAU: 1.7
+            };
+            if (imfInf[c.iso] !== undefined) return imfInf[c.iso];
+            return +(Math.max(0.8, Math.min(24.0, 4.5 - (hdi - 0.7) * 8.0 + (c.hash % 7) * 0.6))).toFixed(1);
+        }
         case "currency_usd_rate": {
             const fx2024 = {
                 IRN: 42000, VNM: 25400, IDN: 15850, UZB: 12800, LAO: 21900, SLE: 22500, GIN: 8600,
                 PRY: 7800, KHM: 4060, COL: 4380, CHL: 970, KOR: 1395, NGA: 1650, JPN: 154.5,
                 HUN: 385, PAK: 278, IND: 84.4, RUB: 98.5, RUS: 100.2, TUR: 34.5, EGY: 49.5,
                 MEX: 20.3, ZAF: 18.1, BRA: 5.80, CHN: 7.24, SWE: 10.9, NOR: 11.0, DNK: 7.05,
-                CHE: 0.88, DEU: 0.94, FRA: 0.94, ITA: 0.94, ESP: 0.94, GBR: 0.79, USA: 1.00,
-                CAN: 1.40, AUS: 1.54, SGP: 1.34, HKG: 7.78, SAU: 3.75, ARE: 3.67, KWT: 0.31, BHR: 0.38, OMR: 0.385
+                CHE: 0.88, DEU: 0.94, FRA: 0.94, ITA: 0.94, ESP: 0.94, NLD: 0.94, BEL: 0.94,
+                AUT: 0.94, FIN: 0.94, IRL: 0.94, PRT: 0.94, GRC: 0.94, GBR: 0.79, USA: 1.00,
+                CAN: 1.40, AUS: 1.54, SGP: 1.34, HKG: 7.78, SAU: 3.75, ARE: 3.67, KWT: 0.31,
+                BHR: 0.38, OMN: 0.385, JOR: 0.709
             };
             if (fx2024[c.iso] !== undefined) return fx2024[c.iso];
-            return +(Math.max(0.5, Math.min(3500.0, (1.0 / (hdi * hdi)) * (4.0 + (c.hash % 25))))).toFixed(2);
+            return +(Math.max(0.8, Math.min(3500.0, (1.0 / (hdi * hdi)) * (4.0 + (c.hash % 25))))).toFixed(2);
         }
         case "govt_revenue_gdp": return c.taxRevGdp;
         case "public_debt_gdp": {
             const imfDebt = {
-                JPN: 254.6, SDN: 256.0, SGP: 168.3, GRC: 159.0, ITA: 137.3, USA: 123.3, FRA: 112.0,
-                CAN: 107.5, ESP: 105.6, BEL: 105.2, GBR: 101.8, PRT: 96.0, BRA: 87.6, CHN: 88.6,
-                IND: 83.1, ZAF: 75.4, DEU: 62.7, AUS: 50.4, KOR: 54.3, NOR: 42.9, CHE: 38.0,
-                RUS: 20.8, SAU: 26.2, ARE: 31.1, EST: 23.6
+                BRN: 2.3, KWT: 3.1, HKG: 4.8, TKM: 5.2, COD: 14.8, HTI: 15.2, BWA: 19.8,
+                RUS: 20.8, AZE: 21.5, EST: 23.6, BGR: 23.8, TWN: 24.0, SAU: 26.2, LUX: 26.5,
+                ARE: 31.1, CHE: 38.0, NOR: 42.9, AUS: 50.4, KOR: 54.3, DEU: 62.7, ZAF: 75.4,
+                IND: 83.1, BRA: 87.6, CHN: 88.6, PRT: 96.0, GBR: 101.8, BEL: 105.2, ESP: 105.6,
+                CAN: 107.5, FRA: 112.0, USA: 123.3, ITA: 137.3, GRC: 159.0, SGP: 168.3,
+                JPN: 254.6, SDN: 256.0
             };
             if (imfDebt[c.iso] !== undefined) return imfDebt[c.iso];
-            return +(Math.max(12.0, Math.min(120.0, 32.0 + (hdi * 35.0) + (c.hash % 28)))).toFixed(1);
+            return +(Math.max(18.0, Math.min(120.0, 32.0 + (hdi * 35.0) + (c.hash % 28)))).toFixed(1);
         }
-        case "trade_pct_gdp": return +(Math.max(25.0, Math.min(220.0, 115.0 - Math.log10(pop) * 14.0 + (hdi * 35) + (c.hash % 18)))).toFixed(1);
-        case "fdi_inflow_gdp": return +(Math.max(0.4, Math.min(14.0, 1.5 + (hdi * 2.2) + ((c.hash % 11) * 0.4)))).toFixed(1);
-        case "central_bank_rate": return +(Math.max(0.5, Math.min(22.0, 4.5 - (hdi - 0.7) * 4.0 + (growth * 1.1)))).toFixed(2);
+        case "trade_pct_gdp": {
+            const wbTrade = {
+                LUX: 372.4, HKG: 356.2, SGP: 318.5, MLT: 295.0, IRL: 242.1, DJI: 235.0,
+                SVK: 185.2, ARE: 175.4, VNM: 168.3, BEL: 165.0, NLD: 162.4, HUN: 158.1,
+                SVN: 154.0, EST: 152.3, CZE: 142.5, CHE: 132.4, MYS: 132.0, THA: 128.4,
+                POL: 114.2, DEU: 84.5, KOR: 88.2, CAN: 67.4, GBR: 63.2, FRA: 68.5,
+                ITA: 69.2, ESP: 73.1, IND: 46.2, JPN: 44.1, CHN: 37.3, BRA: 34.2, USA: 25.4
+            };
+            if (wbTrade[c.iso] !== undefined) return wbTrade[c.iso];
+            return +(Math.max(25.0, Math.min(145.0, 95.0 - Math.log10(pop) * 8.0 + (hdi * 35) + (c.hash % 22)))).toFixed(1);
+        }
+        case "fdi_inflow_gdp": {
+            const unctadFdi = {
+                LUX: 82.5, HKG: 31.4, SGP: 28.6, MLT: 22.4, IRL: 19.8, CYP: 18.5, NLD: 11.2,
+                ARE: 6.8, CHL: 6.4, EST: 6.2, CHE: 4.9, PAN: 4.5, SWE: 4.2, BRA: 3.0,
+                AUS: 2.8, POL: 3.4, ESP: 2.5, CAN: 2.3, GBR: 1.6, USA: 1.3, DEU: 1.1,
+                IND: 1.1, FRA: 1.4, CHN: 0.5, JPN: 0.5
+            };
+            if (unctadFdi[c.iso] !== undefined) return unctadFdi[c.iso];
+            return +(Math.max(0.2, Math.min(8.5, 1.2 + (hdi * 2.0) + ((c.hash % 11) * 0.35)))).toFixed(2);
+        }
+        case "central_bank_rate": {
+            const cbRates = {
+                JPN: 0.25, CHE: 0.50, THA: 2.25, SWE: 2.50, KOR: 3.00, CHN: 3.10, SGP: 3.10,
+                DEU: 3.15, FRA: 3.15, ITA: 3.15, ESP: 3.15, NLD: 3.15, BEL: 3.15, AUT: 3.15,
+                FIN: 3.15, IRL: 3.15, PRT: 3.15, GRC: 3.15, CAN: 3.25, NZL: 4.25, AUS: 4.35,
+                NOR: 4.50, USA: 4.50, GBR: 4.75, IDN: 6.00, IND: 6.50, SAU: 5.00, ARE: 4.40,
+                MEX: 10.00, BRA: 12.25, PAK: 13.00, UKR: 13.50, LBN: 20.00, RUS: 21.00,
+                GHA: 27.00, EGY: 27.25, NGA: 27.50, ARG: 32.00, ZWE: 35.00, TUR: 50.00, VEN: 59.00
+            };
+            if (cbRates[c.iso] !== undefined) return cbRates[c.iso];
+            return +(Math.max(2.0, Math.min(18.0, 5.5 - (hdi - 0.65) * 8.0 + (c.hash % 7) * 0.5))).toFixed(2);
+        }
         case "market_cap_gdp": {
             const mcap = {
-                SAU: 280.0, TWN: 240.0, CHE: 225.0, USA: 195.0, SGP: 165.0, JPN: 145.0,
-                IND: 125.0, CAN: 135.0, SWE: 148.0, NLD: 118.0, FRA: 105.0, GBR: 100.0,
-                AUS: 108.0, KOR: 102.0, CHN: 68.0, DEU: 52.0, BRA: 42.0, IDN: 54.0, ZAF: 265.0
+                HKG: 1080.0, SAU: 280.0, ZAF: 265.0, TWN: 240.0, CHE: 225.0, USA: 195.0,
+                SGP: 165.0, SWE: 148.0, JPN: 145.0, CAN: 135.0, IND: 125.0, NLD: 118.0,
+                KOR: 112.0, AUS: 108.0, FRA: 105.0, GBR: 100.0, CHN: 68.0, IDN: 54.0,
+                DEU: 52.0, BRA: 42.0
             };
             if (mcap[c.iso] !== undefined) return mcap[c.iso];
             return +(Math.max(5.0, Math.min(130.0, (hdi * 85.0 - 15.0) + (c.hash % 22)))).toFixed(1);
         }
-        case "gini_index": return c.gini;
-        case "foreign_reserves_usd": return +(Math.max(0.5, Math.min(3200.0, (gdp * 0.16) + (pop / 20_000_000)))).toFixed(1);
+        case "gini_index": {
+            if (c.iso === "IND") return 35.7;
+            if (c.iso === "SVK") return 24.1;
+            if (c.iso === "SVN") return 24.3;
+            if (c.iso === "BLR") return 24.4;
+            if (c.iso === "UKR") return 25.6;
+            if (c.iso === "NLD") return 25.7;
+            if (c.iso === "CZE") return 26.2;
+            return c.gini;
+        }
+        case "foreign_reserves_usd": {
+            const imfReserves = {
+                CHN: 3480.0, JPN: 1250.0, CHE: 920.0, IND: 685.0, RUS: 620.0, TWN: 577.0,
+                SAU: 455.0, HKG: 421.0, KOR: 415.0, SGP: 383.0, BRA: 355.0, DEU: 345.0,
+                FRA: 270.0, ITA: 265.0, USA: 245.0, THA: 235.0, MEX: 225.0, ARE: 215.0,
+                POL: 210.0, GBR: 185.0, TUR: 155.0, IDN: 150.0, MYS: 116.0, CAN: 122.0,
+                ESP: 104.0, AUS: 62.0, NOR: 82.0
+            };
+            if (imfReserves[c.iso] !== undefined) return imfReserves[c.iso];
+            return +(Math.max(0.2, Math.min(115.0, (gdp * 0.14)))).toFixed(1);
+        }
 
         // Environment
         case "pm25_concentration": return c.pm25;
