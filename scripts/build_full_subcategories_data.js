@@ -222,6 +222,19 @@ const grapherUnder5Mort = loadGrapherIsoLatest('under5_mort');
 const grapherUndernourish = loadGrapherIsoLatest('undernourish');
 const grapherCvdRate = loadGrapherIsoLatest('cvd_rate');
 
+// 7. Load Multi-Agent Verified Data JSONs (127 indicators from World Bank, UNESCO UIS, OpenAlex, OECD, FAO, ND-GAIN, UN SDSN, SIPRI, GFP, Freedom House, ILO, etc.)
+const verifiedDataDir = path.join(scratchDataDir, 'verified_data');
+const verifiedDataMap = {};
+if (fs.existsSync(verifiedDataDir)) {
+    fs.readdirSync(verifiedDataDir).filter(f => f.endsWith('.json')).forEach(f => {
+        const obj = JSON.parse(fs.readFileSync(path.join(verifiedDataDir, f), 'utf8'));
+        Object.keys(obj).forEach(indId => {
+            verifiedDataMap[indId] = obj[indId];
+        });
+    });
+}
+const verifiedSkipTopPriority = new Set(['military_personnel_active', 'defense_budget_usd']);
+
 countries.forEach(c => {
     const pData = popMap[c.isoCode] || {};
     const lname = c.name.toLowerCase();
@@ -3100,6 +3113,9 @@ const categoryFiles = {
 // Calculate realistic, authentic data values for each country and indicator
 // Using country demographic & economic parameters (pop, area, lat, lng, gdp, growth, fertility, medianAge, lifeExp, hdi, co2)
 function computeCountryIndicatorValue(c, indId) {
+    if (!verifiedSkipTopPriority.has(indId) && verifiedDataMap[indId] && verifiedDataMap[indId][c.isoCode] !== undefined) {
+        return verifiedDataMap[indId][c.isoCode];
+    }
     const pop = c.pop || 10_000_000;
     const area = c.landArea || c.area || 100_000;
     const gdp = c.gdp || Math.round((pop * 8000) / 1_000_000_000) || 50;
