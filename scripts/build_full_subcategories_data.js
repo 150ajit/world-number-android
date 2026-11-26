@@ -215,6 +215,12 @@ const grapherTempAnom = loadGrapherIsoLatest('annual-temperature-anomalies');
 const grapherTax = loadGrapherIsoLatest('tax-revenues-as-a-share-of-gdp');
 const grapherGenderWage = loadGrapherIsoLatest('gender-wage-gap-oecd');
 const grapherEnergyInt = loadGrapherIsoLatest('energy-intensity');
+const grapherHospitalBeds = loadGrapherIsoLatest('hospital_beds');
+const grapherHealthExp = loadGrapherIsoLatest('health_exp');
+const grapherMaternalMort = loadGrapherIsoLatest('maternal_mort');
+const grapherUnder5Mort = loadGrapherIsoLatest('under5_mort');
+const grapherUndernourish = loadGrapherIsoLatest('undernourish');
+const grapherCvdRate = loadGrapherIsoLatest('cvd_rate');
 
 countries.forEach(c => {
     const pData = popMap[c.isoCode] || {};
@@ -250,6 +256,12 @@ countries.forEach(c => {
     c.tempAnom = grapherTempAnom[c.isoCode] !== undefined ? +grapherTempAnom[c.isoCode].toFixed(2) : +(0.9 + (Math.abs(c.lat || 25) / 60) * 1.1).toFixed(2);
     c.taxRevGdp = grapherTax[c.isoCode] !== undefined ? +grapherTax[c.isoCode].toFixed(1) : +(Math.max(8.0, Math.min(48.0, 12.0 + (c.hdi * 28.0)))).toFixed(1);
     c.energyInt = grapherEnergyInt[c.isoCode] !== undefined ? +grapherEnergyInt[c.isoCode].toFixed(2) : +(Math.max(0.6, Math.min(6.5, 4.5 - (c.hdi * 3.0)))).toFixed(2);
+    c.hospitalBeds = grapherHospitalBeds[c.isoCode] !== undefined ? +grapherHospitalBeds[c.isoCode].toFixed(2) : +(Math.max(0.4, Math.min(8.5, c.hdi * 5.2))).toFixed(2);
+    c.healthExp = grapherHealthExp[c.isoCode] !== undefined ? +grapherHealthExp[c.isoCode].toFixed(2) : +(Math.max(2.5, Math.min(13.5, c.hdi * 9.8))).toFixed(2);
+    c.maternalMort = grapherMaternalMort[c.isoCode] !== undefined ? Math.round(grapherMaternalMort[c.isoCode]) : Math.round(Math.max(2, Math.min(850, Math.pow(Math.max(0, 86.0 - c.lifeExp), 1.6) * 2.5)));
+    c.under5Mort = grapherUnder5Mort[c.isoCode] !== undefined ? +(grapherUnder5Mort[c.isoCode] * 10).toFixed(1) : +(Math.max(1.8, Math.min(125.0, Math.max(0, 86.0 - c.lifeExp) * 2.8))).toFixed(1);
+    c.undernourish = grapherUndernourish[c.isoCode] !== undefined ? +grapherUndernourish[c.isoCode].toFixed(1) : +(Math.max(2.5, Math.min(48.0, (1.0 - c.hdi) * 52.0))).toFixed(1);
+    c.cvdRate = grapherCvdRate[c.isoCode] !== undefined ? Math.round(grapherCvdRate[c.isoCode]) : Math.round(Math.max(95, Math.min(620, 580 - (c.hdi * 410))));
     c.hash = c.isoCode.split('').reduce((a, ch) => a + ch.charCodeAt(0), 0);
 });
 
@@ -3240,15 +3252,31 @@ function computeCountryIndicatorValue(c, indId) {
 
         // Health
         case "healthy_life_expectancy": return c.hale || +(lifeExp * 0.875).toFixed(1);
-        case "mortality_under5": return +(Math.max(2.0, Math.min(125.0, (86.0 - lifeExp) * 3.8))).toFixed(1);
-        case "maternal_mortality_ratio": return Math.round(Math.max(2, Math.min(850, (86.0 - lifeExp) * 22.0)));
-        case "ncd_mortality_rate": return +(Math.max(8.0, Math.min(35.0, 36.0 - (hdi * 19.0) + ((c.hash % 7) - 3) * 0.8))).toFixed(1);
-        case "cvd_death_rate": return Math.round(Math.max(95, Math.min(650, 660 - (hdi * 440) + ((c.hash % 11) - 5) * 12)));
-        case "hospital_beds_per_1k": return +(Math.max(0.4, Math.min(13.0, hdi * 8.2 + (c.hash % 5) * 0.35))).toFixed(1);
+        case "mortality_under5": return c.under5Mort;
+        case "maternal_mortality_ratio": return c.maternalMort;
+        case "ncd_mortality_rate": {
+            const whoNcd = {
+                KOR: 7.1, CHE: 7.6, JPN: 7.8, NOR: 8.1, ISL: 8.2, AUS: 8.3, SWE: 8.4, SGP: 8.5,
+                ITA: 8.8, ESP: 8.9, CAN: 9.2, NZL: 9.4, FRA: 9.6, GBR: 9.8, IRL: 9.9, NLD: 10.1,
+                DEU: 11.2, USA: 13.6, CHN: 15.9, BRA: 15.5, IND: 21.9, RUS: 24.2, NGA: 22.8
+            };
+            if (whoNcd[c.iso] !== undefined) return whoNcd[c.iso];
+            return +(Math.max(8.5, Math.min(34.0, 32.0 - (hdi * 23.0) + (c.hash % 5) * 0.6))).toFixed(1);
+        }
+        case "cvd_death_rate": return c.cvdRate;
+        case "hospital_beds_per_1k": return c.hospitalBeds;
         case "physicians_per_1k": return c.physicians;
-        case "health_expenditure_gdp": return +(Math.max(2.8, Math.min(17.5, hdi * 10.5 + (c.hash % 6) * 0.4))).toFixed(1);
-        case "dpt3_immunization_pct": return +(Math.max(42.0, Math.min(99.0, 56.0 + (hdi * 41.0) + (c.hash % 4) * 0.8))).toFixed(1);
-        case "undernourishment_pct": return +(Math.max(2.5, Math.min(48.0, (1.0 - hdi) * 55.0))).toFixed(1);
+        case "health_expenditure_gdp": return c.healthExp;
+        case "dpt3_immunization_pct": {
+            const dpt99 = new Set(['HUN','MLT','MCO','LUX','MDV','ARE','CHN','BRN','OMN','CUB','MAR','BHR','QAT','TKM','UZB','SYC','LCA','GRD','VCT']);
+            if (dpt99.has(c.iso)) return 99.0;
+            const dpt98 = new Set(['SGP','JPN','KOR','CHE','DEU','FRA','NLD','PRT','ESP','BEL','FIN','SWE','DNK','ISR','CZE','SVK','SVN','POL','AUS','NZL']);
+            if (dpt98.has(c.iso)) return 98.0;
+            const dpt97 = new Set(['NOR','ISL','IRL','GBR','CAN','AUT','ITA','GRC','USA']);
+            if (dpt97.has(c.iso)) return 97.0;
+            return +(Math.max(42.0, Math.min(96.0, 52.0 + (hdi * 44.0) + (c.hash % 4) * 0.5))).toFixed(1);
+        }
+        case "undernourishment_pct": return c.undernourish;
         case "suicide_rate": return +(Math.max(2.0, Math.min(28.0, 8.5 + (lat > 40 ? 5.0 : 0.0) + (hdi * 3.0)))).toFixed(1);
         case "sanitation_access_pct": return +(Math.max(20.0, Math.min(99.9, hdi * 112.0 - 10.0 + (c.hash % 4) * 0.4))).toFixed(1);
 
@@ -3671,7 +3699,7 @@ function computeCountryIndicatorValue(c, indId) {
         case "agricultural_land_pct": return +(Math.max(4.0, Math.min(78.0, (area % 40) + 26.0))).toFixed(1);
         case "irrigated_land_pct": return +(Math.max(2.0, Math.min(65.0, (c.lat < 35 && c.lat > 10 ? 32.0 : 12.0) + (hdi * 12.0)))).toFixed(1);
         case "organic_share_pct": return +(Math.max(0.2, Math.min(28.0, (hdi * 15.0 - 4.0) + (c.hash % 9)))).toFixed(1);
-        case "prevalence_undernourish": return +(Math.max(2.5, Math.min(48.0, (1.0 - hdi) * 55.0))).toFixed(1);
+        case "prevalence_undernourish": return c.undernourish;
         case "food_price_inflation": return +(Math.max(1.2, Math.min(28.0, 4.5 + (1.0 - hdi) * 12.0))).toFixed(1);
         case "fertilizer_consumption": return Math.round(Math.max(15, Math.min(650, (hdi * 340 + 25) + (c.hash % 95))));
         case "pesticide_use_per_ha": return +(Math.max(0.2, Math.min(14.0, hdi * 5.2))).toFixed(2);
