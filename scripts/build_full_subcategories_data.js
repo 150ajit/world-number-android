@@ -230,8 +230,10 @@ countries.forEach(c => {
     c.co2 = c.owidCo2.co2PerCapita !== undefined ? c.owidCo2.co2PerCapita : 3.5;
     c.lifeExp = lifeExpByName[lname] !== undefined ? +lifeExpByName[lname].toFixed(1) : +(58.0 + c.hdi * 27.0).toFixed(1);
     c.hale = haleByName[lname] !== undefined ? +haleByName[lname].toFixed(1) : +(c.lifeExp * 0.875).toFixed(1);
-    c.fertility = fertilityByName[lname] !== undefined ? +fertilityByName[lname].toFixed(2) : +(Math.max(1.1, Math.min(6.2, 5.4 - c.hdi * 4.2))).toFixed(2);
-    c.medianAge = +(Math.max(15.2, Math.min(49.8, 14.0 + c.hdi * 34.0 - (c.fertility - 1.5) * 2.2))).toFixed(1);
+    const unFert2024 = { TCD: 6.05, SOM: 6.01, NER: 5.94, COD: 5.92, CAF: 5.82, MLI: 5.71, AGO: 5.05, NGA: 4.48, KOR: 0.72, TWN: 0.87, SGP: 0.97, UKR: 0.98, CHN: 1.00, JPN: 1.20, ITA: 1.21, ESP: 1.16, POL: 1.16, THA: 1.08 };
+    const unMedAge2024 = { MCO: 56.2, JPN: 49.5, ITA: 48.0, DEU: 46.7, ESP: 46.3, PRT: 46.2, GRC: 46.1, KOR: 45.1, HKG: 46.8, CHE: 44.1, SGP: 42.8, CHN: 39.6, USA: 38.5, IND: 28.4, BRA: 34.7, NER: 15.1, TCD: 16.1, UGA: 16.3, MLI: 16.4, SOM: 16.5, COD: 16.7, NGA: 17.9 };
+    c.fertility = unFert2024[c.isoCode] !== undefined ? unFert2024[c.isoCode] : (fertilityByName[lname] !== undefined ? +fertilityByName[lname].toFixed(2) : +(Math.max(1.1, Math.min(6.2, 5.4 - c.hdi * 4.2))).toFixed(2));
+    c.medianAge = unMedAge2024[c.isoCode] !== undefined ? unMedAge2024[c.isoCode] : +(Math.max(15.5, Math.min(48.0, 14.0 + c.hdi * 34.0 - (c.fertility - 1.5) * 2.2))).toFixed(1);
     c.capitalPop = capitalPopByName[lname] ? Math.round(capitalPopByName[lname]) : Math.round(Math.min(25_000_000, Math.max(5_000, c.pop * 0.14)));
     c.cpi = cpiByName[lname] !== undefined ? Math.round(cpiByName[lname]) : Math.round(Math.max(12, Math.min(90, c.hdi * 90 - 6)));
     c.literacy = literacyByName[lname] !== undefined ? +literacyByName[lname].toFixed(1) : +(Math.max(28.0, Math.min(99.9, c.hdi * 112.0 - 5.0))).toFixed(1);
@@ -3222,7 +3224,11 @@ function computeCountryIndicatorValue(c, indId) {
         case "pm25_concentration": return c.pm25;
         case "renewable_water_pc": return Math.round(Math.max(100, Math.min(85000, (area * 2500) / Math.max(1000, pop))));
         case "drinking_water_access": return +(Math.max(42.0, Math.min(99.9, hdi * 108.0 + (c.hash % 5) * 0.3))).toFixed(1);
-        case "forest_area_pct": return +(Math.max(1.0, Math.min(88.0, (area % 45) + (hdi * 18) + (c.hash % 15)))).toFixed(1);
+        case "forest_area_pct": {
+            const faoForest = { SUR: 97.4, GUY: 93.6, FSM: 91.9, GAB: 91.3, SLB: 90.1, PLW: 87.6, GNQ: 84.5, FIN: 73.7, SWE: 68.7, JPN: 68.4, BRA: 59.4, RUS: 49.8, CAN: 38.7, USA: 33.9, CHN: 23.3, IND: 24.3, SGP: 21.8, DNK: 15.8, ISR: 7.1, EGY: 0.05, SAU: 0.5 };
+            if (faoForest[c.iso] !== undefined) return faoForest[c.iso];
+            return +(Math.max(0.5, Math.min(78.0, (area % 40) + (hdi * 16) + (c.hash % 14)))).toFixed(1);
+        }
         case "red_list_index": return +(Math.max(0.62, Math.min(0.99, 0.72 + (hdi * 0.22) + ((c.hash % 7) - 3) * 0.015))).toFixed(2);
         case "protected_species_pct": return +(Math.max(25.0, Math.min(96.0, 38.0 + (c.terrProt * 1.4) + (c.hash % 14)))).toFixed(1);
         case "soil_degradation_pct": return +(Math.max(5.0, Math.min(68.0, 48.0 - (hdi * 28.0) + (c.hash % 12)))).toFixed(1);
@@ -3533,34 +3539,70 @@ function computeCountryIndicatorValue(c, indId) {
         case "capital_population": return c.capitalPop || Math.round(Math.max(5000, pop * 0.14));
         case "land_area_sqmi": return Math.round(area * 0.386102);
         case "water_area_pct": return +(Math.max(0.2, Math.min(18.0, (area % 12) * 1.1))).toFixed(1);
-        case "coastline_length": return Math.round(Math.sqrt(area) * 3.8);
-        case "land_border_length": return Math.round(Math.sqrt(area) * 4.2);
-        case "highest_elevation_m": return Math.round(Math.max(100, Math.min(8848, Math.sqrt(area) * 3.5 + Math.abs(lat) * 45)));
-        case "longest_river_km": return Math.round(Math.max(50, Math.min(6650, Math.sqrt(area) * 2.8)));
+        case "coastline_length": {
+            const coast = { CAN: 202080, NOR: 58133, IDN: 54716, RUS: 37653, PHL: 36289, JPN: 29751, AUS: 25760, USA: 19924, CHN: 14500, GBR: 12429, GRC: 13676, MEX: 9330, BRA: 7491, IND: 7516, ITA: 7600 };
+            if (coast[c.iso] !== undefined) return coast[c.iso];
+            return Math.round(Math.sqrt(area) * 2.4);
+        }
+        case "land_border_length": {
+            const borders = { CHN: 22457, RUS: 22408, BRA: 16145, IND: 15106, USA: 12048, KAZ: 13364, ARG: 11968, COD: 10481, CAN: 8893, IDN: 2958, DEU: 3694, FRA: 2751 };
+            if (borders[c.iso] !== undefined) return borders[c.iso];
+            return Math.round(Math.sqrt(area) * 3.2);
+        }
+        case "highest_elevation_m": {
+            const elev = { NPL: 8849, CHN: 8849, PAK: 8611, IND: 8586, BTN: 7570, TJK: 7495, AFG: 7492, KGZ: 7439, ARG: 6961, CHL: 6893, PER: 6768, BOL: 6542, ECU: 6263, USA: 6190, CAN: 5959, TZA: 5895, RUS: 5642, IRN: 5610, MEX: 5636, KEN: 5199, CHE: 4634, ITA: 4808, FRA: 4808, JPN: 3776, BRA: 2995, AUS: 2228, GBR: 1345 };
+            if (elev[c.iso] !== undefined) return elev[c.iso];
+            return Math.round(Math.max(45, Math.min(4500, Math.sqrt(area) * 2.2 + Math.abs(lat) * 28)));
+        }
+        case "longest_river_km": {
+            const rivers = { EGY: 6650, SDN: 6650, UGA: 6650, BRA: 6400, PER: 6400, COL: 6400, CHN: 6300, USA: 5971, RUS: 5539, CAN: 4241, NGA: 4180, IND: 2900, AUS: 2508, DEU: 2850, FRA: 1006 };
+            if (rivers[c.iso] !== undefined) return rivers[c.iso];
+            return Math.round(Math.max(25, Math.min(3500, Math.sqrt(area) * 1.9)));
+        }
         case "largest_lake_area": return Math.round(Math.max(5, Math.min(371000, (area * 0.02))));
         case "island_count": return Math.round(Math.max(1, (area % 80) * 8));
         case "arid_land_pct": return +(Math.max(0.0, Math.min(95.0, Math.abs(lat - 22) < 12 ? 65.0 : 12.0))).toFixed(1);
-        case "forest_area_total_km2": return Math.round(area * ((Math.max(3.0, Math.min(82.0, (area % 45) + (hdi * 20)))) / 100));
+        case "forest_area_total_km2": return Math.round(area * (computeCountryIndicatorValue(c, "forest_area_pct") / 100));
         case "exclusive_economic_zone": return Math.round(Math.max(500, Math.sqrt(area) * 1200));
         case "mean_elevation_m": return Math.round(Math.max(20, Math.min(3200, 300 + Math.abs(lat) * 15)));
 
         // Tourism
-        case "tourist_arrivals": return +(Math.max(0.05, Math.min(105.0, (gdp * 0.025 + (pop / 40_000_000))))).toFixed(2);
-        case "tourism_receipts": return +(Math.max(0.05, (gdp * 0.028 + 0.1))).toFixed(2);
-        case "outbound_tourism_spend": return +(Math.max(0.02, gdp * 0.015)).toFixed(2);
-        case "tourist_intensity": return +(Math.max(0.02, Math.min(6.5, (gdp * 0.025) / Math.max(1, pop / 1_000_000)))).toFixed(2);
-        case "hotel_rooms_count": return Math.round(Math.max(5, gdp * 1.8 + (pop / 100_000)));
-        case "air_passengers_carried": return +(Math.max(0.1, Math.min(950.0, (gdp * 0.08) + (pop / 2_000_000)))).toFixed(1);
-        case "unesco_world_heritage": return Math.round(Math.max(1, Math.min(60, (gdp * 0.015) + (area / 150_000))));
-        case "ecotourism_sites_count": return Math.round(Math.max(1, Math.min(45, (area / 80_000) + 2)));
+        case "tourist_arrivals": {
+            const unwtoArr = { FRA: 100.0, ESP: 85.2, USA: 66.5, ITA: 57.2, TUR: 55.2, MEX: 42.2, GBR: 37.9, DEU: 34.8, GRC: 32.7, AUT: 30.9, THA: 28.2, SAU: 27.4, JPN: 25.1, ARE: 23.0, CHN: 35.5, IND: 18.9, BRA: 5.9 };
+            if (unwtoArr[c.iso] !== undefined) return unwtoArr[c.iso];
+            return +(Math.max(0.05, Math.min(22.0, (gdp * 0.015 + (pop / 60_000_000))))).toFixed(2);
+        }
+        case "tourism_receipts": {
+            const unwtoRec = { USA: 175.9, ESP: 92.0, GBR: 73.9, FRA: 68.6, ITA: 55.9, ARE: 51.9, TUR: 49.5, DEU: 37.4, JPN: 38.6, AUS: 46.6, CHN: 34.0, IND: 32.2, THA: 29.6, MEX: 30.8, CHE: 21.8, SGP: 20.5 };
+            if (unwtoRec[c.iso] !== undefined) return unwtoRec[c.iso];
+            return +(Math.max(0.05, Math.min(25.0, (gdp * 0.012 + 0.1)))).toFixed(2);
+        }
+        case "outbound_tourism_spend": return +(Math.max(0.02, Math.min(196.0, gdp * 0.008))).toFixed(2);
+        case "tourist_intensity": return +(Math.max(0.02, Math.min(6.5, computeCountryIndicatorValue(c, "tourist_arrivals") / Math.max(1, pop / 1_000_000)))).toFixed(2);
+        case "hotel_rooms_count": return Math.round(Math.max(5, Math.min(5400, gdp * 0.35 + (pop / 400_000))));
+        case "air_passengers_carried": {
+            const airPax = { USA: 862.0, CHN: 620.0, IRL: 184.0, IND: 155.0, GBR: 125.0, DEU: 105.0, JPN: 98.0, TUR: 92.0, ESP: 85.0, BRA: 84.0, IDN: 76.0, FRA: 69.0, CAN: 68.0, AUS: 64.0, MEX: 63.0, KOR: 61.0, ARE: 58.0, RUS: 55.0 };
+            if (airPax[c.iso] !== undefined) return airPax[c.iso];
+            return +(Math.max(0.1, Math.min(52.0, (gdp * 0.03) + (pop / 6_000_000)))).toFixed(1);
+        }
+        case "unesco_world_heritage": {
+            const unesco = { ITA: 60, CHN: 59, DEU: 54, FRA: 53, ESP: 50, IND: 43, MEX: 35, GBR: 35, RUS: 32, IRN: 28, JPN: 26, USA: 26, BRA: 24, CAN: 22, GRC: 19, TUR: 21, POL: 17, AUS: 20, KOR: 16 };
+            if (unesco[c.iso] !== undefined) return unesco[c.iso];
+            return Math.round(Math.max(1, Math.min(18, (gdp * 0.008) + (area / 250_000) + (c.hash % 5))));
+        }
+        case "ecotourism_sites_count": return Math.round(Math.max(1, Math.min(45, (area / 120_000) + (c.hash % 9) + 2)));
         case "museum_visits_annual": return +(Math.max(0.1, (pop / 2_000_000) * hdi)).toFixed(1);
-        case "tourism_gdp_share_pct": return +(Math.max(1.8, Math.min(38.0, 6.5 + (area < 10000 ? 15.0 : 0.0)))).toFixed(1);
+        case "tourism_gdp_share_pct": return +(Math.max(1.8, Math.min(38.0, 5.5 + (area < 10000 ? 14.0 : 0.0) + (c.hash % 5)))).toFixed(1);
         case "travel_tourism_dev_idx": {
             const ttdi2024 = { USA: 5.24, ESP: 5.18, JPN: 5.09, FRA: 5.07, AUS: 5.00, DEU: 5.00, GBR: 4.96, CHN: 4.94, ITA: 4.90, CHE: 4.81, CAN: 4.81, PRT: 4.78 };
             if (ttdi2024[c.iso] !== undefined) return ttdi2024[c.iso];
             return +(Math.max(2.5, Math.min(4.8, 2.2 + (hdi * 2.8) + (c.hash % 5) * 0.08))).toFixed(2);
         }
-        case "visa_free_access_destinations": return Math.max(32, Math.min(194, Math.round(hdi * 190)));
+        case "visa_free_access_destinations": {
+            const henleyDest = { SGP: 195, FRA: 192, DEU: 192, ITA: 192, JPN: 192, ESP: 192, FIN: 191, KOR: 191, SWE: 191, AUT: 191, DNK: 191, IRL: 191, NLD: 191, BEL: 190, LUX: 190, NOR: 190, PRT: 190, GBR: 190, CHE: 189, GRC: 189, NZL: 189, USA: 186, CAN: 187, AUS: 189 };
+            if (henleyDest[c.iso] !== undefined) return henleyDest[c.iso];
+            return Math.max(26, Math.min(185, Math.round(hdi * 182)));
+        }
 
         // Energy
         case "total_energy_production_twh": {
@@ -3621,7 +3663,11 @@ function computeCountryIndicatorValue(c, indId) {
         case "crop_production_index": return +(Math.max(75.0, Math.min(145.0, 95.0 + (growth * 8.0)))).toFixed(1);
         case "cereal_yield": return c.cerealYield;
         case "livestock_production_idx": return +(Math.max(80.0, Math.min(140.0, 96.0 + (growth * 6.5)))).toFixed(1);
-        case "fisheries_production_tons": return Math.round(Math.max(1, (Math.sqrt(area) * 45) + (pop / 50_000)));
+        case "fisheries_production_tons": {
+            const faoFish = { CHN: 67800, IDN: 21900, IND: 14500, VNM: 8600, PER: 5800, RUS: 5400, USA: 4700, BGD: 4600, PHL: 4200, JPN: 4100, NOR: 4000, CHL: 3400, EGY: 2100 };
+            if (faoFish[c.iso] !== undefined) return faoFish[c.iso];
+            return Math.round(Math.max(1, Math.min(2000, (Math.sqrt(area) * 2.5) + (pop / 150_000))));
+        }
         case "agricultural_land_pct": return +(Math.max(4.0, Math.min(78.0, (area % 40) + 26.0))).toFixed(1);
         case "irrigated_land_pct": return +(Math.max(2.0, Math.min(65.0, (c.lat < 35 && c.lat > 10 ? 32.0 : 12.0) + (hdi * 12.0)))).toFixed(1);
         case "organic_share_pct": return +(Math.max(0.2, Math.min(28.0, (hdi * 15.0 - 4.0) + (c.hash % 9)))).toFixed(1);
@@ -3680,10 +3726,26 @@ function computeCountryIndicatorValue(c, indId) {
 
         // Infrastructure
         case "road_density_km": return Math.round(Math.max(5, Math.min(580, (hdi * 180) + (pop / Math.max(1, area)) * 0.35 + (c.hash % 25))));
-        case "rail_network_km": return Math.round(Math.max(0, Math.sqrt(area) * 22.0));
-        case "airports_count": return Math.round(Math.max(2, Math.min(5000, (area / 1800) + (gdp * 0.3))));
-        case "port_traffic_teu": return +(Math.max(0.05, Math.min(290.0, gdp * 0.022 + 0.2))).toFixed(2);
-        case "longest_bridge_meters": return Math.round(Math.max(250, Math.min(164000, gdp * 45 + 500)));
+        case "rail_network_km": {
+            const uicRail = { CHN: 159000, USA: 148553, RUS: 85500, IND: 68584, CAN: 49422, DEU: 38836, AUS: 33168, BRA: 29817, FRA: 27860, JPN: 27311, UKR: 21626, ZAF: 20986, POL: 19395, ARG: 17866, MEX: 17360, ITA: 16832, GBR: 16217, ESP: 15900 };
+            if (uicRail[c.iso] !== undefined) return uicRail[c.iso];
+            return Math.round(Math.max(0, Math.sqrt(area) * 14.0));
+        }
+        case "airports_count": {
+            const faaAir = { USA: 15873, BRA: 4919, AUS: 2180, MEX: 1485, CAN: 1425, RUS: 904, ARG: 759, DEU: 539, CHN: 552, FRA: 464, GBR: 460, IND: 311, IDN: 656, COL: 584, ZAF: 566 };
+            if (faaAir[c.iso] !== undefined) return faaAir[c.iso];
+            return Math.round(Math.max(1, Math.min(350, (area / 3500) + (gdp * 0.15))));
+        }
+        case "port_traffic_teu": {
+            const teu2024 = { CHN: 290.0, USA: 61.2, SGP: 39.0, KOR: 30.1, MYS: 28.4, IND: 21.5, ARE: 19.8, JPN: 21.8, DEU: 15.2, NLD: 14.5, ESP: 17.8, IDN: 16.5, BRA: 12.8, GBR: 10.4, BEL: 13.5, VNM: 24.5, THA: 11.2, TWN: 15.6 };
+            if (teu2024[c.iso] !== undefined) return teu2024[c.iso];
+            return +(Math.max(0.05, Math.min(12.0, gdp * 0.012 + 0.1))).toFixed(2);
+        }
+        case "longest_bridge_meters": {
+            const bridges = { CHN: 164800, TWN: 157317, THA: 54000, USA: 38442, EGY: 20500, PRT: 17185, SAU: 25000, BHR: 25000, RUS: 18100, JPN: 16300, KOR: 21384, IND: 21800, CAN: 12900, GBR: 12900, FRA: 16500, DEU: 11200 };
+            if (bridges[c.iso] !== undefined) return bridges[c.iso];
+            return Math.round(Math.max(180, Math.min(12000, gdp * 12 + 300)));
+        }
         case "large_dams_count": return Math.round(Math.max(1, Math.min(24000, (area / 8000) + (gdp * 0.6))));
         case "mobile_cell_towers": return +(Math.max(4.0, Math.min(45.0, 8.0 + (hdi * 26.0) + (c.hash % 9)))).toFixed(1);
         case "power_grid_reliability": return +(Math.max(25.0, Math.min(100.0, hdi * 120.0 - 14.0 + (c.hash % 5) * 0.4))).toFixed(1);
@@ -3722,7 +3784,11 @@ function computeCountryIndicatorValue(c, indId) {
         case "projected_temp_rise_2050": return +(Math.max(1.1, Math.min(3.2, 1.3 + (Math.abs(lat) > 50 ? 0.9 : 0.2) + (c.hash % 6) * 0.08))).toFixed(2);
 
         // Employment
-        case "unemployment_rate": return +(Math.max(1.8, Math.min(26.0, 7.5 - (hdi - 0.7) * 4.0 + (c.hash % 5) * 0.4))).toFixed(1);
+        case "unemployment_rate": {
+            const iloUnemp = { QAT: 0.1, KHM: 0.3, NER: 0.5, THA: 1.0, SGP: 2.0, CHE: 2.4, JPN: 2.5, KOR: 2.8, DEU: 3.4, USA: 4.0, GBR: 4.3, CHN: 5.1, CAN: 6.4, FRA: 7.4, ITA: 6.8, BRA: 6.6, ESP: 11.5, ZAF: 32.9, SWZ: 34.4, DJI: 26.3, PSE: 29.0 };
+            if (iloUnemp[c.iso] !== undefined) return iloUnemp[c.iso];
+            return +(Math.max(1.8, Math.min(24.0, 6.8 - (hdi - 0.65) * 6.0 + (c.hash % 7) * 0.6))).toFixed(1);
+        }
         case "labor_participation": return +(Math.max(42.0, Math.min(85.0, 58.0 + (growth * 3.0)))).toFixed(1);
         case "labor_force_total": {
             const lf2024 = { CHN: 774.0, IND: 593.0, USA: 168.0, IDN: 141.0, BRA: 109.0, PAK: 81.0, BGD: 74.0, NGA: 73.0, RUS: 72.0, JPN: 69.0, MEX: 61.0, VNM: 56.0, DEU: 44.0 };
@@ -3730,8 +3796,12 @@ function computeCountryIndicatorValue(c, indId) {
             return +(pop * 0.46 / 1_000_000).toFixed(2);
         }
         case "employment_to_pop_ratio": return +(Math.max(38.0, Math.min(78.0, 56.0 + (hdi * 12.0)))).toFixed(1);
-        case "youth_unemployment_rate": return +(Math.max(4.5, Math.min(48.0, (Math.max(1.8, Math.min(26.0, 7.5 - (hdi - 0.7) * 4.0))) * 2.2))).toFixed(1);
-        case "monthly_minimum_wage_usd": return Math.round(Math.max(25, Math.min(2400, (gdp / Math.max(1, pop / 1_000_000)) * 48)));
+        case "youth_unemployment_rate": return +(Math.max(4.5, Math.min(58.0, computeCountryIndicatorValue(c, "unemployment_rate") * 2.2))).toFixed(1);
+        case "monthly_minimum_wage_usd": {
+            const minWage = { LUX: 2790, AUS: 2490, NZL: 2340, IRL: 2310, NLD: 2290, GBR: 2280, DEU: 2210, BEL: 2190, FRA: 1910, CAN: 2150, USA: 1257, JPN: 1220, KOR: 1520, ESP: 1420, POL: 1080, CHN: 370, BRA: 260, IND: 110 };
+            if (minWage[c.iso] !== undefined) return minWage[c.iso];
+            return Math.round(Math.max(25, Math.min(1850, (gdp / Math.max(1, pop / 1_000_000)) * 38)));
+        }
         case "weekly_hours_worked": return +(Math.max(32.0, Math.min(48.5, 45.0 - (hdi * 10.0)))).toFixed(1);
         case "gender_gap_participation": return +(Math.max(3.0, Math.min(48.0, 34.0 - (hdi * 25.0) + (c.hash % 6)))).toFixed(1);
         case "services_employment_pct": {
@@ -3771,7 +3841,11 @@ function computeCountryIndicatorValue(c, indId) {
             if (c.iso === "IND") return 60;
             return Math.round(gdp > 300 ? 12 : 0);
         }
-        case "major_telescopes_count": return Math.round(Math.max(0, Math.min(28, (gdp * 0.008) + (c.iso === "CHL" ? 14 : 0))));
+        case "major_telescopes_count": {
+            const obs = { USA: 28, CHL: 18, ESP: 12, CHN: 11, IND: 8, AUS: 8, ZAF: 7, FRA: 7, DEU: 6, JPN: 6, RUS: 6, GBR: 5, MEX: 4 };
+            if (obs[c.iso] !== undefined) return obs[c.iso];
+            return Math.round(Math.max(0, Math.min(4, gdp * 0.002)));
+        }
         case "biotech_patents_share": return +(Math.max(1.5, Math.min(18.0, 3.0 + (hdi * 12.0)))).toFixed(1);
         case "clinical_trials_count": return Math.round(Math.max(2, gdp * 8 + (pop / 200_000)));
         case "high_energy_physics_pubs": return Math.round(Math.max(1, gdp * 2.2));
@@ -3903,10 +3977,10 @@ function computeCountryIndicatorValue(c, indId) {
         case "fih_world_ranking": return Math.max(1, Math.min(95, (c.iso === "NLD" ? 1 : (c.iso === "BEL" ? 2 : (c.iso === "AUS" ? 3 : (c.iso === "IND" ? 4 : (c.iso === "DEU" ? 5 : (c.iso === "GBR" ? 6 : (c.iso === "ARG" ? 7 : (c.iso === "ESP" ? 8 : Math.round(95 - (hdi * 45))))))))))));
         case "world_athletics_records": return Math.round(Math.max(0, (c.iso === "USA" ? 26 : (c.iso === "KEN" ? 14 : (c.iso === "ETH" ? 9 : (c.iso === "JAM" ? 8 : (c.iso === "GBR" ? 6 : (c.iso === "SWE" ? 4 : (c.iso === "NOR" ? 3 : 0)))))))));
         case "fina_world_championship_medals": return Math.round(Math.max(0, (c.iso === "USA" ? 680 : (c.iso === "CHN" ? 350 : (c.iso === "AUS" ? 295 : (c.iso === "RUS" ? 250 : (c.iso === "DEU" ? 230 : (c.iso === "ITA" ? 140 : 0))))))));
-        case "sport_diversity_index": return Math.round(Math.max(1, Math.min(28, (gdp * 0.006) + (hdi * 12))));
-        case "guinness_records_held": return Math.round(Math.max(1, (c.iso === "USA" ? 2100 : (c.iso === "GBR" ? 980 : (c.iso === "IND" ? 650 : (c.iso === "CHN" ? 540 : (c.iso === "JPN" ? 420 : (pop / 200_000))))))));
+        case "sport_diversity_index": return Math.round(Math.max(1, Math.min(28, (gdp * 0.002) + (hdi * 12) + (c.hash % 4))));
+        case "guinness_records_held": return Math.round(Math.max(1, (c.iso === "USA" ? 2100 : (c.iso === "GBR" ? 980 : (c.iso === "IND" ? 650 : (c.iso === "CHN" ? 540 : (c.iso === "JPN" ? 420 : Math.min(350, (gdp * 0.25) + (pop / 1_500_000)))))))));
         case "adult_physical_activity_pct": return +(Math.max(45.0, Math.min(88.0, 50.0 + (hdi * 28.0) + (c.hash % 9)))).toFixed(1);
-        case "major_stadiums_count": return Math.round(Math.max(0, (c.iso === "USA" ? 145 : (c.iso === "CHN" ? 95 : (c.iso === "BRA" ? 38 : (c.iso === "IND" ? 34 : (c.iso === "GBR" ? 28 : (c.iso === "DEU" ? 26 : (pop / 2_500_000)))))))));
+        case "major_stadiums_count": return Math.round(Math.max(0, (c.iso === "USA" ? 145 : (c.iso === "CHN" ? 95 : (c.iso === "BRA" ? 38 : (c.iso === "IND" ? 34 : (c.iso === "GBR" ? 28 : (c.iso === "DEU" ? 26 : Math.min(24, (gdp * 0.015) + (pop / 12_000_000))))))))));
         case "world_cup_titles_total": {
             if (c.iso === "BRA") return 5;
             if (c.iso === "DEU" || c.iso === "ITA") return 4;
@@ -3952,7 +4026,11 @@ function computeCountryIndicatorValue(c, indId) {
             if (safe2024[c.iso] !== undefined) return safe2024[c.iso];
             return +(Math.max(35.0, Math.min(76.0, hdi * 74.0 + (c.hash % 9)))).toFixed(1);
         }
-        case "city_international_visitors": return +(Math.max(0.05, Math.min(28.0, (gdp * 0.008) + (pop / 20_000_000)))).toFixed(2);
+        case "city_international_visitors": {
+            const vis = { THA: 32.4, TUR: 23.0, GBR: 21.7, ARE: 18.7, FRA: 17.4, MYS: 16.5, SGP: 14.7, JPN: 15.1, USA: 12.9, HKG: 14.5, KOR: 11.2, ITA: 10.9, ESP: 10.5, CHN: 9.8, IND: 7.4 };
+            if (vis[c.iso] !== undefined) return vis[c.iso];
+            return +(Math.max(0.05, Math.min(9.5, (gdp * 0.004) + (pop / 40_000_000)))).toFixed(2);
+        }
         case "skyscrapers_150m_count": {
             if (c.iso === "CHN") return 3100;
             if (c.iso === "USA") return 920;
