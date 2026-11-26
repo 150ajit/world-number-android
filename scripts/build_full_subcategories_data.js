@@ -4169,56 +4169,158 @@ Object.keys(categoryFiles).forEach(catId => {
     console.log(`Generated dataset ${fileName} with ${catIndicators.length} subcategory indicators across ${countries.length} countries.`);
 });
 
-// Generate Historical Trends Dataset for major headline indicators
+// Generate Historical Trends Dataset for 19 headline indicators using REAL multi-year observations
 // 5 historical observations: 2015, 2018, 2020, 2022, 2024
 const historicalIndicators = [
     "pop_total",
+    "pop_fertility",
+    "life_expectancy",
     "gdp_nominal",
     "gdp_per_capita",
     "inflation_rate",
-    "life_expectancy",
+    "unemployment_rate",
     "hdi_score",
     "happiness_score",
     "co2_per_capita",
+    "total_ghg_emissions_mt",
     "internet_users_pct",
     "renewable_energy_share",
+    "total_energy_production_twh",
+    "electricity_generation",
+    "solar_generation_twh",
+    "wind_generation_twh",
+    "nuclear_generation_twh",
     "defense_budget_usd"
 ];
 
 const historicalYears = [2015, 2018, 2020, 2022, 2024];
-const historicalTrendsData = {};
+const realHist = {}; // realHist[indId][iso][yr] = val
+historicalIndicators.forEach(id => { realHist[id] = {}; });
+const setRealHist = (indId, iso, yr, val) => {
+    if (!iso || iso.length !== 3 || isNaN(val)) return;
+    if (!realHist[indId][iso]) realHist[indId][iso] = {};
+    realHist[indId][iso][yr] = val;
+};
 
+// 1) Parse owid_hist full CSVs
+function loadFullGrapherHist(filename, indId, transform = v => v) {
+    const p = path.join(scratchDataDir, 'owid_hist', filename);
+    if (!fs.existsSync(p)) return;
+    const lines = fs.readFileSync(p, 'utf8').split('\n');
+    for (let i = 1; i < lines.length; i++) {
+        const l = lines[i].trim();
+        if (!l) continue;
+        const cols = [];
+        let cur = '', inQ = false;
+        for (let j = 0; j < l.length; j++) {
+            const ch = l[j];
+            if (ch === '"') inQ = !inQ;
+            else if (ch === ',' && !inQ) { cols.push(cur); cur = ''; }
+            else cur += ch;
+        }
+        cols.push(cur);
+        const iso = (cols[1] || '').trim();
+        const yr = parseInt(cols[2], 10);
+        const val = parseFloat(cols[3]);
+        if (iso.length === 3 && yr >= 2013 && yr <= 2025 && !isNaN(val)) {
+            setRealHist(indId, iso, yr, transform(val));
+        }
+    }
+}
+loadFullGrapherHist('fertility.csv', 'pop_fertility', v => +v.toFixed(2));
+loadFullGrapherHist('life_expectancy.csv', 'life_expectancy', v => +v.toFixed(1));
+loadFullGrapherHist('inflation.csv', 'inflation_rate', v => +v.toFixed(1));
+loadFullGrapherHist('unemployment.csv', 'unemployment_rate', v => +v.toFixed(1));
+loadFullGrapherHist('hdi.csv', 'hdi_score', v => +v.toFixed(3));
+loadFullGrapherHist('happiness.csv', 'happiness_score', v => +v.toFixed(2));
+loadFullGrapherHist('internet_users.csv', 'internet_users_pct', v => +v.toFixed(1));
+loadFullGrapherHist('military_exp.csv', 'defense_budget_usd', v => +(v / 1e9).toFixed(2));
+
+// 2) Parse gdp.csv for historical GDP (Billion USD)
+if (fs.existsSync(gdpCsvPath)) {
+    fs.readFileSync(gdpCsvPath, 'utf8').split('\n').slice(1).forEach(line => {
+        const m = line.match(/,([A-Z]{3}),(\d{4}),([\d.]+)/);
+        if (m) {
+            const yr = parseInt(m[2], 10);
+            if (yr >= 2013 && yr <= 2025) setRealHist('gdp_nominal', m[1], yr, +(parseFloat(m[3]) / 1e9).toFixed(2));
+        }
+    });
+}
+
+// 3) Parse owid-co2-data.csv for historical pop_total, co2_per_capita, total_ghg_emissions_mt
+if (fs.existsSync(co2CsvPath)) {
+    const cLines = fs.readFileSync(co2CsvPath, 'utf8').split('\n');
+    const cH = cLines[0].split(',');
+    const cIso = cH.indexOf('iso_code'), cYr = cH.indexOf('year'), cPop = cH.indexOf('population'), cCo2Pc = cH.indexOf('co2_per_capita'), cGhg = cH.indexOf('total_ghg');
+    for (let i = 1; i < cLines.length; i++) {
+        const cols = cLines[i].split(',');
+        const iso = cols[cIso];
+        const yr = parseInt(cols[cYr], 10);
+        if (!iso || iso.length !== 3 || yr < 2013 || yr > 2025) continue;
+        const pVal = parseFloat(cols[cPop]);
+        if (!isNaN(pVal) && pVal > 0) {
+            setRealHist('pop_total', iso, yr, Math.round(pVal));
+            if (realHist.gdp_nominal[iso] && realHist.gdp_nominal[iso][yr]) {
+                setRealHist('gdp_per_capita', iso, yr, Math.round((realHist.gdp_nominal[iso][yr] * 1e9) / pVal));
+            }
+        }
+        const co2Val = parseFloat(cols[cCo2Pc]);
+        if (!isNaN(co2Val)) setRealHist('co2_per_capita', iso, yr, +co2Val.toFixed(2));
+        const ghgVal = parseFloat(cols[cGhg]);
+        if (!isNaN(ghgVal)) setRealHist('total_ghg_emissions_mt', iso, yr, +ghgVal.toFixed(1));
+    }
+}
+
+// 4) Parse owid-energy-data.csv for historical energy & renewables
+if (fs.existsSync(energyCsvPath)) {
+    const eLines = fs.readFileSync(energyCsvPath, 'utf8').split('\n');
+    const eH = eLines[0].split(',');
+    const col = k => eH.indexOf(k);
+    for (let i = 1; i < eLines.length; i++) {
+        const cols = eLines[i].split(',');
+        const iso = cols[col('iso_code')];
+        const yr = parseInt(cols[col('year')], 10);
+        if (!iso || iso.length !== 3 || yr < 2013 || yr > 2025) continue;
+        const ren = parseFloat(cols[col('renewables_share_elec')]);
+        if (!isNaN(ren)) setRealHist('renewable_energy_share', iso, yr, +ren.toFixed(2));
+        const elec = parseFloat(cols[col('electricity_generation')]);
+        if (!isNaN(elec)) setRealHist('electricity_generation', iso, yr, Math.round(elec));
+        const sol = parseFloat(cols[col('solar_electricity')]);
+        if (!isNaN(sol)) setRealHist('solar_generation_twh', iso, yr, +sol.toFixed(1));
+        const wnd = parseFloat(cols[col('wind_electricity')]);
+        if (!isNaN(wnd)) setRealHist('wind_generation_twh', iso, yr, +wnd.toFixed(1));
+        const nuc = parseFloat(cols[col('nuclear_electricity')]);
+        if (!isNaN(nuc)) setRealHist('nuclear_generation_twh', iso, yr, +nuc.toFixed(1));
+        const coalP = parseFloat(cols[col('coal_production')]) || 0;
+        const oilP = parseFloat(cols[col('oil_production')]) || 0;
+        const gasP = parseFloat(cols[col('gas_production')]) || 0;
+        const lowC = parseFloat(cols[col('low_carbon_consumption')]) || 0;
+        if (coalP + oilP + gasP + lowC > 0) setRealHist('total_energy_production_twh', iso, yr, Math.round(coalP + oilP + gasP + lowC));
+    }
+}
+
+function getNearestRealYear(map, targetYr, fallbackVal) {
+    if (!map) return fallbackVal;
+    if (map[targetYr] !== undefined) return map[targetYr];
+    for (const offset of [1, -1, 2, -2, 3, -3]) {
+        if (map[targetYr + offset] !== undefined) return map[targetYr + offset];
+    }
+    const keys = Object.keys(map).map(Number).sort((a, b) => Math.abs(a - targetYr) - Math.abs(b - targetYr));
+    return keys.length ? map[keys[0]] : fallbackVal;
+}
+
+const historicalTrendsData = {};
 countries.forEach(c => {
     historicalTrendsData[c.isoCode] = {};
     historicalIndicators.forEach(indId => {
         const val2024 = computeCountryIndicatorValue(c, indId);
         const series = {};
-
+        const isoHist = realHist[indId][c.isoCode];
         historicalYears.forEach(yr => {
-            const deltaYears = 2024 - yr;
-            let factor = 1.0;
-            switch (indId) {
-                case "pop_total":
-                    factor = Math.pow(1.0 - (c.growth || 1.0) / 100, deltaYears);
-                    series[yr] = Math.round(val2024 * factor);
-                    break;
-                case "gdp_nominal":
-                case "gdp_per_capita":
-                    factor = Math.pow(0.965, deltaYears);
-                    series[yr] = +(val2024 * factor).toFixed(1);
-                    break;
-                case "hdi_score":
-                case "life_expectancy":
-                    factor = 1.0 - (deltaYears * 0.0035);
-                    series[yr] = +(val2024 * factor).toFixed(3);
-                    break;
-                case "internet_users_pct":
-                case "renewable_energy_share":
-                    factor = 1.0 - (deltaYears * 0.035);
-                    series[yr] = +(Math.max(5.0, val2024 * factor)).toFixed(1);
-                    break;
-                default:
-                    series[yr] = +(val2024 * (1.0 - deltaYears * 0.015)).toFixed(2);
+            if (yr === 2024) {
+                series[yr] = val2024;
+            } else {
+                series[yr] = getNearestRealYear(isoHist, yr, val2024);
             }
         });
         historicalTrendsData[c.isoCode][indId] = series;
