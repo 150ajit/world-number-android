@@ -421,6 +421,7 @@ fun IndicatorDetailScreen(
                 }
             } else {
                 val maxValue = filtered.maxOfOrNull { it.value } ?: 1.0
+                val ranks = com.example.worldpopulation.util.NumberFormatter.computeCompetitionRanks(filtered)
 
                 itemsIndexed(
                     items = filtered,
@@ -428,7 +429,7 @@ fun IndicatorDetailScreen(
                 ) { index, item ->
                     val country = state.countriesMap[item.isoCode]
                     RankingRow(
-                        rank = index + 1,
+                        rank = ranks[index],
                         item = item,
                         country = country,
                         maxValue = maxValue,
@@ -494,7 +495,9 @@ private fun RankingRow(
                 )
 
                 Text(
-                    text = "${item.formattedValue ?: item.value} $unit",
+                    text = com.example.worldpopulation.util.NumberFormatter.formatIndicatorWithUnit(
+                        item.formattedValue, item.value, unit
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF38BDF8)

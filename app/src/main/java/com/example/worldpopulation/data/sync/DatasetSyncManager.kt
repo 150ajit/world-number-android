@@ -395,10 +395,16 @@ class DatasetSyncManager @Inject constructor(
             u.contains("score") ||
             u.contains("index")
 
+        val alwaysTwoDecimals = u.contains("%") ||
+            u.contains("score") ||
+            u.contains("index") ||
+            u.contains("per 100")
+
         return when {
             !hasMagnitudeOrMetricUnit && value >= 1_000_000_000 -> "%.2fB".format(value / 1_000_000_000.0)
             !hasMagnitudeOrMetricUnit && value >= 1_000_000 -> "%.2fM".format(value / 1_000_000.0)
             value >= 1_000 -> "%,.0f".format(value)
+            alwaysTwoDecimals -> "%.2f".format(value)
             value % 1.0 == 0.0 -> "%.0f".format(value)
             else -> "%.2f".format(value)
         }

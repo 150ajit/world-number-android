@@ -37,6 +37,40 @@ object NumberFormatter {
         return String.format(Locale.US, "%.${decimals}f%%", value)
     }
 
+    fun formatIndicatorWithUnit(formattedValue: String?, rawValue: Double, unit: String): String {
+        val valStr = formattedValue ?: if (rawValue % 1.0 == 0.0) {
+            String.format(Locale.US, "%,.0f", rawValue)
+        } else {
+            String.format(Locale.US, "%.2f", rawValue)
+        }
+        val trimmedUnit = unit.trim()
+        return when {
+            trimmedUnit.isEmpty() -> valStr
+            trimmedUnit == "%" -> "$valStr%"
+            trimmedUnit.startsWith("% ") -> "$valStr% ${trimmedUnit.removePrefix("% ")}"
+            else -> "$valStr $trimmedUnit"
+        }
+    }
+
+    fun computeCompetitionRanks(
+        items: List<com.example.worldpopulation.data.local.entity.CountryIndicatorValueEntity>
+    ): List<Int> {
+        if (items.isEmpty()) return emptyList()
+        val ranks = ArrayList<Int>(items.size)
+        var currentRank = 1
+        for (i in items.indices) {
+            if (i > 0) {
+                val prevKey = items[i - 1].formattedValue ?: items[i - 1].value.toString()
+                val currKey = items[i].formattedValue ?: items[i].value.toString()
+                if (currKey != prevKey && items[i].value != items[i - 1].value) {
+                    currentRank = i + 1
+                }
+            }
+            ranks.add(currentRank)
+        }
+        return ranks
+    }
+
     /**
      * Formats according to Indian grouping:
      * Last 3 digits, followed by groups of 2 digits:

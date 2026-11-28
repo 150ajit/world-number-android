@@ -233,7 +233,7 @@ if (fs.existsSync(verifiedDataDir)) {
         });
     });
 }
-const verifiedSkipTopPriority = new Set(['military_personnel_active', 'defense_budget_usd']);
+const verifiedSkipTopPriority = new Set(['military_personnel_active', 'defense_budget_usd', 'innovation_index', 'tech_innovation_index']);
 
 countries.forEach(c => {
     const pData = popMap[c.isoCode] || {};
@@ -3322,20 +3322,21 @@ function computeCountryIndicatorValue(c, indId) {
         // Technology
         case "internet_users_pct": {
             const ituNet = {
-                ISL: 99.9, NOR: 99.5, SAU: 99.0, ARE: 99.0, QAT: 99.0, BHR: 99.0, KWT: 99.0, LUX: 99.0,
-                DNK: 98.9, CHE: 98.4, GBR: 97.8, KOR: 97.6, SWE: 96.7, NLD: 96.5, SGP: 96.0, HKG: 95.6,
-                IRL: 95.6, DEU: 94.5, CAN: 94.3, FIN: 94.0, USA: 93.1, FRA: 92.8, JPN: 92.4, AUS: 95.0,
-                ESP: 95.4, ITA: 87.0, CHN: 77.5, BRA: 84.2, IND: 52.4, IDN: 69.2, NGA: 39.2, PAK: 27.4
+                ARE: 100.0, BHR: 100.0, QAT: 100.0, ISL: 99.9, KWT: 99.7, SAU: 99.7, NOR: 99.5,
+                LUX: 99.0, DNK: 98.9, CHE: 98.4, GBR: 97.8, KOR: 97.6, SWE: 96.7, NLD: 96.5,
+                SGP: 96.0, HKG: 95.6, IRL: 95.6, ESP: 95.4, AUS: 95.0, DEU: 94.5, CAN: 94.3,
+                FIN: 94.0, USA: 93.1, FRA: 92.8, JPN: 92.4, ITA: 87.0, BRA: 84.2, CHN: 77.5,
+                IDN: 69.2, IND: 52.4, NGA: 39.2, PAK: 27.4
             };
             if (ituNet[c.iso] !== undefined) return ituNet[c.iso];
             return +(Math.max(12.0, Math.min(96.0, hdi * 105.0 - 6.0))).toFixed(1);
         }
         case "mobile_subscriptions": {
             const ituMob = {
-                HKG: 289.2, ARE: 211.4, ATG: 198.0, MNE: 192.5, THA: 176.2, KWT: 172.0, SGP: 168.4,
-                RUS: 165.1, ZAF: 162.4, EST: 158.2, FIN: 155.4, JPN: 154.0, POL: 148.5, ITA: 147.2,
-                CHE: 142.0, SAU: 139.5, CHN: 125.4, DEU: 127.8, USA: 112.4, NOR: 110.2, ISL: 118.5,
-                GBR: 119.4, FRA: 114.8, IND: 82.5, IDN: 126.8, BRA: 99.2, NGA: 99.8, PAK: 80.5
+                MAC: 294.5, HKG: 289.2, ARE: 211.4, ATG: 198.0, MNE: 192.5, THA: 176.2, KWT: 172.0,
+                SGP: 168.4, RUS: 165.1, ZAF: 162.4, EST: 158.2, FIN: 155.4, JPN: 154.0, POL: 148.5,
+                ITA: 147.2, CHE: 142.0, SAU: 139.5, DEU: 127.8, IDN: 126.8, CHN: 125.4, GBR: 119.4,
+                ISL: 118.5, FRA: 114.8, USA: 112.4, NOR: 110.2, NGA: 99.8, BRA: 99.2, IND: 82.5, PAK: 80.5
             };
             if (ituMob[c.iso] !== undefined) return ituMob[c.iso];
             return +(Math.max(55.0, Math.min(165.0, 62.0 + (hdi * 85.0)))).toFixed(1);
@@ -3343,41 +3344,43 @@ function computeCountryIndicatorValue(c, indId) {
         case "fixed_broadband_per_100": {
             const ituBb = {
                 MCO: 56.4, FRA: 49.1, KOR: 46.8, CHE: 46.2, NOR: 45.8, DNK: 45.2, NLD: 44.6,
-                DEU: 44.3, JPN: 43.8, HKG: 42.9, GBR: 42.5, CHN: 41.8, CAN: 41.2, SWE: 40.8,
-                USA: 39.2, ISL: 38.4, IRL: 35.2, ESP: 36.8, SGP: 28.4, ITA: 32.1, AUS: 35.8,
-                RUS: 24.5, BRA: 22.8, TUR: 22.4, IND: 2.8, IDN: 5.1, NGA: 0.2, PAK: 1.5
+                CHN: 44.5, DEU: 44.3, JPN: 43.8, HKG: 42.9, GBR: 42.5, CAN: 41.2, SWE: 40.8,
+                USA: 39.2, ISL: 38.4, ESP: 36.8, AUS: 35.8, IRL: 35.2, ITA: 32.1, SGP: 28.4,
+                RUS: 24.5, BRA: 22.8, TUR: 22.4, IDN: 5.1, IND: 2.8, PAK: 1.5, NGA: 0.2
             };
             if (ituBb[c.iso] !== undefined) return ituBb[c.iso];
             return +(Math.max(0.2, Math.min(39.0, hdi * 44.0 - 7.0))).toFixed(1);
         }
         case "cellular_5g_coverage": {
             const cov5g = {
-                KOR: 99.0, CHN: 97.5, ARE: 97.2, QAT: 96.8, SGP: 96.0, USA: 95.4, JPN: 94.8,
-                CHE: 93.5, DNK: 93.0, FIN: 92.0, NLD: 91.5, GBR: 89.0, DEU: 88.5, SWE: 88.0,
-                NOR: 87.5, AUS: 86.0, CAN: 85.0, FRA: 84.5, ESP: 82.0, ITA: 80.5, HKG: 91.0,
-                IRL: 79.0, ISL: 75.0, IND: 82.0, BRA: 48.0, IDN: 18.0, RUS: 12.0
+                NLD: 99.0, KOR: 99.0, MCO: 99.0, BHR: 99.0, DNK: 98.5, KWT: 98.5, MLT: 97.5,
+                ARE: 97.2, CYP: 97.0, QAT: 96.8, SGP: 96.0, USA: 95.4, JPN: 94.8, CHE: 93.5,
+                FIN: 92.0, HKG: 91.0, GBR: 89.0, CHN: 88.5, DEU: 88.5, SWE: 88.0, NOR: 87.5,
+                AUS: 86.0, CAN: 85.0, FRA: 84.5, ESP: 82.0, IND: 82.0, ITA: 80.5, IRL: 79.0,
+                ISL: 75.0, BRA: 48.0, IDN: 18.0, RUS: 12.0
             };
             if (cov5g[c.iso] !== undefined) return cov5g[c.iso];
-            return +(Math.max(0.0, Math.min(82.0, hdi * 105.0 - 32.0))).toFixed(1);
+            return +(Math.max(0.0, Math.min(78.0, hdi * 98.0 - 32.0))).toFixed(1);
         }
         case "ai_readiness_index": {
             const aiIdx = {
-                USA: 87.0, SGP: 84.1, GBR: 78.5, FIN: 77.4, CAN: 77.0, FRA: 76.2, KOR: 75.8,
-                DEU: 75.3, JPN: 75.1, NLD: 74.8, CHN: 74.5, CHE: 73.8, SWE: 73.2, ARE: 72.9,
-                ISR: 72.5, AUS: 72.1, DNK: 71.8, NOR: 71.5, TWN: 70.9, IRL: 69.8, ESP: 68.5,
-                IND: 63.4, SAU: 66.8, BRA: 59.8, IDN: 55.2, RUS: 54.0, NGA: 38.5, PAK: 36.2
+                USA: 87.0, SGP: 84.3, KOR: 79.98, FRA: 79.36, GBR: 78.88, FIN: 77.9, CAN: 77.6,
+                JPN: 76.8, DEU: 76.2, NLD: 75.8, CHN: 75.4, CHE: 74.6, SWE: 74.1, ARE: 73.5,
+                ISR: 73.1, AUS: 72.5, DNK: 72.1, NOR: 71.8, TWN: 71.2, IRL: 70.1, ESP: 68.9,
+                SAU: 67.4, IND: 64.2, BRA: 60.4, IDN: 55.8, RUS: 54.2, NGA: 38.9, PAK: 36.5
             };
             if (aiIdx[c.iso] !== undefined) return aiIdx[c.iso];
-            return +(Math.max(18.0, Math.min(71.0, hdi * 78.0 - 5.0))).toFixed(1);
+            return +(Math.max(18.0, Math.min(70.0, hdi * 76.0 - 5.0))).toFixed(1);
         }
         case "global_cybersecurity_idx": {
             const gci2024 = {
-                USA: 99.8, GBR: 99.5, SAU: 99.5, EST: 99.4, KOR: 98.5, SGP: 98.5, ESP: 98.5,
-                RUS: 98.0, ARE: 98.0, MYS: 98.0, JPN: 97.8, CAN: 97.6, FRA: 97.5, IND: 98.5,
-                DEU: 97.4, AUS: 97.4, BRA: 96.6, CHN: 92.5, CHE: 91.5, NOR: 96.9, SWE: 94.5
+                SAU: 100.0, KOR: 100.0, SGP: 100.0, ARE: 100.0, JPN: 100.0, USA: 99.86,
+                GBR: 99.6, FIN: 99.4, DNK: 99.2, EST: 99.1, IND: 98.49, FRA: 98.4,
+                DEU: 98.2, ESP: 98.1, NOR: 98.0, AUS: 97.8, CAN: 97.6, NLD: 97.5,
+                SWE: 97.2, MYS: 96.9, BRA: 96.8, RUS: 95.5, CHN: 92.5, CHE: 91.5
             };
             if (gci2024[c.iso] !== undefined) return gci2024[c.iso];
-            return +(Math.max(15.0, Math.min(94.0, hdi * 94.0))).toFixed(1);
+            return +(Math.max(15.0, Math.min(93.0, hdi * 93.0))).toFixed(1);
         }
         case "e_government_index": {
             const egdi2024 = {
@@ -3395,7 +3398,7 @@ function computeCountryIndicatorValue(c, indId) {
                 ISR: 52.7, HKG: 50.1, IRL: 50.3, NOR: 49.1, ISL: 48.5, IND: 38.3, BRA: 31.1
             };
             if (gii2024[c.iso] !== undefined) return gii2024[c.iso];
-            return +(Math.max(14.0, Math.min(54.0, hdi * 58.0))).toFixed(1);
+            return +(Math.max(14.0, Math.min(52.0, hdi * 54.0))).toFixed(1);
         }
         case "patent_applications": return Math.round(gdp > 100 ? (gdp * 38) : Math.max(8, Math.round(gdp * 12)));
         case "rnd_expenditure_gdp": {
@@ -3409,20 +3412,21 @@ function computeCountryIndicatorValue(c, indId) {
         }
         case "robot_density": {
             const ifr2024 = {
-                KOR: 1012, SGP: 770, CHN: 470, DEU: 429, JPN: 419, SWE: 347, CHE: 320,
-                DNK: 306, USA: 295, TWN: 292, NLD: 245, ITA: 228, AUT: 225, CAN: 205, FRA: 186
+                KOR: 1012, SGP: 770, CHN: 470, DEU: 429, JPN: 419, SWE: 347, DNK: 306,
+                SVN: 306, USA: 295, TWN: 292, CHE: 270, NLD: 245, ITA: 228, AUT: 225,
+                CAN: 205, FRA: 186
             };
             if (ifr2024[c.iso] !== undefined) return ifr2024[c.iso];
-            return Math.round(Math.max(2, Math.min(220, hdi * 260 - 90)));
+            return Math.round(Math.max(2, Math.min(220, hdi * 240 - 90)));
         }
         case "high_tech_exports_pct": {
             const hte2024 = {
                 PHL: 64.9, HKG: 64.5, SGP: 55.3, MYS: 51.8, VNM: 42.1, IRL: 39.5, KOR: 36.0,
-                CHN: 29.8, CHE: 27.1, GBR: 23.4, FRA: 22.8, USA: 19.6, JPN: 18.2, DEU: 16.5,
-                NLD: 21.4, MEX: 19.2, IND: 10.6, BRA: 8.8
+                MLT: 34.8, ISR: 31.2, CHN: 29.8, CHE: 27.1, GBR: 23.4, FRA: 22.8, NLD: 21.4,
+                USA: 19.6, MEX: 19.2, JPN: 18.2, NOR: 16.8, DEU: 16.5, ISL: 15.2, IND: 10.6, BRA: 8.8
             };
             if (hte2024[c.iso] !== undefined) return hte2024[c.iso];
-            return +(Math.max(0.5, Math.min(26.0, hdi * 25.0))).toFixed(1);
+            return +(Math.max(0.5, Math.min(20.0, hdi * 20.0))).toFixed(1);
         }
 
         // Military
